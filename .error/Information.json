@@ -1,0 +1,67 @@
+{ 
+	"Names":{
+		"John_Dowe":{
+			"Steam API": "A95D13379BFA1F63C6D17BAF8BEC2BC0",
+			"Identifiers": {
+				"steam" : "1100001035f08bf",
+				"license" : "a53499880a6729011be9f8247fe18d92500db836",
+				"xbl" : 2533274807388853,
+				"live" : 1899945766032658,
+				"discord" : 154049598657134592,
+				"fivem" : 11337,
+			},
+			"FiveM Server Keys": {
+				"Gaming Desktop" : "cfxk_FFzyDAok2NWcYjIEiilm_4GvrAX",
+				"XLNT" : "cfxk_lymok5OuP8vJcNmYuwaN_1wV2Yv",
+				
+			},
+			"Discord":{
+				"InviteLink":" https://discord.gg/FHTFYUXjDb",
+				"Discord Bots":{
+					"CSRP":{
+						"Token":"ODkzNjE0OTYyMDUwNzQ0Mzgw.YVeByQ.VVj2O2vos-4hqv0D6bxAXEiHNgo",
+						"General Info":{
+							"Application ID":893614962050744380,
+							"Public Key":"a055682ee582cf44bc5f499c3112ff2c451f8fdf5e9b48ac3951dbab9a9965a4"	
+						},
+						"OAuth":{
+							"Client ID":893614962050744380,
+							"Client Secret":"GtWeFOJqQ5CbtIaimsXc2fwOia_7Yifv"
+						}
+					},
+					"JARVIS":{
+						"Token":"NDYzMjU3MDgxMzU3Nzk1MzI4.Wznfxw.Us-eLEIXntKKvc9R_jXmvQKmCDE",
+						"General Info":{
+							"Application ID":463257081357795328,
+							"Public Key":"c675dc41a00ec12717385b2501a476775a4e7d0a7bba88285f2f8224336ad819"	
+						},
+						"OAuth":{
+							"Client ID":463257081357795328,
+							"Client Secret":"pbB5JVBA-P3s1b_7Ob7oSvYWpvtwvWAe"
+						}
+					}
+				}
+			}
+		}
+	}
+	"FXServer Settings":{
+		"Config meta":{
+			"set":{
+				"sv_enforceGameBuild":2372,
+				"es_enableCustomData":1,
+			},
+			"sets":{
+				"MicRequired":"YES",
+				"SteamRequired":"YES",
+				"Discord":"https://discord.gg/FHTFYUXjDb",
+				"Twitch.tv":"https://twitch.tv/mrjohndoweii",
+				"Roleplay":"Serious RP",
+			}
+		}
+	}
+}
+
+
+
+
+

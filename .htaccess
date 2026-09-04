@@ -1,0 +1,17 @@
+ErrorDocument 400 /.error/.error.php
+ErrorDocument 401 /.error/.error.php
+ErrorDocument 403 /.error/.error.php
+ErrorDocument 404 /.error/.error.php
+ErrorDocument 405 /.error/.error.php
+ErrorDocument 408 /.error/.error.php
+ErrorDocument 414 /.error/.error.php
+ErrorDocument 500 /.error/.error.php
+ErrorDocument 502 /.error/.error.php
+ErrorDocument 504 /.error/.error.php
+
+php_flag allow_url_include on
+DirectoryIndex filemanager.php index.php index.htm index.html index.shtml default.php
+
+RewriteEngine On
+RewriteRule ^rankings/?$ /stock_trade/rankings/ [R=302,L,QSA]
+RewriteRule ^index$ index.php [L]
