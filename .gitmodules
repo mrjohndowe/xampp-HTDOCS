@@ -1,0 +1,3 @@
+[submodule "SpecialLinks"]
+	path = .specialLinks
+	url = https://github.com/mrjohndowe/SpecialLinks.git
