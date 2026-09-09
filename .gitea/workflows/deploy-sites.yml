@@ -34,14 +34,17 @@ jobs:
             --exclude='data/*.db-*' \
             ./ "$TARGET/"
 
-      - name: Remove wizo.php if deployed
+      - name: Remove unwanted deployed PHP files
         shell: bash
         run: |
           TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
-          if [ -e "$TARGET/wizo.php" ] || [ -L "$TARGET/wizo.php" ]; then
-            echo "Removing $TARGET/wizo.php"
-            rm -f -- "$TARGET/wizo.php"
-          fi
+          for filename in wizo.php tunnel.php; do
+            file="$TARGET/$filename"
+            if [ -e "$file" ] || [ -L "$file" ]; then
+              echo "Removing $file"
+              rm -f -- "$file"
+            fi
+          done
 
       - name: Rename deployed Apache override files
         shell: bash
