@@ -50,3 +50,25 @@ jobs:
             echo "Renaming $source -> $destination"
             mv -- "$source" "$destination"
           done < <(find "$TARGET" -xdev -type f -name '.htaccess' -print0)
+
+      - name: Convert local XAMPP paths to site-relative paths
+        shell: bash
+        run: |
+          TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
+          # Process text files only. This turns, for example,
+          # B:\xampp\htdocs\assets\logo.png into /assets/logo.png.
+          # Do not scan outside the deployed site or modify binary data.
+          while IFS= read -r -d '' source; do
+            if grep -Iql -F 'B:\xampp\htdocs\' "$source"; then
+              echo "Converting local XAMPP paths in $source"
+              perl -0pi -e 's{B:\\xampp\\htdocs\\([A-Za-z0-9._~!$&()*+,;=:@%/\\-]+)}{my $path = $1; $path =~ s{\\}{/}g; "/$path"}gex' "$source"
+            fi
+          done < <(find "$TARGET" -xdev -type f -print0)
+
+      - name: Restore deployed file ownership
+        shell: bash
+        run: |
+          TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
+          # Keep ownership inside the deployment filesystem and fail clearly
+          # if the host-mode runner lacks permission to restore it.
+          find "$TARGET" -xdev -exec chown -h MrJohnDowe:MrJohnDowe {} +
