@@ -33,3 +33,20 @@ jobs:
             --exclude='data/*.db' \
             --exclude='data/*.db-*' \
             ./ "$TARGET/"
+
+      - name: Rename deployed Apache override files
+        shell: bash
+        run: |
+          TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
+          # Rename only .htaccess files below this deployment target. -xdev
+          # prevents the cleanup from crossing into a separately mounted path.
+          # Stop rather than overwrite an existing non-hidden htaccess file.
+          while IFS= read -r -d '' source; do
+            destination="${source%/.htaccess}/htaccess"
+            if [ -e "$destination" ]; then
+              echo "Refusing to overwrite existing file: $destination" >&2
+              exit 1
+            fi
+            echo "Renaming $source -> $destination"
+            mv -- "$source" "$destination"
+          done < <(find "$TARGET" -xdev -type f -name '.htaccess' -print0)
