@@ -40,15 +40,20 @@ jobs:
           TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
           # Rename only .htaccess files below this deployment target. -xdev
           # prevents the cleanup from crossing into a separately mounted path.
-          # Stop rather than overwrite an existing non-hidden htaccess file.
+          # A previous deployment may already have created htaccess. Replace
+          # that generated file with the newly deployed .htaccess content.
           while IFS= read -r -d '' source; do
             destination="${source%/.htaccess}/htaccess"
-            if [ -e "$destination" ]; then
-              echo "Refusing to overwrite existing file: $destination" >&2
+            if [ -d "$destination" ]; then
+              echo "Cannot replace directory with file: $destination" >&2
               exit 1
             fi
-            echo "Renaming $source -> $destination"
-            mv -- "$source" "$destination"
+            if [ -e "$destination" ] || [ -L "$destination" ]; then
+              echo "Replacing $destination with $source"
+            else
+              echo "Renaming $source -> $destination"
+            fi
+            mv -f -- "$source" "$destination"
           done < <(find "$TARGET" -xdev -type f -name '.htaccess' -print0)
 
       - name: Convert local XAMPP paths to site-relative paths
