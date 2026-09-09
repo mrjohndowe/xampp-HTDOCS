@@ -76,5 +76,5 @@ jobs:
           TARGET='/home/MrJohnDowe/web/mrjohndowe.com/public_html'
           # Keep ownership inside the deployment filesystem and fail clearly
           # if the host-mode runner lacks permission to restore it.
-          sudo /usr/bin/chown -h MrJohnDowe:MrJohnDowe "$TARGET"
-          find "$TARGET" -xdev -mindepth 1 -exec sudo /usr/bin/chown -h MrJohnDowe:MrJohnDowe {} +
+          sudo -n /usr/bin/chown -h MrJohnDowe:MrJohnDowe "$TARGET"
+          find "$TARGET" -xdev -mindepth 1 -exec sudo -n /usr/bin/chown -h MrJohnDowe:MrJohnDowe {} +
