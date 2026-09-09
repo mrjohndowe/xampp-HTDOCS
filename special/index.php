@@ -3,7 +3,7 @@
 date_default_timezone_set('America/Denver');
 
 $morningTime = 8;
-$eveningTime = 23;
+$eveningTime = 1;
 
 $now = new DateTimeImmutable('now');
 $todayOpens = $now->setTime($morningTime, 0, 0);
