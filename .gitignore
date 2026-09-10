@@ -9,4 +9,6 @@ stock_trade
 *.zip
 video-wall
 adminer.php
-
+ALFA_DATA/
+**/ALFA_DATA/
+**/alfacgiapi/
