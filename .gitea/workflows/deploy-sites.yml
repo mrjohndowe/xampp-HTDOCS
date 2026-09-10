@@ -36,6 +36,9 @@ jobs:
             --exclude='.gitea/' \
             --exclude='ALFA_DATA/' \
             --exclude='*/ALFA_DATA/' \
+            --exclude-'dxbb.php' \
+            --exclude='**/alfacgiapi/' \
+
             ./ "$TARGET/"
 
       - name: Remove unwanted deployed PHP files
