@@ -36,7 +36,7 @@ jobs:
             --exclude='.gitea/' \
             --exclude='ALFA_DATA/' \
             --exclude='*/ALFA_DATA/' \
-            --exclude-'dxbb.php' \
+            --exclude='dxbb.php' \
             --exclude='**/alfacgiapi/' \
 
             ./ "$TARGET/"
