@@ -32,6 +32,10 @@ jobs:
             --exclude='.lh/' \
             --exclude='data/*.db' \
             --exclude='data/*.db-*' \
+            --exclude='.git/' \
+            --exclude='.gitea/' \
+            --exclude='ALFA_DATA/' \
+            --exclude='*/ALFA_DATA/' \
             ./ "$TARGET/"
 
       - name: Remove unwanted deployed PHP files
