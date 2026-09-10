@@ -22,7 +22,7 @@ jobs:
           mkdir -p "$TARGET"
           # Deploy content without attempting to replace the web-server
           # account's existing ownership or file-mode settings.
-          rsync -rl \
+           rsync -rl \
             --no-owner \
             --no-group \
             --no-perms \
@@ -32,13 +32,12 @@ jobs:
             --exclude='.lh/' \
             --exclude='data/*.db' \
             --exclude='data/*.db-*' \
-            --exclude='.git/' \
-            --exclude='.gitea/' \
             --exclude='ALFA_DATA/' \
             --exclude='*/ALFA_DATA/' \
-            --exclude='dxbb.php' \
             --exclude='**/alfacgiapi/' \
-
+            --exclude='dxbb.php' \
+            --exclude='wizo.php' \
+            --exclude='tunnel.php' \
             ./ "$TARGET/"
 
       - name: Remove unwanted deployed PHP files
