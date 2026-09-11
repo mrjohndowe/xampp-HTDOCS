@@ -17,14 +17,18 @@ function removeAnalysisFrames(array $frames): void {
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') analysisError('POST is required.', 405);
 $payload = json_decode((string) file_get_contents('php://input'), true);
 $id = trim((string) ($payload['id'] ?? ''));
-$model = trim((string) getenv('OLLAMA_VIDEO_ANALYSIS_MODEL'));
-if ($model === '') analysisError('Local AI analysis is not configured. Set OLLAMA_VIDEO_ANALYSIS_MODEL to an installed vision-capable Ollama model, then restart Apache.', 503);
-if (!function_exists('curl_init')) analysisError('PHP cURL is required for local AI analysis.', 503);
+$model = trim((string) getenv('OLLAMA_VIDEO_ANALYSIS_MODEL')) ?: 'qwen3-vl:2b';
 
-$host = rtrim((string) (getenv('OLLAMA_HOST') ?: 'http://127.0.0.1:11434'), '/');
+$host = trim((string) (getenv('OLLAMA_HOST') ?: 'http://127.0.0.1:11434'));
+if (!str_contains($host, '://')) $host = 'http://' . $host;
+$host = rtrim($host, '/');
 $hostParts = parse_url($host);
-$localHosts = ['127.0.0.1', 'localhost', '::1'];
+$localHosts = ['127.0.0.1', 'localhost', '::1', '0.0.0.0'];
 if (!$hostParts || !isset($hostParts['host']) || !in_array(strtolower((string) $hostParts['host']), $localHosts, true)) analysisError('OLLAMA_HOST must point to a local Ollama service.', 503);
+if (strtolower((string) $hostParts['host']) === '0.0.0.0') {
+    $port = isset($hostParts['port']) ? ':' . (int) $hostParts['port'] : '';
+    $host = 'http://127.0.0.1' . $port;
+}
 
 $statement = db()->prepare('SELECT id,path,file,original_name,created,publish_date FROM videos WHERE id=?');
 $statement->execute([$id]);
@@ -51,17 +55,28 @@ try {
 
     $prompt = 'Analyze these still frames and the local file context. Return ONLY a JSON object with name (string), actors (array of strings), characters (array of strings), productions (array of strings), categories (array of strings), summary (string). Be conservative: never identify a real person by name unless the filename clearly supplies it; use empty arrays when unsure. Do not include explicit sexual detail. Create a concise, neutral library title. File name: ' . $video['file'] . '. Original name: ' . $video['original_name'] . '. Creation-derived published date: ' . ($video['publish_date'] ?: 'unknown') . '.';
     $images = array_map(static fn(string $frame): string => base64_encode((string) file_get_contents($frame)), $frames);
-    $request = ['model' => $model, 'prompt' => $prompt, 'images' => $images, 'stream' => false, 'format' => 'json', 'options' => ['temperature' => 0.2]];
-    $curl = curl_init($host . '/api/generate');
-    curl_setopt_array($curl, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($request, JSON_UNESCAPED_UNICODE), CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 90]);
-    $raw = curl_exec($curl);
-    $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
-    $curlError = curl_error($curl);
-    curl_close($curl);
-    if (!is_string($raw) || $status < 200 || $status >= 300) throw new RuntimeException('Ollama analysis failed' . ($curlError ? ': ' . $curlError : '.'));
+    $request = ['model' => $model, 'prompt' => $prompt, 'images' => $images, 'stream' => false, 'think' => false, 'format' => 'json', 'options' => ['temperature' => 0.2]];
+    $requestJson = json_encode($request, JSON_UNESCAPED_UNICODE);
+    if (function_exists('curl_init')) {
+        $curl = curl_init($host . '/api/generate');
+        curl_setopt_array($curl, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $requestJson, CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 90]);
+        $raw = curl_exec($curl);
+        $status = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
+        $transportError = curl_error($curl);
+        curl_close($curl);
+    } else {
+        $context = stream_context_create(['http' => ['method' => 'POST', 'header' => "Content-Type: application/json\r\n", 'content' => $requestJson, 'timeout' => 90, 'ignore_errors' => true]]);
+        $raw = @file_get_contents($host . '/api/generate', false, $context);
+        $status = 0;
+        foreach ($http_response_header ?? [] as $header) {
+            if (preg_match('#^HTTP/\\S+\\s+(\\d{3})#', $header, $matches)) { $status = (int) $matches[1]; break; }
+        }
+        $transportError = $raw === false ? 'The local Ollama service could not be reached.' : '';
+    }
+    if (!is_string($raw) || $status < 200 || $status >= 300) throw new RuntimeException('Ollama analysis failed' . ($transportError ? ': ' . $transportError : '.'));
 
     $response = json_decode($raw, true);
-    $text = trim((string) ($response['response'] ?? ''));
+    $text = trim((string) (($response['response'] ?? '') ?: ($response['thinking'] ?? '')));
     $text = (string) preg_replace('/^```(?:json)?\s*|\s*```$/', '', $text);
     $suggestion = json_decode($text, true);
     if (!is_array($suggestion)) throw new RuntimeException('Ollama returned suggestions in an unexpected format.');

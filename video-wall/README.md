@@ -20,7 +20,7 @@ While playing, use **Home** to return to the wall, **Next** to immediately play 
 
 The Rename/Edit screen includes **Analyze with Ollama**, which extracts up to three temporary local still frames and sends them, together with the file name and creation-derived published date, to your local Ollama service. It returns review-only suggestions for a neutral title, actors, characters, productions, and categories. Nothing is saved until you choose **Use suggestions** and then **Save video**. Temporary frames are deleted after each request.
 
-Install Ollama locally and set `OLLAMA_VIDEO_ANALYSIS_MODEL` in the environment used by Apache/XAMPP to the name of an installed vision-capable model, then restart Apache. `OLLAMA_HOST` is optional and defaults to `http://127.0.0.1:11434`; for privacy, the app accepts only a local Ollama host. No API key is required, and frames never leave this computer.
+Install Ollama locally and download `qwen3-vl:2b`; it is the default local vision model for this feature. Optionally set `OLLAMA_VIDEO_ANALYSIS_MODEL` in the Apache/XAMPP environment to use a different installed vision-capable model. `OLLAMA_HOST` is optional and defaults to `http://127.0.0.1:11434`; `0.0.0.0:11434` is also safely treated as that same local address. For privacy, the app accepts only a local Ollama host. No API key is required, and frames never leave this computer.
 
 For each video, the Windows filesystem creation date is used as the initial Published date when that field is blank. A date manually saved in Edit Video is never overwritten by later scans.
 
