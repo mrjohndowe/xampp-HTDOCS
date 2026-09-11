@@ -14,12 +14,13 @@ function db(): PDO
     if ($pdo instanceof PDO) return $pdo;
     ensureDataDirectory();
     $pdo = new PDO('sqlite:' . DATABASE_FILE, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
-    $pdo->exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT NOT NULL UNIQUE); CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS production (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS videos (id TEXT PRIMARY KEY,original_name TEXT NOT NULL,display_name TEXT,file TEXT NOT NULL,category TEXT NOT NULL DEFAULT "",folder TEXT NOT NULL,path TEXT NOT NULL UNIQUE,extension TEXT NOT NULL,size INTEGER NOT NULL,modified INTEGER NOT NULL,created INTEGER NOT NULL DEFAULT 0,category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,active INTEGER NOT NULL DEFAULT 1,actors TEXT NOT NULL DEFAULT "",characters TEXT NOT NULL DEFAULT "",publish_date TEXT NOT NULL DEFAULT "",production TEXT NOT NULL DEFAULT "",duplicate_of TEXT); CREATE TABLE IF NOT EXISTS video_categories (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,PRIMARY KEY(video_id,category_id)); CREATE TABLE IF NOT EXISTS video_productions (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,production_id INTEGER NOT NULL REFERENCES production(id) ON DELETE CASCADE,PRIMARY KEY(video_id,production_id)); CREATE INDEX IF NOT EXISTS video_categories_category_idx ON video_categories(category_id); CREATE INDEX IF NOT EXISTS video_productions_production_idx ON video_productions(production_id)');
+    $pdo->exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT NOT NULL UNIQUE); CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS production (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS videos (id TEXT PRIMARY KEY,original_name TEXT NOT NULL,display_name TEXT,file TEXT NOT NULL,category TEXT NOT NULL DEFAULT "",folder TEXT NOT NULL,path TEXT NOT NULL UNIQUE,extension TEXT NOT NULL,size INTEGER NOT NULL,modified INTEGER NOT NULL,created INTEGER NOT NULL DEFAULT 0,category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,active INTEGER NOT NULL DEFAULT 1,actors TEXT NOT NULL DEFAULT "",characters TEXT NOT NULL DEFAULT "",notes TEXT NOT NULL DEFAULT "",publish_date TEXT NOT NULL DEFAULT "",production TEXT NOT NULL DEFAULT "",duplicate_of TEXT); CREATE TABLE IF NOT EXISTS video_categories (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,PRIMARY KEY(video_id,category_id)); CREATE TABLE IF NOT EXISTS video_productions (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,production_id INTEGER NOT NULL REFERENCES production(id) ON DELETE CASCADE,PRIMARY KEY(video_id,production_id)); CREATE INDEX IF NOT EXISTS video_categories_category_idx ON video_categories(category_id); CREATE INDEX IF NOT EXISTS video_productions_production_idx ON video_productions(production_id)');
     $columns = $pdo->query('PRAGMA table_info(videos)')->fetchAll(PDO::FETCH_COLUMN, 1);
     if (!in_array('category_id', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL');
     if (!in_array('active', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN active INTEGER NOT NULL DEFAULT 1');
     if (!in_array('actors', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN actors TEXT NOT NULL DEFAULT ""');
     if (!in_array('characters', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN characters TEXT NOT NULL DEFAULT ""');
+    if (!in_array('notes', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN notes TEXT NOT NULL DEFAULT ""');
     if (!in_array('publish_date', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN publish_date TEXT NOT NULL DEFAULT ""');
     if (!in_array('created', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN created INTEGER NOT NULL DEFAULT 0');
     if (!in_array('production', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN production TEXT NOT NULL DEFAULT ""');
@@ -136,7 +137,7 @@ function buildCatalog(array $folders): array
     foreach ($pdo->query('SELECT video_id,production_id FROM video_productions') as $row) $productionAssignments[$row['video_id']][] = (int)$row['production_id'];
     $activeStates = $pdo->query('SELECT id,active FROM videos')->fetchAll(PDO::FETCH_KEY_PAIR);
     $metadata = [];
-    foreach ($pdo->query('SELECT id,actors,characters,publish_date,production FROM videos') as $row) $metadata[$row['id']] = $row;
+    foreach ($pdo->query('SELECT id,actors,characters,notes,publish_date,production FROM videos') as $row) $metadata[$row['id']] = $row;
     $legacyRenames = DATA_DIR . DIRECTORY_SEPARATOR . 'renames.json';
     if (is_file($legacyRenames)) {
         $legacy = json_decode((string)file_get_contents($legacyRenames), true);
@@ -157,7 +158,7 @@ function buildCatalog(array $folders): array
                 $created = max(0, $file->getCTime());
                 $publishedDate = trim((string)($metadata[$id]['publish_date'] ?? ''));
                 if ($publishedDate === '' && $created > 0) $publishedDate = date('Y-m-d', $created);
-                $items[] = ['id' => $id, 'original_name' => pathinfo($file->getFilename(), PATHINFO_FILENAME), 'display_name' => $names[$id] ?? null, 'file' => $file->getFilename(), 'category' => '', 'folder' => basename($root) . ($relative && dirname($relative) !== '.' ? ' / ' . dirname($relative) : ''), 'path' => $path, 'extension' => $extension, 'size' => $file->getSize(), 'modified' => $file->getMTime(), 'created' => $created, 'category_id' => $assignments[$id] ?? null, 'active' => isset($activeStates[$id]) ? (int)$activeStates[$id] : 1, 'actors' => $metadata[$id]['actors'] ?? '', 'characters' => $metadata[$id]['characters'] ?? '', 'publish_date' => $publishedDate, 'production' => $metadata[$id]['production'] ?? ''];
+                $items[] = ['id' => $id, 'original_name' => pathinfo($file->getFilename(), PATHINFO_FILENAME), 'display_name' => $names[$id] ?? null, 'file' => $file->getFilename(), 'category' => '', 'folder' => basename($root) . ($relative && dirname($relative) !== '.' ? ' / ' . dirname($relative) : ''), 'path' => $path, 'extension' => $extension, 'size' => $file->getSize(), 'modified' => $file->getMTime(), 'created' => $created, 'category_id' => $assignments[$id] ?? null, 'active' => isset($activeStates[$id]) ? (int)$activeStates[$id] : 1, 'actors' => $metadata[$id]['actors'] ?? '', 'characters' => $metadata[$id]['characters'] ?? '', 'notes' => $metadata[$id]['notes'] ?? '', 'publish_date' => $publishedDate, 'production' => $metadata[$id]['production'] ?? ''];
             }
         } catch (UnexpectedValueException) {
             continue;
@@ -170,7 +171,7 @@ function buildCatalog(array $folders): array
     $pdo->beginTransaction();
     try {
         $pdo->exec('DELETE FROM videos');
-        $statement = $pdo->prepare('INSERT INTO videos(id,original_name,display_name,file,category,folder,path,extension,size,modified,created,category_id,active,actors,characters,publish_date,production,duplicate_of) VALUES(:id,:original_name,:display_name,:file,:category,:folder,:path,:extension,:size,:modified,:created,:category_id,:active,:actors,:characters,:publish_date,:production,:duplicate_of)');
+        $statement = $pdo->prepare('INSERT INTO videos(id,original_name,display_name,file,category,folder,path,extension,size,modified,created,category_id,active,actors,characters,notes,publish_date,production,duplicate_of) VALUES(:id,:original_name,:display_name,:file,:category,:folder,:path,:extension,:size,:modified,:created,:category_id,:active,:actors,:characters,:notes,:publish_date,:production,:duplicate_of)');
         $categoryStatement = $pdo->prepare('INSERT OR IGNORE INTO video_categories(video_id,category_id) VALUES(?,?)');
         $productionStatement = $pdo->prepare('INSERT OR IGNORE INTO video_productions(video_id,production_id) VALUES(?,?)');
         foreach ($items as $item) {
@@ -189,7 +190,7 @@ function buildCatalog(array $folders): array
 function catalog(): array
 {
     $pdo = db();
-    $videos = $pdo->query("SELECT v.id,v.original_name AS originalName,COALESCE(NULLIF(v.display_name,''),v.original_name)AS name,v.file,v.actors,v.characters,v.publish_date AS publishDate,v.production,v.folder,v.path,v.extension,v.size,v.modified FROM videos v WHERE v.active=1 ORDER BY name COLLATE NOCASE")->fetchAll();
+    $videos = $pdo->query("SELECT v.id,v.original_name AS originalName,COALESCE(NULLIF(v.display_name,''),v.original_name)AS name,v.file,v.actors,v.characters,v.notes,v.publish_date AS publishDate,v.production,v.folder,v.path,v.extension,v.size,v.modified FROM videos v WHERE v.active=1 ORDER BY name COLLATE NOCASE")->fetchAll();
     $assigned = [];
     foreach ($pdo->query('SELECT vc.video_id,c.id,c.name FROM video_categories vc JOIN categories c ON c.id=vc.category_id ORDER BY c.name COLLATE NOCASE') as $row) $assigned[$row['video_id']][] = ['id' => (int)$row['id'], 'name' => $row['name']];
     $productionAssignments = [];

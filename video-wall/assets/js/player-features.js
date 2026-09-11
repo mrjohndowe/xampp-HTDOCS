@@ -41,8 +41,8 @@
     const video = library[currentIndex()];
     if (!video) return;
     const fields = {
-      playerActors: video.actors,
-      playerCharacters: video.characters,
+      playerActors: [video.actors, video.characters].filter(Boolean).join(", "),
+      playerNotes: video.notes,
       playerPublishDate: video.publishDate,
       playerProduction: video.production,
     };

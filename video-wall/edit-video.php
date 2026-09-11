@@ -42,13 +42,13 @@
         $postedCategories    = $_POST['categoryIds'] ?? [];
         $selectedCategoryIds = array_map('intval', is_array($postedCategories) ? $postedCategories : []);
         $actors              = trim((string) ($_POST['actors'] ?? ''));
-        $characters          = trim((string) ($_POST['characters'] ?? ''));
+        $notes               = trim((string) ($_POST['notes'] ?? ''));
         $publishDate         = trim((string) ($_POST['publishDate'] ?? ''));
         //$production          = trim((string) ($_POST['production'] ?? ''));
         $active              = isset($_POST['active']) ? 1 : 0;
         $database->beginTransaction();
-        $update = $database->prepare('UPDATE videos SET display_name=?,actors=?,characters=?,publish_date=?,active=? WHERE id=?');
-        $update->execute([$name, $actors, $characters, $publishDate, $active, $id]);
+        $update = $database->prepare('UPDATE videos SET display_name=?,actors=?,characters=?,notes=?,publish_date=?,active=? WHERE id=?');
+        $update->execute([$name, $actors, '', $notes, $publishDate, $active, $id]);
         setVideoCategories($database, $id, $selectedCategoryIds);
         setVideoProduction($database, $id, $selectedProductionIds);
         $database->commit();
@@ -153,17 +153,18 @@
                         <!--<label class="wide">Production video / studio<input name="production" maxlength="300" value="<?php echo htmlspecialchars((string) ($_POST['production'] ?? $video['production'])) ?>" placeholder="Production company, studio, creator, or production title">
 
                         </label>-->
-                        <label class="wide">Actors
+                        <label class="wide">Actors/Characters
                             <textarea name="actors" rows="3" maxlength="2000" placeholder="Separate multiple actors with commas">
-                                <?php echo htmlspecialchars((string) ($_POST['actors'] ?? $video['actors'])) ?>
+                                <?php echo htmlspecialchars((string) ($_POST['actors'] ?? implode(', ', array_filter([(string) $video['actors'], (string) $video['characters']])))) ?>
                             </textarea>
                         </label>
-                        <label class="wide">Characters<textarea name="characters" rows="3" maxlength="2000" placeholder="Separate multiple characters with commas">
-                            <?php echo htmlspecialchars((string) ($_POST['characters'] ?? $video['characters'])) ?>
-                        </textarea>
-                    </label>
-                    <label class="wide active-switch">
-                        <input type="checkbox" name="active" value="1" <?php echo(isset($_POST['id']) ? isset($_POST['active']) : (int) $video['active'] === 1) ? 'checked' : '' ?>><span><strong>Active in library</strong><small>Turn this off to hide the video without deleting its original file.</small></span></label>
+                        <label class="wide">Video Info / Notes
+                            <textarea name="notes" rows="3" maxlength="2000" placeholder="Additional information or notes about the video">
+                                <?php echo htmlspecialchars((string) ($_POST['notes'] ?? $video['notes'])) ?>
+                            </textarea>
+                        </label>
+                        <label class="wide active-switch">
+                            <input type="checkbox" name="active" value="1" <?php echo(isset($_POST['id']) ? isset($_POST['active']) : (int) $video['active'] === 1) ? 'checked' : '' ?>><span><strong>Active in library</strong><small>Turn this off to hide the video without deleting its original file.</small></span></label>
             </div>
             <div class="edit-actions"><a class="button subtle" href="<?php echo (int) $video['active'] === 1 ? 'index.php' : 'admin.php' ?>">Cancel</a><button class="button primary" type="submit">Save video</button></div>
         </form>

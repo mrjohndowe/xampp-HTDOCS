@@ -12,7 +12,7 @@ $id = trim((string) ($payload['id'] ?? ''));
 $name = trim((string) ($payload['name'] ?? ''));
 $categoryIds = is_array($payload['categoryIds'] ?? null) ? $payload['categoryIds'] : (isset($payload['categoryId']) && $payload['categoryId'] !== '' ? [$payload['categoryId']] : []);
 $actors = trim((string) ($payload['actors'] ?? ''));
-$characters = trim((string) ($payload['characters'] ?? ''));
+$notes = trim((string) ($payload['notes'] ?? ''));
 $database = db();
 $exists = false;
 foreach (catalog() as $video) if (hash_equals((string) $video['id'], $id)) {
@@ -25,8 +25,8 @@ if (!$exists || $name === '' || strlen($name) > 180) {
     exit;
 }
 $database->beginTransaction();
-$statement = $database->prepare('UPDATE videos SET display_name = ?, actors = ?, characters = ? WHERE id = ?');
-$statement->execute([$name, $actors, $characters, $id]);
+$statement = $database->prepare('UPDATE videos SET display_name = ?, actors = ?, characters = ?, notes = ? WHERE id = ?');
+$statement->execute([$name, $actors, '', $notes, $id]);
 setVideoCategories($database, $id, $categoryIds);
 $database->commit();
 echo json_encode(['success' => true, 'name' => $name], JSON_UNESCAPED_UNICODE);

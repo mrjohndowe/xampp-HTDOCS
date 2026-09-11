@@ -32,9 +32,9 @@ try {
         $name = trim((string) ($payload['name'] ?? ''));
         if ($name === '') throw new RuntimeException('Video name is required.');
         $actors = trim((string) ($payload['actors'] ?? ''));
-        $characters = trim((string) ($payload['characters'] ?? ''));
-        $update = $database->prepare('UPDATE videos SET display_name=?,actors=?,characters=? WHERE id=?');
-        $update->execute([$name, $actors, $characters, $id]);
+        $notes = trim((string) ($payload['notes'] ?? ''));
+        $update = $database->prepare('UPDATE videos SET display_name=?,actors=?,characters=?,notes=? WHERE id=?');
+        $update->execute([$name, $actors, '', $notes, $id]);
         setVideoCategories($database, $id, $categoryIds);
         setVideoProduction($database, $id, $productionIds);
     } else {
