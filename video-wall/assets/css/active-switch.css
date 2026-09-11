@@ -1,0 +1,29 @@
+.active-switch {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0b0e13;
+  cursor: pointer;
+}
+.active-switch input {
+  width: 20px !important;
+  height: 20px;
+  margin: 0 !important;
+  accent-color: var(--accent);
+}
+.active-switch span,
+.active-switch strong,
+.active-switch small {
+  display: block;
+}
+.active-switch strong {
+  color: var(--text);
+  font-size: 14px;
+}
+.active-switch small {
+  margin-top: 3px;
+  color: var(--muted);
+}

@@ -1,0 +1,83 @@
+.admin-page {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0,1fr));
+    gap: 24px;
+    width: min(1680px, calc(100% - 32px));
+    margin: 45px auto 80px;
+    padding: 0 40px;
+}
+
+.admin-heading {
+    grid-column: 1/-1;
+}
+
+.admin-heading h1 {
+  margin: 8px 0;
+  font-size: clamp(34px, 5vw, 54px);
+}
+
+.admin-heading p {
+  color: var(--muted);
+}
+
+.admin-card {
+    min-width: 0;
+    margin-top: 24px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    background: var(--surface);
+}
+
+.admin-card h2 {
+  margin-top: 0;
+}
+
+.admin-card.category-manager{
+    grid-column: 1/-1;
+}
+
+.admin-card.removed-manager {
+    grid-column: 1;
+    padding-top: 24px;
+    border-top: 1px solid var(--line)
+}
+
+.admin-card.studio-production {
+    grid-column: 2;
+}
+
+@media(max-width:760px) {
+    .admin-page {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 15px;
+    }
+    .admin-heading,
+    .admin-card.category-manager,
+    .admin-card.removed-manager,
+    .admin-card.studio-production {
+        grid-column: 1
+    }
+
+    .admin-card {
+        padding: 18px;
+    }
+}
+
+.admin-card,
+.removed-manager,
+.removed-list,
+.removed-row,
+.removed-row > div {
+    min-width: 0;
+    overflow: hidden;
+}
+
+.removed-row strong,
+.removed-row small {
+    display: block;
+    max-width: 100%;
+    overflow:hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}

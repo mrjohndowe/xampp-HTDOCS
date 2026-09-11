@@ -1,0 +1,68 @@
+.studio-production {
+  clear: both;
+  margin-top: 70px;
+  padding-top: 22px;
+  border-top: 1px solid var(--line);
+}
+.studio-production h3 {
+  margin: 0 0 12px;
+}
+.production-add {
+  display: flex;
+  gap: 8px;
+}
+.production-add input,
+.video-editor input,
+.video-editor select {
+  width: 100%;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  background: #090b10;
+  outline: none;
+}
+.production-add input:focus,
+.video-editor input:focus,
+.video-editor select:focus {
+  border-color: var(--accent);
+}
+#productionList {
+  display: grid;
+  gap: 7px;
+  margin-top: 13px;
+}
+.production-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0b0e13;
+}
+.delete-production {
+  border: 0;
+  color: #ff9a87;
+  background: transparent;
+  cursor: pointer;
+}
+.video-editor label {
+  display: block;
+  margin: 14px 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+.video-editor label input,
+.video-editor label select {
+  display: block;
+  margin-top: 6px;
+  color: var(--text);
+  font-size: 15px;
+}
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 9px;
+  margin-top: 24px;
+}

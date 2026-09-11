@@ -1,0 +1,27 @@
+.ffmpeg-field {
+  display: block;
+  clear: both;
+  margin-top: 18px;
+}
+.ffmpeg-field span {
+  display: block;
+  margin-bottom: 7px;
+  color: var(--muted);
+  font-size: 13px;
+}
+.ffmpeg-field small {
+  opacity: 0.8;
+}
+.ffmpeg-field input {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--text);
+  background: #090b10;
+  font-family: Consolas, "Courier New", monospace;
+  outline: none;
+}
+.ffmpeg-field input:focus {
+  border-color: var(--accent);
+}

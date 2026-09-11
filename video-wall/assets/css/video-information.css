@@ -1,0 +1,36 @@
+.video-information {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  width: min(960px, calc(100% - 36px));
+  margin: 0 auto 12px;
+  padding: 12px 15px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: #0d1016;
+}
+.video-information div {
+  min-width: 0;
+}
+.video-information strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--accent2);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.video-information span {
+  display: block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--muted);
+  font-size: 13px;
+}
+@media (max-width: 600px) {
+  .video-information {
+    grid-template-columns: 1fr;
+    width: calc(100% - 16px);
+  }
+}

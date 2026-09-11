@@ -1,0 +1,88 @@
+.theater-head {
+  gap: 18px;
+}
+.theater-head > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.player-actions {
+  display: grid;
+  grid-template-columns: repeat(4, 118px) 42px;
+  gap: 8px;
+  align-items: center;
+  flex: 0 0 auto;
+}
+.player-actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 118px;
+  height: 42px;
+  min-width: 118px;
+  margin: 0;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1;
+  white-space: nowrap;
+  background: var(--surface2);
+}
+.player-actions .button:hover {
+  border-color: var(--accent);
+  background: #202630;
+}
+.player-actions #closePlayer {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  min-width: 42px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--text);
+  background: var(--surface2);
+  font-size: 25px;
+  line-height: 1;
+}
+.player-actions #closePlayer:hover {
+  border-color: #b84e42;
+  background: #3a1c19;
+}
+@media (max-width: 900px) {
+  .theater-head {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .player-actions {
+    width: 100%;
+    grid-template-columns: repeat(4, minmax(90px, 1fr)) 42px;
+  }
+  .player-actions .button {
+    width: 100%;
+    min-width: 0;
+  }
+}
+@media (max-width: 600px) {
+  .player-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) 42px;
+  }
+  .player-actions #closePlayer {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .player-actions .button {
+    width: 100%;
+    height: 38px;
+    font-size: 12px;
+  }
+  .player-actions #closePlayer {
+    height: 38px;
+  }
+  .theater-head {
+    padding-bottom: 10px;
+  }
+}

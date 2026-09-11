@@ -1,0 +1,10 @@
+#homePlayer {
+  gap: 7px;
+}
+#homePlayer .home-icon {
+  display: inline-block;
+  font-size: 29px;
+  font-weight: 850;
+  line-height: 0;
+  transform: translateY(-1px);
+}
