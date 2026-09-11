@@ -11,6 +11,15 @@
     http_response_code(404);
     exit('Video not found.');
     }
+    if ((string)$video['publish_date'] === '' && is_file((string)$video['path'])) {
+        $created = max(0, (new SplFileInfo((string)$video['path']))->getCTime());
+        if ($created > 0) {
+            $publishedDate = date('Y-m-d', $created);
+            $database->prepare('UPDATE videos SET created=?,publish_date=? WHERE id=?')->execute([$created, $publishedDate, $id]);
+            $video['created'] = $created;
+            $video['publish_date'] = $publishedDate;
+        }
+    }
     $categories        = categoriesList();
     $selectedStatement = $database->prepare('SELECT category_id FROM video_categories WHERE video_id=?');
     $selectedStatement->execute([$id]);
@@ -65,6 +74,7 @@
     <link rel="stylesheet" href="assets/css/app.css">
     <link rel="stylesheet" href="assets/css/edit-video.css">
     <link rel="stylesheet" href="assets/css/active-switch.css">
+    <link rel="stylesheet" href="assets/css/video-analysis.css">
 </head>
 
 <body>
@@ -91,6 +101,12 @@
                     <div class="error"><?php echo htmlspecialchars($error) ?>
                 </div>
                 <?php endif; ?>
+                <section class="analysis-card" id="analysisCard" data-video-id="<?php echo htmlspecialchars($id) ?>">
+                    <div><span class="eyebrow">AI VIDEO ANALYSIS</span><h2>Generate suggestions from video frames</h2><p>Analyzes a few temporary still frames plus the file name. Nothing is saved until you review and save this form.</p></div>
+                    <button class="button primary" id="analyzeVideo" type="button">✦ Analyze video</button>
+                    <p class="analysis-status" id="analysisStatus" aria-live="polite"></p>
+                    <div class="analysis-results" id="analysisResults" hidden></div>
+                </section>
                     <div class="edit-grid">
                         <label class="wide">Video name<input name="name" maxlength="180" value="<?php echo htmlspecialchars((string) ($_POST['name'] ?? $video['name'])) ?>" required></label>
                         <fieldset class="wide category-choices">
@@ -148,6 +164,7 @@
             <div class="edit-actions"><a class="button subtle" href="<?php echo (int) $video['active'] === 1 ? 'index.php' : 'admin.php' ?>">Cancel</a><button class="button primary" type="submit">Save video</button></div>
         </form>
     </main>
+    <script src="assets/js/video-analysis.js"></script>
 </body>
 
 </html>

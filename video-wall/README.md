@@ -16,6 +16,14 @@ Videos remain in their original folders. The app saves only their full paths and
 
 While playing, use **Home** to return to the wall, **Next** to immediately play the following video, and **Rename** to save a custom display title without renaming the original file. The Folders settings include controls for automatic next-video playback and starting videos muted or unmuted.
 
+## Optional AI video analysis
+
+The Rename/Edit screen includes **Analyze video**, which extracts up to three temporary local still frames and sends them, together with the file name and creation-derived published date, to the OpenAI Responses API. It returns review-only suggestions for a neutral title, actors, characters, productions, and categories. Nothing is saved until you choose **Use suggestions** and then **Save video**. Temporary frames are deleted after each request.
+
+Set `OPENAI_API_KEY` in the environment used by Apache/XAMPP, then restart Apache. Do not put an API key in this repository, `config.php`, the SQLite database, or browser code. Optionally set `OPENAI_VIDEO_ANALYSIS_MODEL` to a vision-capable model; the default is `gpt-5.6-luna`. The endpoint uses `store: false`.
+
+For each video, the Windows filesystem creation date is used as the initial Published date when that field is blank. A date manually saved in Edit Video is never overwritten by later scans.
+
 Create your own categories in Settings and assign one category to each video. Use the category selector above the wall together with search. All saved paths, catalog entries, display names, categories, FFmpeg settings, and player preferences are stored in `data/video-wall.sqlite`.
 
 Version 1.7 uses custom one-category-per-video organization. Create or delete categories in Settings, then use **Rename** while playing to change both the display title and category. The scanner removes duplicate entries when overlapping library folders lead to the same original file, and SQLite prevents duplicate category names.
