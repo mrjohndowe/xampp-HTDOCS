@@ -2,6 +2,11 @@
 declare(strict_types=1);
 require_once __DIR__ . '/functions.php';
 
+$showSplash = !isset($_COOKIE['firstTimer']);
+if ($showSplash) {
+    setcookie('firstTimer', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+}
+
 $settings = loadSettings();
 $folders = $settings['folders'] ?? [];
 $ffmpegPath = (string) ($settings['ffmpegPath'] ?? '');
@@ -60,9 +65,11 @@ $removedVideos = removedVideos();
   <link rel="stylesheet" href="assets/css/splash-screen.css">
 </head>
 <body>
+  <?php if ($showSplash): ?>
 <div class="app-splash" id="appSplash" role="status" aria-live="polite">
   <div class="splash-content"><img src="assets/img/dowe-video-wall-logo.png" alt="" class="splash-logo"><p class="splash-name"><?= htmlspecialchars(APP_NAME) ?></p><div class="splash-loader" aria-hidden="true"><span></span><span></span><span></span></div><p class="splash-label">Loading your library</p></div>
 </div>
+<?php endif; ?>
 <header class="topbar">
   <a class="brand" href="index.php"><img src="assets/img/dowe-video-wall-logo.png" alt="" class="brand-logo"><span><?= htmlspecialchars(APP_NAME) ?></span></a>
   <?php if (!$needsSetup): ?>
