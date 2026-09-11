@@ -105,6 +105,10 @@
                     <div><span class="eyebrow">LOCAL AI VIDEO ANALYSIS</span><h2>Generate suggestions from video frames</h2><p>Uses your local Ollama service to analyze a few temporary still frames plus the file name. Nothing is saved until you review and save this form.</p></div>
                     <button class="button primary" id="analyzeVideo" type="button">✦ Analyze with Ollama</button>
                     <p class="analysis-status" id="analysisStatus" aria-live="polite"></p>
+                    <div class="analysis-progress" id="analysisProgress" hidden>
+                        <div class="analysis-progress-heading"><span id="analysisProgressStage">Preparing analysis…</span><span id="analysisProgressPercent">0%</span></div>
+                        <div class="analysis-progress-track" id="analysisProgressBar" role="progressbar" aria-label="Ollama analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="analysisProgressFill"></span></div>
+                    </div>
                     <div class="analysis-results" id="analysisResults" hidden></div>
                 </section>
                     <div class="edit-grid">
