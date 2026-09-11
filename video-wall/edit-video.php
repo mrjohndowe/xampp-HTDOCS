@@ -102,8 +102,8 @@
                 </div>
                 <?php endif; ?>
                 <section class="analysis-card" id="analysisCard" data-video-id="<?php echo htmlspecialchars($id) ?>">
-                    <div><span class="eyebrow">AI VIDEO ANALYSIS</span><h2>Generate suggestions from video frames</h2><p>Analyzes a few temporary still frames plus the file name. Nothing is saved until you review and save this form.</p></div>
-                    <button class="button primary" id="analyzeVideo" type="button">✦ Analyze video</button>
+                    <div><span class="eyebrow">LOCAL AI VIDEO ANALYSIS</span><h2>Generate suggestions from video frames</h2><p>Uses your local Ollama service to analyze a few temporary still frames plus the file name. Nothing is saved until you review and save this form.</p></div>
+                    <button class="button primary" id="analyzeVideo" type="button">✦ Analyze with Ollama</button>
                     <p class="analysis-status" id="analysisStatus" aria-live="polite"></p>
                     <div class="analysis-results" id="analysisResults" hidden></div>
                 </section>

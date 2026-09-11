@@ -18,9 +18,9 @@ While playing, use **Home** to return to the wall, **Next** to immediately play 
 
 ## Optional AI video analysis
 
-The Rename/Edit screen includes **Analyze video**, which extracts up to three temporary local still frames and sends them, together with the file name and creation-derived published date, to the OpenAI Responses API. It returns review-only suggestions for a neutral title, actors, characters, productions, and categories. Nothing is saved until you choose **Use suggestions** and then **Save video**. Temporary frames are deleted after each request.
+The Rename/Edit screen includes **Analyze with Ollama**, which extracts up to three temporary local still frames and sends them, together with the file name and creation-derived published date, to your local Ollama service. It returns review-only suggestions for a neutral title, actors, characters, productions, and categories. Nothing is saved until you choose **Use suggestions** and then **Save video**. Temporary frames are deleted after each request.
 
-Set `OPENAI_API_KEY` in the environment used by Apache/XAMPP, then restart Apache. Do not put an API key in this repository, `config.php`, the SQLite database, or browser code. Optionally set `OPENAI_VIDEO_ANALYSIS_MODEL` to a vision-capable model; the default is `gpt-5.6-luna`. The endpoint uses `store: false`.
+Install Ollama locally and set `OLLAMA_VIDEO_ANALYSIS_MODEL` in the environment used by Apache/XAMPP to the name of an installed vision-capable model, then restart Apache. `OLLAMA_HOST` is optional and defaults to `http://127.0.0.1:11434`; for privacy, the app accepts only a local Ollama host. No API key is required, and frames never leave this computer.
 
 For each video, the Windows filesystem creation date is used as the initial Published date when that field is blank. A date manually saved in Edit Video is never overwritten by later scans.
 
