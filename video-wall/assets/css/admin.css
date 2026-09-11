@@ -47,6 +47,24 @@
     grid-column: 2;
 }
 
+.admin-card.playback-preferences {
+    grid-column: 1/-1;
+}
+
+.playback-preferences > p {
+    color: var(--muted);
+}
+
+.preference-save-status {
+    min-height: 1.4em;
+    margin: 12px 0 0;
+    font-size: 13px;
+}
+
+.preference-save-status.is-error {
+    color: #ff8c79;
+}
+
 @media(max-width:760px) {
     .admin-page {
         grid-template-columns: minmax(0, 1fr);
@@ -57,6 +75,10 @@
     .admin-card.removed-manager,
     .admin-card.studio-production {
         grid-column: 1
+    }
+
+    .admin-card.playback-preferences {
+        grid-column: 1;
     }
 
     .admin-card {

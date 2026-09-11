@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$valid) throw new RuntimeException('Add at least one folder that exists on this computer.');
         $ffmpegPath = trim((string) ($_POST['ffmpegPath'] ?? $ffmpegPath));
         if ($ffmpegPath !== '' && !is_file($ffmpegPath)) throw new RuntimeException('The FFmpeg path does not point to an existing file.');
-        $settings = ['folders'=>$valid,'ffmpegPath'=>$ffmpegPath,'autoNext'=>isset($_POST['autoNext']),'startMuted'=>isset($_POST['startMuted'])];
+        $settings = ['folders'=>$valid,'ffmpegPath'=>$ffmpegPath,'autoNext'=>!empty($settings['autoNext']),'startMuted'=>!empty($settings['startMuted'])];
         saveSettings($settings);
         buildCatalog($valid);
         header('Location: index.php');
@@ -107,10 +107,6 @@ $removedVideos = removedVideos();
       <?php foreach ($folders as $folder): ?><div class="folder-row"><input class="folder-path" name="folders[]" value="<?= htmlspecialchars((string) $folder) ?>" title="<?= htmlspecialchars((string) $folder) ?>" autocomplete="off" spellcheck="false" required><button type="button" class="browse-folder">Browse</button><button type="button" class="remove">×</button></div><?php endforeach; ?>
       </div>
       <label class="ffmpeg-field"><span>FFmpeg executable <small>(optional)</small></span><input name="ffmpegPath" value="<?= htmlspecialchars($ffmpegPath) ?>" placeholder="Full path to ffmpeg.exe" autocomplete="off" spellcheck="false"></label>
-      <div class="playback-settings">
-        <label><input type="checkbox" id="autoNextSetting" name="autoNext" value="1" <?= !empty($settings['autoNext']) ? 'checked' : '' ?>> Automatically switch to the next video</label>
-        <label><input type="checkbox" id="startMutedSetting" name="startMuted" value="1" <?= !empty($settings['startMuted']) ? 'checked' : '' ?>> Start videos muted</label>
-      </div>
       <button type="button" class="button subtle" id="addSettingsFolder">+ Add folder</button>
       <button type="submit" class="button primary save">Save and rebuild</button>
     </form>
