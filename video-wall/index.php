@@ -57,10 +57,14 @@ $removedVideos = removedVideos();
   <link rel="stylesheet" href="assets/css/home-icon.css">
   <link rel="stylesheet" href="assets/css/removed-videos.css">
   <link rel="stylesheet" href="assets/css/video-information.css">
+  <link rel="stylesheet" href="assets/css/splash-screen.css">
 </head>
 <body>
+<div class="app-splash" id="appSplash" role="status" aria-live="polite">
+  <div class="splash-content"><img src="assets/img/dowe-video-wall-logo.png" alt="" class="splash-logo"><p class="splash-name"><?= htmlspecialchars(APP_NAME) ?></p><div class="splash-loader" aria-hidden="true"><span></span><span></span><span></span></div><p class="splash-label">Loading your library</p></div>
+</div>
 <header class="topbar">
-  <a class="brand" href="index.php"><span class="brand-icon">▶</span><span><?= htmlspecialchars(APP_NAME) ?></span></a>
+  <a class="brand" href="index.php"><img src="assets/img/dowe-video-wall-logo.png" alt="" class="brand-logo"><span><?= htmlspecialchars(APP_NAME) ?></span></a>
   <?php if (!$needsSetup): ?>
   <div class="header-actions">
     <input id="search" class="search" type="search" placeholder="Search your library…" autocomplete="off">
@@ -142,5 +146,6 @@ $removedVideos = removedVideos();
 <script src="assets/js/player-features.js"></script>
 <script src="assets/js/category-filter.js"></script>
 <script src="assets/js/custom-categories.js"></script>
+<script src="assets/js/splash-screen.js"></script>
 </body>
 </html>

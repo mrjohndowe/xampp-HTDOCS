@@ -70,7 +70,7 @@
 <body>
     <header class="topbar">
         <a class="brand" href="index.php">
-            <span class="brand-icon">▶</span>
+            <img src="assets/img/dowe-video-wall-logo.png" alt="" class="brand-logo">
             <span>
                 <?php echo htmlspecialchars(APP_NAME) ?>
             </span>
