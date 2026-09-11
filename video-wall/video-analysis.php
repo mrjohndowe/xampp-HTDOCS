@@ -14,6 +14,25 @@ function removeAnalysisFrames(array $frames): void {
     foreach ($frames as $frame) @unlink($frame);
 }
 
+function normalizeAnalysisTitle(string $value): string {
+    return trim((string) preg_replace('/[^a-z0-9]+/i', ' ', strtolower($value)));
+}
+
+function improveAnalysisTitle(string $title, string $originalName): string {
+    $title = trim($title);
+    $originalNormalized = normalizeAnalysisTitle($originalName);
+    $parts = preg_split('/\s*[-–—:]\s*/', $title, 2);
+    if (count($parts) === 2) {
+        [$leading, $descriptive] = array_map('trim', $parts);
+        $leadingNormalized = normalizeAnalysisTitle($leading);
+        if ($descriptive !== '' && $leadingNormalized !== '' && str_contains($originalNormalized, $leadingNormalized)) {
+            return $descriptive . ' - ' . $leading;
+        }
+    }
+    if ($title !== '' && normalizeAnalysisTitle($title) === $originalNormalized) return 'Gameplay Highlight - ' . $title;
+    return $title;
+}
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') analysisError('POST is required.', 405);
 $payload = json_decode((string) file_get_contents('php://input'), true);
 $id = trim((string) ($payload['id'] ?? ''));
@@ -53,7 +72,7 @@ try {
     }
     if (!$frames) throw new RuntimeException('Could not extract frames from this video.');
 
-    $prompt = 'Analyze these still frames and the local file context. Return ONLY a JSON object with name (string), actors (array of strings), characters (array of strings), productions (array of strings), categories (array of strings), summary (string). Be conservative: never identify a real person by name unless the filename clearly supplies it; use empty arrays when unsure. Do not include explicit sexual detail. Create a concise, neutral library title. File name: ' . $video['file'] . '. Original name: ' . $video['original_name'] . '. Creation-derived published date: ' . ($video['publish_date'] ?: 'unknown') . '.';
+    $prompt = 'Analyze the provided video still frames together with the available local file context. Return ONLY a valid JSON object with exactly these fields: name (string), actors (array of strings), characters (array of strings), productions (array of strings), categories (array of strings), and summary (string). Output valid JSON only with no Markdown, code fences, commentary, explanations, or additional fields. Base all results only on information visible in the frames or explicitly provided by the file context. Be conservative when identifying people, characters, productions, games, locations, or other entities; never identify a real person by name unless their identity is clearly supplied by the filename or provided file context, and use empty arrays [] whenever actors, characters, productions, or categories cannot be determined confidently. Do not include explicit sexual detail; describe mature content only in neutral, non-graphic language. Keep the summary concise and describe only what is visibly happening without inventing identities, events, motivations, or unsupported context. The name must be a concise, distinctive, human-readable library title of 4 to 10 words based primarily on the most recognizable visible scene, action, setting, objective, event, or memorable moment; it is NOT a filename cleanup, so never copy or lightly reformat the filename and avoid generic titles when the frames support something more descriptive. If the footage is gameplay, the title MUST begin with the visible action, objective, location, match moment, or descriptive event, never begin with or consist only of the game or franchise name, and may include the game name only as secondary context after the descriptive portion; "Game Name - Secure Zones" is invalid and "Securing the Zones - Game Name" is valid. If the game is identifiable but no specific moment can be determined, use a neutral fallback such as "Gameplay Highlight - [Visible Mode or Setting]"; if neither the game nor a specific moment can be identified confidently, use a purely visual description rather than guessing. Treat file context as supporting metadata, prefer visible evidence when describing what happens, and use file context only to resolve information it clearly supplies. File name: ' . $video['file'] . '. Original name: ' . $video['original_name'] . '. Creation-derived published date: ' . ($video['publish_date'] ?: 'unknown') . '.';
     $images = array_map(static fn(string $frame): string => base64_encode((string) file_get_contents($frame)), $frames);
     $request = ['model' => $model, 'prompt' => $prompt, 'images' => $images, 'stream' => false, 'think' => false, 'format' => 'json', 'options' => ['temperature' => 0.2]];
     $requestJson = json_encode($request, JSON_UNESCAPED_UNICODE);
@@ -81,7 +100,7 @@ try {
     $suggestion = json_decode($text, true);
     if (!is_array($suggestion)) throw new RuntimeException('Ollama returned suggestions in an unexpected format.');
     foreach (['actors', 'characters', 'productions', 'categories'] as $key) $suggestion[$key] = array_values(array_filter(array_map('strval', (array) ($suggestion[$key] ?? []))));
-    $suggestion['name'] = trim((string) ($suggestion['name'] ?? $video['original_name']));
+    $suggestion['name'] = improveAnalysisTitle((string) ($suggestion['name'] ?? $video['original_name']), (string) $video['original_name']);
     $suggestion['summary'] = trim((string) ($suggestion['summary'] ?? ''));
 } catch (Throwable $error) {
     $failure = $error->getMessage();
