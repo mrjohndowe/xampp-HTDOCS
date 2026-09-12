@@ -53,6 +53,16 @@
                             <?php echo htmlspecialchars($duplicateMessage) ?>
                         </div><?php endif; ?>
                     </div>
+                    <section class="admin-card playback-preferences">
+                        <h2>Playback preferences</h2>
+                        <p>These settings save immediately. They never rescan or rebuild your video wall.</p>
+                        <div class="playback-settings" id="playbackPreferences">
+                            <label><input type="checkbox" id="autoNextPreference" <?php echo !empty($settings['autoNext']) ? 'checked' : '' ?>> Automatically switch to the next video</label>
+                            <label><input type="checkbox" id="startMutedPreference" <?php echo !empty($settings['startMuted']) ? 'checked' : '' ?>> Start videos muted</label>
+                        </div>
+                        <p class="preference-save-status" id="preferenceSaveStatus" role="status">Changes save automatically.</p>
+
+                    </section>
                     <section class="admin-card category-manager">
                         <h2>My categories</h2>
                         <div class="category-add">
@@ -106,15 +116,7 @@
                             </div><?php endforeach; ?>
                         </div>
                     </section>
-                    <section class="admin-card playback-preferences">
-                        <h2>Playback preferences</h2>
-                        <p>These settings save immediately. They never rescan or rebuild your video wall.</p>
-                        <div class="playback-settings" id="playbackPreferences">
-                            <label><input type="checkbox" id="autoNextPreference" <?php echo !empty($settings['autoNext']) ? 'checked' : '' ?>> Automatically switch to the next video</label>
-                            <label><input type="checkbox" id="startMutedPreference" <?php echo !empty($settings['startMuted']) ? 'checked' : '' ?>> Start videos muted</label>
-                        </div>
-                        <p class="preference-save-status" id="preferenceSaveStatus" role="status">Changes save automatically.</p>
-                    </section>
+
                 </main>
             <script src="assets/js/admin.js"></script>
             <script src="assets/js/player-preferences.js"></script>
