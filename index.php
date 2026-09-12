@@ -11,9 +11,14 @@
 	}
 	$uri .= $_SERVER['HTTP_HOST'];
 	$landingPage = file_exists('myLocalhost.php') ? 'myLocalhost.php':'index.php';
-	header('Location: '.$uri.'/'.$landingPage);
-	exit;
+
+    if($landingPage){
+        header('Location: '.$uri.'/'.$landingPage);
+        exit;
+    }else{
+        echo "Something is wrong with the WebSite installation :-(";
+    }
 
 
 ?>
-Something is wrong with the XAMPP installation :-(
+

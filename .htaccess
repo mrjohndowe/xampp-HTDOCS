@@ -10,7 +10,7 @@ ErrorDocument 502 /.error/.error.php
 ErrorDocument 504 /.error/.error.php
 
 php_flag allow_url_include on
-DirectoryIndex filemanager.php index.php index.htm index.html index.shtml default.php
+DirectoryIndex index.php index.htm index.html index.shtml default.php
 
 RewriteEngine On
 RewriteRule ^rankings/?$ /stock_trade/rankings/ [R=302,L,QSA]
