@@ -63,6 +63,7 @@ $removedVideos = removedVideos();
   <link rel="stylesheet" href="assets/css/removed-videos.css">
   <link rel="stylesheet" href="assets/css/video-information.css">
   <link rel="stylesheet" href="assets/css/splash-screen.css">
+  <link rel="stylesheet" href="assets/css/pagination.css">
 </head>
 <body>
   <?php if ($showSplash): ?>
@@ -99,9 +100,10 @@ $removedVideos = removedVideos();
 </main>
 <?php else: ?>
 <main class="library-page">
-  <div class="library-heading"><div><span class="eyebrow">MY LIBRARY</span><h1>Video Wall</h1></div><div class="library-filters"><label for="categoryFilter">Category</label><select id="categoryFilter"><option value="">All categories</option><option value="Uncategorized">Uncategorized</option><?php foreach ($categories as $category): ?><option value="<?= htmlspecialchars((string) $category['name']) ?>"><?= htmlspecialchars((string) $category['name']) ?></option><?php endforeach; ?></select><span id="resultCount"><?= count($videos) ?> videos</span></div></div>
+  <div class="library-heading"><div><span class="eyebrow">MY LIBRARY</span><h1>Video Wall</h1></div><div class="library-filters"><label for="categoryFilter">Category</label><select id="categoryFilter"><option value="">All categories</option><option value="Uncategorized">Uncategorized</option><?php foreach ($categories as $category): ?><option value="<?= htmlspecialchars((string) $category['name']) ?>"><?= htmlspecialchars((string) $category['name']) ?></option><?php endforeach; ?></select><label for="itemsPerPage">Items per page</label><select id="itemsPerPage"><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="all">ALL</option></select><span id="resultCount"><?= count($videos) ?> videos</span></div></div>
   <section class="video-grid" id="videoGrid"></section>
   <div class="empty-state" id="emptyState"><h2>No videos found</h2><p>Add another folder or rescan your current folders.</p></div>
+  <div class="pagination" id="pagination"><button class="button subtle" id="prevPage" disabled>← Previous</button><span id="pageInfo">Page 1 of 1</span><button class="button subtle" id="nextPage" disabled>Next →</button></div>
 </main>
 
 <div class="modal" id="settingsModal" aria-hidden="true">
@@ -147,7 +149,6 @@ $removedVideos = removedVideos();
 <script>window.VIDEO_LIBRARY = <?= json_encode($videos, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;window.VIDEO_CATEGORIES=<?= json_encode($categories,JSON_UNESCAPED_UNICODE) ?>;window.PLAYER_SETTINGS=<?= json_encode(['autoNext'=>(bool)$settings['autoNext'],'startMuted'=>(bool)$settings['startMuted']]) ?>;</script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/player-features.js"></script>
-<script src="assets/js/category-filter.js"></script>
 <script src="assets/js/custom-categories.js"></script>
 <script src="assets/js/splash-screen.js"></script>
 </body>

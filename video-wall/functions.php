@@ -222,6 +222,36 @@ function productionsList(): array
     return db()->query('SELECT id, name FROM production ORDER BY name COLLATE NOCASE')->fetchALL();
 }
 
+function ensureCategoryExists(PDO $pdo, string $name): int
+{
+    $name = trim($name);
+    if ($name === '') return 0;
+    
+    $check = $pdo->prepare('SELECT id FROM categories WHERE name = ? COLLATE NOCASE');
+    $check->execute([$name]);
+    $existing = $check->fetch(PDO::FETCH_COLUMN);
+    if ($existing !== false) return (int) $existing;
+    
+    $insert = $pdo->prepare('INSERT INTO categories (name) VALUES (?)');
+    $insert->execute([$name]);
+    return (int) $pdo->lastInsertId();
+}
+
+function ensureProductionExists(PDO $pdo, string $name): int
+{
+    $name = trim($name);
+    if ($name === '') return 0;
+    
+    $check = $pdo->prepare('SELECT id FROM production WHERE name = ? COLLATE NOCASE');
+    $check->execute([$name]);
+    $existing = $check->fetch(PDO::FETCH_COLUMN);
+    if ($existing !== false) return (int) $existing;
+    
+    $insert = $pdo->prepare('INSERT INTO production (name) VALUES (?)');
+    $insert->execute([$name]);
+    return (int) $pdo->lastInsertId();
+}
+
 function setVideoCategories(PDO $pdo, string $videoId, array $categoryIds): void
 {
     $ids = array_values(array_unique(array_filter(array_map('intval', $categoryIds), fn($id) => $id > 0)));
