@@ -71,10 +71,11 @@ function probeVideoDuration(string $ffmpeg, string $videoPath): ?float
 function buildFrameOffsets(?float $duration): array
 {
     if ($duration === null || $duration <= 0) {
-        return [2.0, 10.0, 20.0];
+        return [5.0]; // Reduced to single frame for context size
     }
 
-    $fractions = $duration < 8 ? [0.10, 0.50, 0.90] : [0.08, 0.30, 0.55, 0.80, 0.95];
+    // Reduced to 3 frames instead of 5 to stay within context limits
+    $fractions = $duration < 8 ? [0.25, 0.50, 0.75] : [0.15, 0.40, 0.70];
     $offsets   = [];
     foreach ($fractions as $fraction) {
         $offset = max(0.0, min($duration - 0.15, $duration * $fraction));
@@ -137,7 +138,8 @@ try {
     $duration = probeVideoDuration($ffmpeg, (string) $video['path']);
     foreach (buildFrameOffsets($duration) as $offset) {
         $frame   = $temporary . DIRECTORY_SEPARATOR . bin2hex(random_bytes(12)) . '.jpg';
-        $command = escapeshellarg($ffmpeg) . ' -hide_banner -loglevel error -y -ss ' . escapeshellarg((string) $offset) . ' -i ' . escapeshellarg((string) $video['path']) . ' -frames:v 1 -vf ' . escapeshellarg('scale=768:-2') . ' ' . escapeshellarg($frame);
+        // Reduced image size from 768 to 512 pixels to reduce token count
+        $command = escapeshellarg($ffmpeg) . ' -hide_banner -loglevel error -y -ss ' . escapeshellarg((string) $offset) . ' -i ' . escapeshellarg((string) $video['path']) . ' -frames:v 1 -vf ' . escapeshellarg('scale=512:-2') . ' ' . escapeshellarg($frame);
         $unused  = [];
         $code    = 1;
         @exec($command, $unused, $code);
@@ -152,7 +154,7 @@ try {
         throw new RuntimeException('Could not extract frames from this video.');
     }
 
-    $prompt      = 'Analyze all provided video still frames as samples from different timestamps across the same video. Compare them together and determine the overall content from the combined evidence rather than relying on one frame. Return ONLY valid JSON with exactly these fields: name (string), actors (array of strings), characters (array of strings), studios (array of strings), productions (array of strings), categories (array of strings), genres (array of strings), summary (string). The content may be gameplay, movies or television, animation, personal footage, sports, music or performance, tutorials, screen recordings, social-media clips, adult/pornographic material, or other general video. Do not assume gameplay unless the frames clearly support it. Base conclusions primarily on the frames and use the filename, original name, and date only as supporting context. Never identify a real person from appearance alone; include actor names only when explicitly supported by the supplied context. You may suggest likely fictional characters, studios, developers, publishers, productions, franchises, categories, and genres when reasonably supported. Use [] when unknown. For adult content, classify useful high-level categories and genres accurately but keep the title and summary neutral and non-graphic. The summary must describe the overall video across the sampled timestamps. The name must be an original, descriptive, natural library title based on the strongest visible event, activity, setting, interaction, objective, mood, or memorable moment. Never use generic titles such as Gameplay Highlight, Gaming Clip, Adult Video, Video Highlight, Unknown Video, General Video, or Clip, and never use only the game, production, studio, character, filename, map, or mode name. If the exact content type is uncertain, create a neutral descriptive title from what is visibly happening instead of guessing the media type. File name: ' . $video['file'] . '. Original name: ' . $video['original_name'] . '. Creation-derived published date: ' . ($video['publish_date'] ?: 'unknown') . '.';
+    $prompt      = 'Analyze these video frames. Return ONLY JSON with: name (string), actors (array), characters (array), studios (array), productions (array), categories (array), genres (array), summary (string). Use [] for unknown. File: ' . $video['file'] . '.';
     $images      = array_map(static fn(string $frame): string => base64_encode((string) file_get_contents($frame)), $frames);
     $request     = ['model' => $model, 'prompt' => $prompt, 'images' => $images, 'stream' => false, 'think' => false, 'format' => 'json', 'options' => ['temperature' => 0.2]];
     $requestJson = json_encode($request, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
