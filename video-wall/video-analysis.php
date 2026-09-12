@@ -28,65 +28,19 @@ function improveAnalysisTitle(string $title, string $originalName): string
 {
     $title              = trim($title);
     $originalNormalized = normalizeAnalysisTitle($originalName);
-
-    if ($title === '') {
-        return 'Untitled Video';
-    }
-
-    $parts = preg_split('/\s*[-–—:]\s*/', $title, 2);
+    $parts              = preg_split('/\s*[-–—:]\s*/', $title, 2);
     if (count($parts) === 2) {
         [$leading, $descriptive] = array_map('trim', $parts);
         $leadingNormalized       = normalizeAnalysisTitle($leading);
         if ($descriptive !== '' && $leadingNormalized !== '' && str_contains($originalNormalized, $leadingNormalized)) {
-            $title = $descriptive . ' - ' . $leading;
+            return $descriptive . ' - ' . $leading;
         }
     }
-
-    if (normalizeAnalysisTitle($title) === $originalNormalized) {
-        return 'Untitled Video Scene';
+    if ($title !== '' && normalizeAnalysisTitle($title) === $originalNormalized) {
+        return 'Gameplay Highlight - ' . $title;
     }
 
     return $title;
-}
-
-function probeVideoDuration(string $ffmpeg, string $videoPath): ?float
-{
-    $ffprobe = preg_replace('/ffmpeg(?:\.exe)?$/i', PHP_OS_FAMILY === 'Windows' ? 'ffprobe.exe' : 'ffprobe', $ffmpeg);
-    if (! is_string($ffprobe) || $ffprobe === '' || ! is_file($ffprobe)) {
-        return null;
-    }
-
-    $command = escapeshellarg($ffprobe) . ' -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ' . escapeshellarg($videoPath);
-    $output  = [];
-    $code    = 1;
-    @exec($command, $output, $code);
-    if ($code !== 0 || ! $output) {
-        return null;
-    }
-
-    $duration = (float) trim((string) $output[0]);
-    return $duration > 0 ? $duration : null;
-}
-
-function buildFrameOffsets(?float $duration): array
-{
-    if ($duration === null || $duration <= 0) {
-        return [5.0]; // Reduced to single frame for context size
-    }
-
-    // Reduced to 3 frames instead of 5 to stay within context limits
-    $fractions = $duration < 8 ? [0.25, 0.50, 0.75] : [0.15, 0.40, 0.70];
-    $offsets   = [];
-    foreach ($fractions as $fraction) {
-        $offset = max(0.0, min($duration - 0.15, $duration * $fraction));
-        if ($offset >= 0) {
-            $offsets[] = round($offset, 3);
-        }
-
-    }
-
-    $offsets = array_values(array_unique($offsets, SORT_REGULAR));
-    return $offsets ?: [0.0];
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -135,13 +89,9 @@ $frames     = [];
 $suggestion = null;
 $failure    = null;
 try {
-    $duration = probeVideoDuration($ffmpeg, (string) $video['path']);
-    foreach (buildFrameOffsets($duration) as $offset) {
+    foreach ([2, 20, 60] as $offset) {
         $frame   = $temporary . DIRECTORY_SEPARATOR . bin2hex(random_bytes(12)) . '.jpg';
-        // Reduced image size from 768 to 512 pixels to reduce token count
-        $command = escapeshellarg($ffmpeg) . ' -hide_banner -loglevel error -y -ss ' . escapeshellarg((string) $offset) . ' -i ' . escapeshellarg((string) $video['path']) . ' -frames:v 1 -vf ' . escapeshellarg('scale=512:-2') . ' ' . escapeshellarg($frame);
-        $unused  = [];
-        $code    = 1;
+        $command = escapeshellarg($ffmpeg) . ' -hide_banner -loglevel error -y -ss ' . $offset . ' -i ' . escapeshellarg((string) $video['path']) . ' -frames:v 1 -vf ' . escapeshellarg('scale=768:-2') . ' ' . escapeshellarg($frame);
         @exec($command, $unused, $code);
         if ($code === 0 && is_file($frame) && filesize($frame) > 0) {
             $frames[] = $frame;
@@ -154,14 +104,10 @@ try {
         throw new RuntimeException('Could not extract frames from this video.');
     }
 
-    $prompt      = 'Analyze these video frames. Return ONLY JSON with: name (string), actors (array), characters (array), studios (array), productions (array), categories (array), genres (array), summary (string). Use [] for unknown. File: ' . $video['file'] . '.';
+    $prompt      = 'Analyze the provided video still frames together with the available local file context. The frames may come from multiple different timestamps throughout the video, and you MUST evaluate the video as a whole by comparing evidence across the beginning, middle, end, and any other sampled sections rather than relying on a single frame or isolated moment. Return ONLY a valid JSON object with exactly these fields: name (string), actors (array of strings), characters (array of strings), studios (array of strings), productions (array of strings), categories (array of strings), genres (array of strings), and summary (string). Output valid JSON only with no Markdown, code fences, commentary, explanations, or additional fields. FIRST determine the most likely overall content type from the combined evidence across all sampled parts of the video. Possible content types include gameplay, movie or television footage, animation, personal or home video, music or performance video, sports footage, adult or pornographic material, screen recording, tutorial or demonstration, social-media clip, or other general video. Do NOT assume gameplay merely because one frame resembles a game, and do NOT classify the entire video from a single misleading or transitional frame. Prefer patterns that remain consistent across multiple timestamps. If different sections contain different activities, identify the dominant content type and use the most distinctive recurring or important event to generate the title and summary. Base the analysis primarily on visible evidence across all sampled frames while using the filename, original name, date, and supplied local context only as supporting evidence. Never identify a real person by name from appearance alone; actors may be named only when their identity is explicitly supplied by the filename or other provided context. You MAY intelligently suggest likely fictional characters, studios, developers, publishers, productions, franchises, categories, and genres when the combined visual and contextual evidence reasonably supports the inference, but do not present weak guesses as facts. Use [] when there is insufficient evidence. Adapt metadata to the detected content type: for confirmed gameplay, studios may contain developers or publishers, characters may contain recognizable fictional characters, productions may contain the game or franchise, categories may describe visible gameplay activities, and genres may contain game genres; for movies, television, or animation, studios may contain production companies, characters may contain recognizable fictional characters, productions may contain the title or franchise, categories may describe themes or subjects, and genres may contain appropriate media genres; for adult or pornographic material, classify the content accurately using useful high-level adult categories and genres supported by visible evidence or supplied metadata, while keeping wording concise, neutral, non-graphic, and non-vulgar and never inferring performer identities from appearance; for personal, social-media, tutorial, performance, sports, screen-recording, or general videos, generate metadata based on the actual visible activity, setting, subject, and context without forcing the content into a game, movie, or adult classification. The summary must describe the overall video rather than one isolated frame and should reflect the main sequence of visible events across the sampled timestamps without inventing unsupported details; for explicit adult material, summarize only at a high level without graphic descriptions of sexual acts or anatomy. The name MUST be an original, concise, natural, descriptive or curiosity-driven library title based on the strongest overall moment, sequence, activity, setting, interaction, mood, objective, subject, or memorable event observed across multiple parts of the video. TITLE GENERATION MUST FOLLOW THE DETECTED CONTENT TYPE: for confirmed gameplay, create a title around the visible action, objective, encounter, location, match moment, failure, success, or unexpected event and NEVER use generic titles such as "Gameplay Highlight", "Gaming Clip", or only the game name; for adult material, create a concise, non-graphic title based on the visible scenario, setting, mood, wardrobe, interaction, or supplied context and NEVER use generic titles such as "Adult Video", "Porn Video", or "Adult Scene"; for personal or general videos, title the actual visible activity or situation; for sports footage, title the visible play, competition, athlete action, or memorable moment; for movies, television, or animation, title the visible scene or sequence rather than simply using the production name; for music or performance footage, title the performance, song context if explicitly known, venue, or visible moment; for tutorials, demonstrations, or screen recordings, title the specific task, feature, problem, or result being shown. NEVER use a generic fallback such as "Gameplay Highlight", "Video Highlight", "General Video", "Unknown Video", "Adult Video", or "Clip". If the exact content type remains uncertain after comparing all sampled sections, create a neutral descriptive title directly from the recurring or most prominent visible activity across the video without guessing the media type. NEVER use only a game, franchise, production, studio, actor, character, filename, map, mode, or generic media label as the title and NEVER simply clean up or copy the filename. Put identifiable production information in productions, studio information in studios, descriptive subjects in categories, and broader classifications in genres rather than relying on those values as the title. File name: ' . $video['file'] . '. Original name: ' . $video['original_name'] . '. Creation-derived published date: ' . ($video['publish_date'] ?: 'unknown') . '.';
     $images      = array_map(static fn(string $frame): string => base64_encode((string) file_get_contents($frame)), $frames);
     $request     = ['model' => $model, 'prompt' => $prompt, 'images' => $images, 'stream' => false, 'think' => false, 'format' => 'json', 'options' => ['temperature' => 0.2]];
-    $requestJson = json_encode($request, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
-    if (! is_string($requestJson)) {
-        throw new RuntimeException('Unable to encode the Ollama request.');
-    }
-
+    $requestJson = json_encode($request, JSON_UNESCAPED_UNICODE);
     if (function_exists('curl_init')) {
         $curl = curl_init($host . '/api/generate');
         curl_setopt_array($curl, [CURLOPT_POST => true, CURLOPT_POSTFIELDS => $requestJson, CURLOPT_HTTPHEADER => ['Content-Type: application/json'], CURLOPT_RETURNTRANSFER => true, CURLOPT_TIMEOUT => 90]);
@@ -183,20 +129,8 @@ try {
         throw new RuntimeException('Ollama analysis failed' . ($transportError ? ': ' . $transportError : '.'));
     }
 
-    $response = json_decode($raw, true);
-    if (! is_array($response)) {
-        throw new RuntimeException('Ollama returned an invalid API response.');
-    }
-
-    if (isset($response['error']) && is_string($response['error']) && $response['error'] !== '') {
-        throw new RuntimeException('Ollama error: ' . $response['error']);
-    }
-
-    $text = trim((string) (($response['response'] ?? '') ?: ($response['thinking'] ?? '')));
-    if ($text === '') {
-        throw new RuntimeException('Ollama returned an empty analysis response.');
-    }
-
+    $response   = json_decode($raw, true);
+    $text       = trim((string) (($response['response'] ?? '') ?: ($response['thinking'] ?? '')));
     $text       = (string) preg_replace('/^```(?:json)?\s*|\s*```$/', '', $text);
     $suggestion = json_decode($text, true);
     if (! is_array($suggestion)) {
