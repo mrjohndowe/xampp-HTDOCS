@@ -8,6 +8,7 @@
   border: 1px solid var(--line);
   border-radius: 10px;
   background: #0d1016;
+  text-wrap:auto;
 }
 .video-information div {
   min-width: 0;
@@ -27,6 +28,7 @@
   text-overflow: ellipsis;
   color: var(--muted);
   font-size: 13px;
+  text-wrap: auto !important;
 }
 @media (max-width: 600px) {
   .video-information {
