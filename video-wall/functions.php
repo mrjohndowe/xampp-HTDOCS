@@ -226,12 +226,12 @@ function ensureCategoryExists(PDO $pdo, string $name): int
 {
     $name = trim($name);
     if ($name === '') return 0;
-    
+
     $check = $pdo->prepare('SELECT id FROM categories WHERE name = ? COLLATE NOCASE');
     $check->execute([$name]);
     $existing = $check->fetch(PDO::FETCH_COLUMN);
     if ($existing !== false) return (int) $existing;
-    
+
     $insert = $pdo->prepare('INSERT INTO categories (name) VALUES (?)');
     $insert->execute([$name]);
     return (int) $pdo->lastInsertId();
@@ -241,12 +241,12 @@ function ensureProductionExists(PDO $pdo, string $name): int
 {
     $name = trim($name);
     if ($name === '') return 0;
-    
+
     $check = $pdo->prepare('SELECT id FROM production WHERE name = ? COLLATE NOCASE');
     $check->execute([$name]);
     $existing = $check->fetch(PDO::FETCH_COLUMN);
     if ($existing !== false) return (int) $existing;
-    
+
     $insert = $pdo->prepare('INSERT INTO production (name) VALUES (?)');
     $insert->execute([$name]);
     return (int) $pdo->lastInsertId();
@@ -317,4 +317,137 @@ function mimeFor(string $extension): string
         'mkv' => 'video/x-matroska',
         default => 'video/mpeg'
     };
+}
+
+function normalizeVideoTitle(string $title): string
+{
+    $title = trim($title);
+
+    $title = preg_replace('/\s+/u', ' ', $title) ?? $title;
+
+    if (function_exists('mb_strtolower')) {
+        $title = mb_strtolower($title, 'UTF-8');
+    } else {
+        $title = strtolower($title);
+    }
+
+    // Treat punctuation differences as the same title.
+    $title = preg_replace('/[^\p{L}\p{N}]+/u', ' ', $title) ?? $title;
+
+    $title = preg_replace('/\s+/u', ' ', $title) ?? $title;
+
+    return trim($title);
+}
+
+
+function makeUniqueVideoTitle(string $title, array $existingTitles): string
+{
+    $title = trim($title);
+
+    if ($title === '') {
+        $title = 'Untitled Video';
+    }
+
+    $used = [];
+
+    foreach ($existingTitles as $existingTitle) {
+        $used[normalizeVideoTitle((string) $existingTitle)] = true;
+    }
+
+    if (! isset($used[normalizeVideoTitle($title)])) {
+        return $title;
+    }
+
+    $base   = $title;
+    $number = 2;
+
+    while (isset($used[normalizeVideoTitle($base . ' ' . $number)])) {
+        $number++;
+    }
+
+    return $base . ' ' . $number;
+}
+
+function analysisError(string $message, int $status = 422): never
+{
+    http_response_code($status);
+    echo json_encode(['error' => $message]);
+    exit;
+}
+
+function removeAnalysisFrames(array $frames): void
+{
+    foreach ($frames as $frame) {
+        @unlink($frame);
+    }
+
+}
+
+function normalizeAnalysisTitle(string $value): string
+{
+    return trim((string) preg_replace('/[^a-z0-9]+/i', ' ', strtolower($value)));
+}
+
+function improveAnalysisTitle(string $title, string $originalName): string
+{
+    $title              = trim($title);
+    $originalNormalized = normalizeAnalysisTitle($originalName);
+
+    if ($title === '') {
+        return '';
+    }
+
+    $parts = preg_split('/\s*[-–—:]\s*/', $title, 2);
+    if (count($parts) === 2) {
+        [$leading, $descriptive] = array_map('trim', $parts);
+        $leadingNormalized       = normalizeAnalysisTitle($leading);
+        if ($descriptive !== '' && $leadingNormalized !== '' && str_contains($originalNormalized, $leadingNormalized)) {
+            $title = $descriptive . ' - ' . $leading;
+        }
+    }
+
+    if (normalizeAnalysisTitle($title) === $originalNormalized) {
+        return '';
+    }
+
+    return $title;
+}
+
+function probeVideoDuration(string $ffmpeg, string $videoPath): ?float
+{
+    $ffprobe = preg_replace('/ffmpeg(?:\.exe)?$/i', PHP_OS_FAMILY === 'Windows' ? 'ffprobe.exe' : 'ffprobe', $ffmpeg);
+    if (! is_string($ffprobe) || $ffprobe === '' || ! is_file($ffprobe)) {
+        return null;
+    }
+
+    $command = escapeshellarg($ffprobe) . ' -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 ' . escapeshellarg($videoPath);
+    $output  = [];
+    $code    = 1;
+    @exec($command, $output, $code);
+    if ($code !== 0 || ! $output) {
+        return null;
+    }
+
+    $duration = (float) trim((string) $output[0]);
+    return $duration > 0 ? $duration : null;
+}
+
+function buildFrameOffsets(?float $duration): array
+{
+    if ($duration === null || $duration <= 0) {
+        return [2.0, 10.0, 20.0];
+    }
+
+    $fractions = [0.10, 0.50, 0.90];
+    $offsets   = [];
+    foreach ($fractions as $fraction) {
+        $offset = max(0.0, min($duration - 0.15, $duration * $fraction));
+        if ($offset >= 0) {
+            $offsets[] = round($offset, 3);
+        }
+
+    }
+
+    $offsets = array_values(array_unique($offsets, SORT_REGULAR));
+    return $offsets ?: [0.0];
 }
