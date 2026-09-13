@@ -16,6 +16,7 @@
     $categories    = categoriesList();
     $removedVideos = removedVideos();
     $productions   = productionsList();
+    $names         = namesList();
     $settings      = loadSettings();
 ?>
 <!doctype html>
@@ -74,6 +75,21 @@
                             <div class="category-row" data-id="<?php echo (int)$category['id'] ?>">
                                 <span><?php echo htmlspecialchars((string)$category['name']) ?></span>
                                 <button type="button" class="delete-category">Delete</button>
+                            </div><?php endforeach; ?>
+                        </div>
+                    </section>
+                    <section class="admin-card name-manager">
+                        <h2>Actors / Characters</h2>
+                        <p>Names can be tagged on any video. Deleting a name only removes its tags; it never changes a video file.</p>
+                        <div class="name-add">
+                            <input id="newName" placeholder="New actor or character name" maxlength="120">
+                            <button class="button primary" id="addName" type="button">Add name</button>
+                        </div>
+                        <div id="nameList">
+                            <?php foreach ($names as $name): ?>
+                            <div class="name-row" data-id="<?php echo (int)$name['id'] ?>">
+                                <span><?php echo htmlspecialchars((string)$name['name']) ?></span>
+                                <button type="button" class="delete-name">Delete</button>
                             </div><?php endforeach; ?>
                         </div>
                     </section>

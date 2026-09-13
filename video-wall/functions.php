@@ -3,6 +3,55 @@
 declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 
+// Set up global error handling
+function globalErrorHandler($errno, $errstr, $errfile, $errline) {
+    date_default_timezone_set('America/Denver');
+
+    $errorDir = __DIR__ . '/logs/';
+    $errorFile = $errorDir . 'siteError.log';
+
+    // Ensure directory exists
+    if (!is_dir($errorDir)) {
+        mkdir($errorDir, 0755, true);
+    }
+
+    $timeStamp = date('Y-m-d H:i:s');
+    $errorMessage = $timeStamp . ' [' . $errno . '] ' . $errstr . ' in ' . $errfile . ' on line ' . $errline . PHP_EOL . PHP_EOL;
+
+    error_log($errorMessage, 3, $errorFile);
+}
+
+// Set up global exception handler
+function globalExceptionHandler($exception) {
+    date_default_timezone_set('America/Denver');
+
+    $errorDir = __DIR__ . '/logs/';
+    $errorFile = $errorDir . 'siteError.log';
+
+    // Ensure directory exists
+    if (!is_dir($errorDir)) {
+        mkdir($errorDir, 0755, true);
+    }
+
+    $timeStamp = date('Y-m-d H:i:s');
+    $errorMessage = $timeStamp . ' [EXCEPTION] ' . $exception->getMessage() . ' in ' . $exception->getFile() . ' on line ' . $exception->getLine() . PHP_EOL . PHP_EOL;
+
+    error_log($errorMessage, 3, $errorFile);
+}
+
+// Register the handlers
+set_error_handler('globalErrorHandler');
+set_exception_handler('globalExceptionHandler');
+
+// Handle fatal errors
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        globalErrorHandler($error['type'], $error['message'], $error['file'], $error['line']);
+    }
+});
+
+
 function ensureDataDirectory(): void
 {
     if (!is_dir(DATA_DIR) && !mkdir(DATA_DIR, 0775, true) && !is_dir(DATA_DIR)) throw new RuntimeException('Unable to create the data folder.');
@@ -14,7 +63,7 @@ function db(): PDO
     if ($pdo instanceof PDO) return $pdo;
     ensureDataDirectory();
     $pdo = new PDO('sqlite:' . DATABASE_FILE, null, null, [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC]);
-    $pdo->exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT NOT NULL UNIQUE); CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS production (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS videos (id TEXT PRIMARY KEY,original_name TEXT NOT NULL,display_name TEXT,file TEXT NOT NULL,category TEXT NOT NULL DEFAULT "",folder TEXT NOT NULL,path TEXT NOT NULL UNIQUE,extension TEXT NOT NULL,size INTEGER NOT NULL,modified INTEGER NOT NULL,created INTEGER NOT NULL DEFAULT 0,category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,active INTEGER NOT NULL DEFAULT 1,actors TEXT NOT NULL DEFAULT "",characters TEXT NOT NULL DEFAULT "",notes TEXT NOT NULL DEFAULT "",publish_date TEXT NOT NULL DEFAULT "",production TEXT NOT NULL DEFAULT "",duplicate_of TEXT); CREATE TABLE IF NOT EXISTS video_categories (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,PRIMARY KEY(video_id,category_id)); CREATE TABLE IF NOT EXISTS video_productions (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,production_id INTEGER NOT NULL REFERENCES production(id) ON DELETE CASCADE,PRIMARY KEY(video_id,production_id)); CREATE INDEX IF NOT EXISTS video_categories_category_idx ON video_categories(category_id); CREATE INDEX IF NOT EXISTS video_productions_production_idx ON video_productions(production_id)');
+    $pdo->exec('PRAGMA journal_mode=WAL; PRAGMA foreign_keys=ON; CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY,value TEXT NOT NULL); CREATE TABLE IF NOT EXISTS folders (id INTEGER PRIMARY KEY AUTOINCREMENT,path TEXT NOT NULL UNIQUE); CREATE TABLE IF NOT EXISTS categories (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS production (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS names (id INTEGER PRIMARY KEY AUTOINCREMENT,name TEXT NOT NULL UNIQUE COLLATE NOCASE); CREATE TABLE IF NOT EXISTS videos (id TEXT PRIMARY KEY,original_name TEXT NOT NULL,display_name TEXT,file TEXT NOT NULL,category TEXT NOT NULL DEFAULT "",folder TEXT NOT NULL,path TEXT NOT NULL UNIQUE,extension TEXT NOT NULL,size INTEGER NOT NULL,modified INTEGER NOT NULL,created INTEGER NOT NULL DEFAULT 0,category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL,active INTEGER NOT NULL DEFAULT 1,actors TEXT NOT NULL DEFAULT "",characters TEXT NOT NULL DEFAULT "",notes TEXT NOT NULL DEFAULT "",publish_date TEXT NOT NULL DEFAULT "",production TEXT NOT NULL DEFAULT "",duplicate_of TEXT); CREATE TABLE IF NOT EXISTS video_categories (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,category_id INTEGER NOT NULL REFERENCES categories(id) ON DELETE CASCADE,PRIMARY KEY(video_id,category_id)); CREATE TABLE IF NOT EXISTS video_productions (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,production_id INTEGER NOT NULL REFERENCES production(id) ON DELETE CASCADE,PRIMARY KEY(video_id,production_id)); CREATE TABLE IF NOT EXISTS video_names (video_id TEXT NOT NULL REFERENCES videos(id) ON DELETE CASCADE,name_id INTEGER NOT NULL REFERENCES names(id) ON DELETE CASCADE,PRIMARY KEY(video_id,name_id)); CREATE INDEX IF NOT EXISTS video_categories_category_idx ON video_categories(category_id); CREATE INDEX IF NOT EXISTS video_productions_production_idx ON video_productions(production_id); CREATE INDEX IF NOT EXISTS video_names_name_idx ON video_names(name_id)');
     $columns = $pdo->query('PRAGMA table_info(videos)')->fetchAll(PDO::FETCH_COLUMN, 1);
     if (!in_array('category_id', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN category_id INTEGER REFERENCES categories(id) ON DELETE SET NULL');
     if (!in_array('active', $columns, true)) $pdo->exec('ALTER TABLE videos ADD COLUMN active INTEGER NOT NULL DEFAULT 1');
@@ -28,8 +77,21 @@ function db(): PDO
     $pdo->exec('INSERT OR IGNORE INTO video_categories(video_id,category_id) SELECT id,category_id FROM videos WHERE category_id IS NOT NULL');
     $categoryColumns = $pdo->query('PRAGMA table_info(video_categories)')->fetchAll(PDO::FETCH_COLUMN, 1);
     if (in_array('production_id', $categoryColumns, true)) $pdo->exec('INSERT OR IGNORE INTO video_productions(video_id,production_id) SELECT video_id,production_id FROM video_categories WHERE production_id IS NOT NULL');
+    migrateLegacyVideoNames($pdo);
     migrateLegacyJson($pdo);
     return $pdo;
+}
+
+function migrateLegacyVideoNames(PDO $pdo): void
+{
+    $videos = $pdo->query("SELECT id,actors,characters FROM videos WHERE TRIM(actors) <> '' OR TRIM(characters) <> ''")->fetchAll();
+    foreach ($videos as $video) {
+        $rawNames = preg_split('/[,;\\r\\n]+/', (string)$video['actors'] . ',' . (string)$video['characters']) ?: [];
+        foreach ($rawNames as $name) {
+            $nameId = ensureNameExists($pdo, $name);
+            if ($nameId > 0) $pdo->prepare('INSERT OR IGNORE INTO video_names(video_id,name_id) VALUES(?,?)')->execute([(string)$video['id'], $nameId]);
+        }
+    }
 }
 
 function migrateLegacyJson(PDO $pdo): void
@@ -135,6 +197,8 @@ function buildCatalog(array $folders): array
     foreach ($pdo->query('SELECT video_id,category_id FROM video_categories') as $row) $categoryAssignments[$row['video_id']][] = (int)$row['category_id'];
     $productionAssignments = [];
     foreach ($pdo->query('SELECT video_id,production_id FROM video_productions') as $row) $productionAssignments[$row['video_id']][] = (int)$row['production_id'];
+    $nameAssignments = [];
+    foreach ($pdo->query('SELECT video_id,name_id FROM video_names') as $row) $nameAssignments[$row['video_id']][] = (int)$row['name_id'];
     $activeStates = $pdo->query('SELECT id,active FROM videos')->fetchAll(PDO::FETCH_KEY_PAIR);
     $metadata = [];
     foreach ($pdo->query('SELECT id,actors,characters,notes,publish_date,production FROM videos') as $row) $metadata[$row['id']] = $row;
@@ -174,10 +238,12 @@ function buildCatalog(array $folders): array
         $statement = $pdo->prepare('INSERT INTO videos(id,original_name,display_name,file,category,folder,path,extension,size,modified,created,category_id,active,actors,characters,notes,publish_date,production,duplicate_of) VALUES(:id,:original_name,:display_name,:file,:category,:folder,:path,:extension,:size,:modified,:created,:category_id,:active,:actors,:characters,:notes,:publish_date,:production,:duplicate_of)');
         $categoryStatement = $pdo->prepare('INSERT OR IGNORE INTO video_categories(video_id,category_id) VALUES(?,?)');
         $productionStatement = $pdo->prepare('INSERT OR IGNORE INTO video_productions(video_id,production_id) VALUES(?,?)');
+        $nameStatement = $pdo->prepare('INSERT OR IGNORE INTO video_names(video_id,name_id) VALUES(?,?)');
         foreach ($items as $item) {
             $statement->execute($item);
             foreach ($categoryAssignments[$item['id']] ?? [] as $categoryId) $categoryStatement->execute([$item['id'], $categoryId]);
             foreach ($productionAssignments[$item['id']] ?? [] as $productionId) $productionStatement->execute([$item['id'], $productionId]);
+            foreach ($nameAssignments[$item['id']] ?? [] as $nameId) $nameStatement->execute([$item['id'], $nameId]);
         }
         $pdo->commit();
     } catch (Throwable $error) {
@@ -195,6 +261,8 @@ function catalog(): array
     foreach ($pdo->query('SELECT vc.video_id,c.id,c.name FROM video_categories vc JOIN categories c ON c.id=vc.category_id ORDER BY c.name COLLATE NOCASE') as $row) $assigned[$row['video_id']][] = ['id' => (int)$row['id'], 'name' => $row['name']];
     $productionAssignments = [];
     foreach ($pdo->query('SELECT vp.video_id,p.id,p.name FROM video_productions vp JOIN production p ON p.id=vp.production_id ORDER BY p.name COLLATE NOCASE') as $row) $productionAssignments[$row['video_id']][] = ['id' => (int)$row['id'], 'name' => $row['name']];
+    $nameAssignments = [];
+    foreach ($pdo->query('SELECT vn.video_id,n.id,n.name FROM video_names vn JOIN names n ON n.id=vn.name_id ORDER BY n.name COLLATE NOCASE') as $row) $nameAssignments[$row['video_id']][] = ['id' => (int)$row['id'], 'name' => $row['name']];
     foreach ($videos as &$video) {
         $links = $assigned[$video['id']] ?? [];
         $video['categoryIds'] = array_column($links, 'id');
@@ -205,6 +273,13 @@ function catalog(): array
         $video['productionIds'] = array_column($productions, 'id');
         $video['productions'] = array_column($productions, 'name');
         $video['production'] = $video['productions'] ? implode(', ', $video['productions']) : 'Not added';
+        $names = $nameAssignments[$video['id']] ?? [];
+        $video['nameIds'] = array_column($names, 'id');
+        $video['names'] = array_column($names, 'name');
+        if ($video['names']) {
+            $video['actors'] = implode(', ', $video['names']);
+            $video['characters'] = '';
+        }
     }
     unset($video);
     return $videos;
@@ -220,6 +295,10 @@ function categoriesList(): array
 function productionsList(): array
 {
     return db()->query('SELECT id, name FROM production ORDER BY name COLLATE NOCASE')->fetchALL();
+}
+function namesList(): array
+{
+    return db()->query('SELECT id,name FROM names ORDER BY name COLLATE NOCASE')->fetchAll();
 }
 
 function ensureCategoryExists(PDO $pdo, string $name): int
@@ -250,6 +329,19 @@ function ensureProductionExists(PDO $pdo, string $name): int
     $insert = $pdo->prepare('INSERT INTO production (name) VALUES (?)');
     $insert->execute([$name]);
     return (int) $pdo->lastInsertId();
+}
+
+function ensureNameExists(PDO $pdo, string $name): int
+{
+    $name = trim($name);
+    if ($name === '' || strlen($name) > 120) return 0;
+    $check = $pdo->prepare('SELECT id FROM names WHERE name = ? COLLATE NOCASE');
+    $check->execute([$name]);
+    $existing = $check->fetch(PDO::FETCH_COLUMN);
+    if ($existing !== false) return (int)$existing;
+    $insert = $pdo->prepare('INSERT INTO names(name) VALUES(?)');
+    $insert->execute([$name]);
+    return (int)$pdo->lastInsertId();
 }
 
 function setVideoCategories(PDO $pdo, string $videoId, array $categoryIds): void
@@ -284,6 +376,28 @@ function setVideoProduction(PDO $pdo, string $videoId, array $productionIds): vo
     $delete->execute([$videoId]);
     $insert = $pdo->prepare('INSERT INTO video_productions(video_id,production_id) VALUES(?,?)');
     foreach ($valid as $productionId) $insert->execute([$videoId, $productionId]);
+}
+function setVideoNames(PDO $pdo, string $videoId, array $nameIds): void
+{
+    $ids = array_values(array_unique(array_filter(array_map('intval', $nameIds), fn($id) => $id > 0)));
+    $valid = [];
+    if ($ids) {
+        $placeholders = implode(',', array_fill(0, count($ids), '?'));
+        $check = $pdo->prepare("SELECT id FROM names WHERE id IN ($placeholders)");
+        $check->execute($ids);
+        $valid = array_map('intval', $check->fetchAll(PDO::FETCH_COLUMN));
+    }
+    $pdo->prepare('DELETE FROM video_names WHERE video_id=?')->execute([$videoId]);
+    $insert = $pdo->prepare('INSERT INTO video_names(video_id,name_id) VALUES(?,?)');
+    foreach ($valid as $nameId) $insert->execute([$videoId, $nameId]);
+    $legacyNames = [];
+    if ($valid) {
+        $placeholders = implode(',', array_fill(0, count($valid), '?'));
+        $query = $pdo->prepare("SELECT name FROM names WHERE id IN ($placeholders) ORDER BY name COLLATE NOCASE");
+        $query->execute($valid);
+        $legacyNames = $query->fetchAll(PDO::FETCH_COLUMN);
+    }
+    $pdo->prepare('UPDATE videos SET actors=?,characters=? WHERE id=?')->execute([implode(', ', $legacyNames), '', $videoId]);
 }
 function publicVideo(array $video): array
 {
@@ -435,19 +549,114 @@ function probeVideoDuration(string $ffmpeg, string $videoPath): ?float
 function buildFrameOffsets(?float $duration): array
 {
     if ($duration === null || $duration <= 0) {
-        return [2.0, 10.0, 20.0];
+        return [
+            2.0,
+            10.0,
+            20.0,
+        ];
     }
 
-    $fractions = [0.10, 0.50, 0.90];
-    $offsets   = [];
+    $fractions = [
+        random_int(5, 10) / 100,
+        random_int(25, 50) / 100,
+        random_int(75, 95) / 100,
+    ];
+
+    $offsets = [];
+
     foreach ($fractions as $fraction) {
-        $offset = max(0.0, min($duration - 0.15, $duration * $fraction));
-        if ($offset >= 0) {
-            $offsets[] = round($offset, 3);
-        }
+        $offset = max(
+            0.0,
+            min(
+                $duration - 0.15,
+                $duration * $fraction
+            )
+        );
 
+        if ($offset >= 0) {
+            $offsets[] = round(
+                $offset,
+                3
+            );
+        }
     }
 
-    $offsets = array_values(array_unique($offsets, SORT_REGULAR));
-    return $offsets ?: [0.0];
+    return array_values(
+        array_unique(
+            $offsets,
+            SORT_REGULAR
+        )
+    );
+}
+function getErrors($timeStamp, $status)
+{
+
+    $page = $_SERVER['PHP_SELF'];
+    date_default_timezone_set('America/Denver');
+
+    $errorDir  = __DIR__ . '/logs/';
+    $errorFile = $errorDir . 'siteError.log';
+
+
+
+    // Ensure directory exists
+    if (! is_dir($errorDir)) {
+        mkdir($errorDir, 0755, true);
+    }
+
+    $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off')  ? 'https://' : 'http://';
+    $errorMessage = error_get_last();
+    $myErrorMessage = ' Video Wall Errors: File Location: ' . $protocol . $_SERVER['SERVER_NAME'] . $page . ' ';
+
+
+    // Convert error array to string
+    if ($errorMessage && $status == 'error') {
+        $errorMessage = $timeStamp . ' ' . $myErrorMessage . $errorMessage['message'] . ' in ' . $errorMessage['file'] . ' on line ' . $errorMessage['line'] . PHP_EOL;
+    } else {
+        $errorMessage = $timeStamp . $myErrorMessage . 'No error information available' . PHP_EOL;
+    }
+
+    $errorLog = error_log($errorMessage, 3, $errorFile);
+    return $errorLog;
+}
+
+function clearErrorFile($status){
+
+    if($status == false)
+    {
+        trigger_error(' File will not be cleared: '. E_COMPILE_WARNING);
+    } else {
+
+        date_default_timezone_set('America/Denver');
+
+        $errorDir = __DIR__ . '/logs/';
+        $errorFile = $errorDir . 'siteError.log';
+        if(file_exists((string) $errorFile)) {
+            unlink($errorFile);
+        }else{
+
+
+            $errorFileCheck = is_writeable( (string) $errorFile) ? true : false ;
+
+            //Ensure directory exists
+            if(!is_dir($errorDir)){
+                mkdir($errorDir, 0755, true);
+            }
+            if( $errorFileCheck === false) {
+                trigger_error('Can not write to the file: ' . E_COMPILE_ERROR);
+            }else{
+
+                $fp = fopen($errorFile, 'w');
+                $timestamp = date('m/d/Y H:i:s');
+                $message = $timestamp . '| Start of Video Wall Error Log'. PHP_EOL;
+                $message .= '-----------------------------------------------------'. PHP_EOL;
+                fwrite($fp, $message);
+                fclose($fp);
+                setcookie('fileCleared', true, time() + (10 * 365 * 24 * 60 * 60), '/');
+            }
+        }
+    }
+
+    return true;
+
 }

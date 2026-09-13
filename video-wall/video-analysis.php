@@ -4,8 +4,31 @@ set_time_limit(600);
 ini_set('max_execution_time', '600');
 
 
-
 require_once __DIR__ . '/functions.php';
+require_once __DIR__ . '/analysis-prompt.php';
+
+// Log any errors that occur during analysis
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== null) {
+        date_default_timezone_set('America/Denver');
+        $errorDir = __DIR__ . '/logs/';
+        $errorFile = $errorDir . 'siteError.log';
+
+        if (!is_dir($errorDir)) {
+            mkdir($errorDir, 0755, true);
+        }
+
+        $timeStamp = date('Y-m-d H:i:s');
+        $errorMessage = $timeStamp . ' [VIDEO-ANALYSIS] ' . $error['message'] . ' in ' . $error['file'] . ' on line ' . $error['line'] . PHP_EOL . PHP_EOL;
+
+        error_log($errorMessage, 3, $errorFile);
+    }
+});
+
+
+
+
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -103,26 +126,72 @@ $suggestion = null;
 $failure    = null;
 
 try {
-    $duration = probeVideoDuration($ffmpeg, (string) $video['path']);
+    $duration = probeVideoDuration(
+        $ffmpeg,
+        (string) $video['path']
+    );
 
-    foreach (buildFrameOffsets($duration) as $offset) {
-        $frame = $temporary . DIRECTORY_SEPARATOR . bin2hex(random_bytes(12)) . '.jpg';
+    /*
+    * Run the random frame selection 3 separate times.
+    * buildFrameOffsets() returns 3 random points each time,
+    * so this produces up to 9 timestamps before analysis.
+    */
+    $extractionRounds = 3;
+    $allOffsets = [];
+
+    for ($round = 1; $round <= $extractionRounds; $round++) {
+        $roundOffsets = buildFrameOffsets($duration);
+
+        foreach ($roundOffsets as $offset) {
+            $allOffsets[] = round((float) $offset, 3);
+        }
+    }
+
+    /*
+    * Remove a timestamp if random selection happened to
+    * produce exactly the same point more than once.
+    */
+    $allOffsets = array_values(
+        array_unique(
+            $allOffsets,
+            SORT_REGULAR
+        )
+    );
+
+    sort($allOffsets, SORT_NUMERIC);
+
+    /*
+    * Extract every selected timestamp.
+    */
+    foreach ($allOffsets as $offset) {
+        $frame = $temporary
+            . DIRECTORY_SEPARATOR
+            . bin2hex(random_bytes(12))
+            . '.jpg';
 
         $command =
-        escapeshellarg($ffmpeg)
-        . ' -hide_banner -loglevel error -y'
-        . ' -ss ' . escapeshellarg((string) $offset)
-        . ' -i ' . escapeshellarg((string) $video['path'])
-        . ' -frames:v 1'
-        . ' -vf ' . escapeshellarg('scale=768:-2')
-        . ' ' . escapeshellarg($frame);
+            escapeshellarg($ffmpeg)
+            . ' -hide_banner -loglevel error -y'
+            . ' -ss ' . escapeshellarg((string) $offset)
+            . ' -i ' . escapeshellarg((string) $video['path'])
+            . ' -frames:v 1'
+            . ' -vf ' . escapeshellarg('scale=768:-2')
+            . ' ' . escapeshellarg($frame);
 
         $unused = [];
         $code   = 1;
 
-        @exec($command, $unused, $code);
+        @exec(
+            $command,
+            $unused,
+            $code
+        );
 
-        if ($code === 0 && is_file($frame) && filesize($frame) > 0) {
+        if (
+            $code === 0
+            && is_file($frame)
+            && filesize($frame) > 0
+        ) {
             $frames[] = $frame;
         } else {
             @unlink($frame);
@@ -130,16 +199,22 @@ try {
     }
 
     if (! $frames) {
-        throw new RuntimeException('Could not extract frames from this video.');
+        throw new RuntimeException(
+            'Could not extract frames from this video.'
+        );
     }
-
-    $prompt = file_get_contents(__DIR__ . '/analysis-prompt.php');
 
     $images = array_map(
         static fn(string $frame): string =>
-        base64_encode((string) file_get_contents($frame)),
+            base64_encode(
+                (string) file_get_contents($frame)
+            ),
         $frames
     );
+
+
+    // $prompt = file_get_contents(__DIR__ . '/analysis-prompt.php');
+    $prompt = buildVideoAnalysisPrompt($video, $existingTitleList);
 
     $maxAttempts    = 5;
     $duplicateTitle = null;
@@ -417,3 +492,5 @@ echo json_encode(
     ],
     JSON_UNESCAPED_UNICODE
 );
+
+

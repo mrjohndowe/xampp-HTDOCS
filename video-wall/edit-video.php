@@ -28,6 +28,10 @@
     $selectedProduction  = $database->prepare('SELECT production_id FROM video_productions WHERE video_id=?');
     $selectedProduction->execute([$id]);
     $selectedProductionIds = array_map('intval', $selectedProduction->fetchAll(PDO::FETCH_COLUMN));
+    $names = namesList();
+    $selectedNames = $database->prepare('SELECT name_id FROM video_names WHERE video_id=?');
+    $selectedNames->execute([$id]);
+    $selectedNameIds = array_map('intval', $selectedNames->fetchAll(PDO::FETCH_COLUMN));
     $error               = '';
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
@@ -41,16 +45,18 @@
 
         $postedCategories    = $_POST['categoryIds'] ?? [];
         $selectedCategoryIds = array_map('intval', is_array($postedCategories) ? $postedCategories : []);
-        $actors              = trim((string) ($_POST['actors'] ?? ''));
+        $postedNames         = $_POST['nameIds'] ?? [];
+        $selectedNameIds     = array_map('intval', is_array($postedNames) ? $postedNames : []);
         $notes               = trim((string) ($_POST['notes'] ?? ''));
         $publishDate         = trim((string) ($_POST['publishDate'] ?? ''));
         //$production          = trim((string) ($_POST['production'] ?? ''));
         $active              = isset($_POST['active']) ? 1 : 0;
         $database->beginTransaction();
-        $update = $database->prepare('UPDATE videos SET display_name=?,actors=?,characters=?,notes=?,publish_date=?,active=? WHERE id=?');
-        $update->execute([$name, $actors, '', $notes, $publishDate, $active, $id]);
+        $update = $database->prepare('UPDATE videos SET display_name=?,notes=?,publish_date=?,active=? WHERE id=?');
+        $update->execute([$name, $notes, $publishDate, $active, $id]);
         setVideoCategories($database, $id, $selectedCategoryIds);
         setVideoProduction($database, $id, $selectedProductionIds);
+        setVideoNames($database, $id, $selectedNameIds);
         $database->commit();
         header('Location: ' . ($active ? 'index.php' : 'admin.php'));
         exit;
@@ -116,7 +122,7 @@
                         <fieldset class="wide category-choices">
                             <legend>Categories</legend>
                                 <p>Select as many categories as you want. Leave all unchecked for Uncategorized.</p>
-                                    <div>
+                                    <div id="categoryChoices">
                                     <?php foreach ($categories as $category): ?><label>
                                         <input type="checkbox" name="categoryIds[]" value="<?php echo (int) $category['id'] ?>" <?php echo in_array((int) $category['id'], $selectedCategoryIds, true) ? 'checked' : '' ?>>
                                         <span>
@@ -134,7 +140,7 @@
                         <fieldset class="wide production-choices">
                             <legend>Productions</legend>
                                 <p>Select as many productions/studios as you want. Leave all unchecked for Unknown.</p>
-                                    <div>
+                                    <div id="productionChoices">
                                     <?php foreach ($productions as $studio): ?><label>
                                         <input type="checkbox" name="productionIds[]" value="<?php echo (int) $studio['id'] ?>" <?php echo in_array((int) $studio['id'], $selectedProductionIds, true) ? 'checked' : '' ?>>
                                         <span>
@@ -153,11 +159,17 @@
                         <!--<label class="wide">Production video / studio<input name="production" maxlength="300" value="<?php echo htmlspecialchars((string) ($_POST['production'] ?? $video['production'])) ?>" placeholder="Production company, studio, creator, or production title">
 
                         </label>-->
-                        <label class="wide">Actors/Characters
-                            <textarea name="actors" rows="3" maxlength="2000" placeholder="Separate multiple actors with commas">
-                                <?php echo htmlspecialchars((string) ($_POST['actors'] ?? implode(', ', array_filter([(string) $video['actors'], (string) $video['characters']])))) ?>
-                            </textarea>
-                        </label>
+                        <fieldset class="wide name-choices">
+                            <legend>Actors / Characters</legend>
+                            <p>Choose every name tagged in this video. Create or manage names in Admin.</p>
+                            <div id="nameChoices">
+                                <?php foreach ($names as $name): ?><label>
+                                    <input type="checkbox" name="nameIds[]" value="<?php echo (int)$name['id'] ?>" <?php echo in_array((int)$name['id'], $selectedNameIds, true) ? 'checked' : '' ?>>
+                                    <span><?php echo htmlspecialchars((string)$name['name']) ?></span>
+                                </label><?php endforeach; ?>
+                                <?php if (!$names): ?><small>No names yet. Add one in Admin or use an AI suggestion.</small><?php endif; ?>
+                            </div>
+                        </fieldset>
                         <label class="wide">Video Info / Notes
                             <textarea name="notes" rows="3" maxlength="2000" placeholder="Additional information or notes about the video">
                                 <?php echo htmlspecialchars((string) ($_POST['notes'] ?? $video['notes'])) ?>

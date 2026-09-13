@@ -4,6 +4,28 @@
   padding-top: 22px;
   border-top: 1px solid var(--line);
 }
+.name-manager {
+  grid-column: span 1;
+}
+.name-add {
+  display: flex;
+  gap: 10px;
+  margin: 14px 0;
+}
+.name-add input {
+  flex: 1;
+  min-width: 0;
+}
+.name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.name-row:last-child { border-bottom: 0; }
+.delete-name { color: var(--accent); background: transparent; border: 0; cursor: pointer; font: inherit; }
 .category-manager h3 {
   margin: 0 0 12px;
 }

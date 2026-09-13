@@ -3,8 +3,14 @@ declare(strict_types=1);
 require_once __DIR__ . '/functions.php';
 
 $showSplash = !isset($_COOKIE['firstTimer']);
+
 if ($showSplash) {
+
     setcookie('firstTimer', '0', time() + (10 * 365 * 24 * 60 * 60), '/');
+    $is_FileCleared = isset($_COOKIE['fileCleared']) ? $_COOKIE['fileCleared'] : false ;
+    if($is_FileCleared === false){
+      clearErrorFile($showSplash, 'ok');
+    }
 }
 
 $settings = loadSettings();

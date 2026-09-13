@@ -52,6 +52,24 @@
     }),
   );
 
+  document.querySelector("#addName")?.addEventListener("click", async () => {
+    const input = document.querySelector("#newName"), name = input.value.trim();
+    if (!name) return;
+    try { await post("name.php", { action: "create", name }); location.reload(); }
+    catch (error) { alert(error.message); }
+  });
+  document.querySelector("#newName")?.addEventListener("keydown", (event) => {
+    if (event.key === "Enter") { event.preventDefault(); document.querySelector("#addName").click(); }
+  });
+  document.querySelectorAll(".delete-name").forEach((button) =>
+    button.addEventListener("click", async () => {
+      const row = button.closest(".name-row");
+      if (!confirm(`Delete “${row.querySelector("span").textContent}”? It will be untagged from videos.`)) return;
+      try { await post("name.php", { action: "delete", id: Number(row.dataset.id) }); location.reload(); }
+      catch (error) { alert(error.message); }
+    }),
+  );
+
     //Production / Studios Section
 
     document
