@@ -1,5 +1,9 @@
 <?php
 declare (strict_types = 1);
+set_time_limit(600);
+ini_set('max_execution_time', '600');
+
+
 
 require_once __DIR__ . '/functions.php';
 
@@ -187,7 +191,7 @@ try {
                 CURLOPT_POSTFIELDS     => $requestJson,
                 CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
                 CURLOPT_RETURNTRANSFER => true,
-                CURLOPT_TIMEOUT        => 90,
+                CURLOPT_TIMEOUT        => 300,
             ]);
 
             $raw            = curl_exec($curl);
@@ -201,7 +205,7 @@ try {
                     'method'        => 'POST',
                     'header'        => "Content-Type: application/json\r\n",
                     'content'       => $requestJson,
-                    'timeout'       => 90,
+                    'timeout'       => 300,
                     'ignore_errors' => true,
                 ],
             ]);
