@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"></stop>
+      <stop offset="50%" stop-color="#312e81"></stop>
+      <stop offset="100%" stop-color="#831843"></stop>
+    </linearGradient>
+
+    <linearGradient id="trimGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#60a5fa"></stop>
+      <stop offset="33%" stop-color="#c084fc"></stop>
+      <stop offset="66%" stop-color="#f472b6"></stop>
+      <stop offset="100%" stop-color="#60a5fa"></stop>
+      <animateTransform attributeName="gradientTransform" type="rotate" from="0 540 675" to="360 540 675" dur="4s" repeatCount="indefinite"></animateTransform>
+    </linearGradient>
+
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur1"></feGaussianBlur>
+      <feGaussianBlur stdDeviation="18" result="blur2"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="blur2"></feMergeNode>
+        <feMergeNode in="blur1"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="blur"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+
+    <style>
+      .bubble-trim {
+        stroke-dasharray: 170 34;
+        animation: dash 4s linear infinite;
+      }
+      .tail-trim {
+        stroke-dasharray: 58 16;
+        animation: dash 3.5s linear infinite;
+      }
+      .sparkle {
+        animation: twinkle 2.2s ease-in-out infinite;
+      }
+      .sparkle2 {
+        animation: twinkle 2.8s ease-in-out infinite;
+      }
+      @keyframes dash {
+        from { stroke-dashoffset: 0; }
+        to { stroke-dashoffset: -408; }
+      }
+      @keyframes twinkle {
+        0%, 100% { opacity: 0.35; transform: scale(0.95); }
+        50% { opacity: 1; transform: scale(1.08); }
+      }
+    </style>
+  </defs>
+
+  <rect width="1080" height="1350" rx="56" fill="url(#bg)"></rect>
+
+  <!-- decorative flair -->
+  <text x="92" y="152" font-size="78" class="sparkle">✨</text>
+  <text x="886" y="168" font-size="72" class="sparkle2">💬</text>
+  <text x="110" y="1165" font-size="68" class="sparkle2">💅</text>
+  <text x="886" y="1182" font-size="70" class="sparkle">✨</text>
+
+  <!-- chat bubble shadow/base -->
+  <rect x="90" y="250" width="900" height="780" rx="86" fill="#111827" opacity="0.94"></rect>
+
+  <polygon points="835,1016 932,1096 900,987" fill="#111827" opacity="0.94"></polygon>
+
+  <!-- subtle base trim -->
+  <rect x="90" y="250" width="900" height="780" rx="86" fill="none" stroke="#f9a8d4" stroke-opacity="0.25" stroke-width="8"></rect>
+
+  <polyline points="835,1016 932,1096 900,987 835,1016" fill="none" stroke="#f9a8d4" stroke-opacity="0.25" stroke-width="8"></polyline>
+
+  <!-- animated glowing trim -->
+  <rect x="90" y="250" width="900" height="780" rx="86" fill="none" stroke="url(#trimGradient)" stroke-width="9" stroke-linecap="round" class="bubble-trim" filter="url(#glow)"></rect>
+
+  <polyline points="835,1016 932,1096 900,987 835,1016" fill="none" stroke="url(#trimGradient)" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" class="tail-trim" filter="url(#glow)"></polyline>
+
+  <!-- top tiny message detail -->
+  <text x="170" y="325" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="700" fill="#c4b5fd" letter-spacing="2">MESSAGE RECEIVED</text>
+
+  <!-- main text -->
+  <text x="540" y="475" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="190" font-weight="900" fill="#ffffff" filter="url(#softGlow)">
+    L + C
+  </text>
+
+  <text x="540" y="625" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="58" font-weight="700" fill="#f9a8d4">
+    I Won't Ask for Anything
+  </text>
+
+  <text x="540" y="720" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="64" font-weight="900" fill="#ffffff">
+    Anymore
+  </text>
+
+  <text x="540" y="820" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="74" font-weight="900" fill="#c4b5fd">
+    Not Even Food
+  </text>
+    <text x="540" y="869" text-anchor="middle" font-family="Arial;Helvetica; sans-serif" font-size="35" font-weight="900" fill="#ff0000">🍟 🥤 🍰 🍕</text>
+  <text x="540" y="925" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="42" font-style="italic" fill="#fbcfe8">
+   🤬 BOUNDARY SET!! !!! 🤬
+  </text>
+</svg>

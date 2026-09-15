@@ -30,3 +30,56 @@ set_error_handler(function ($errno, $errstr, $errfile, $errline) use ($error_con
     // Return false to let PHP's internal error handler continue if needed
     return false;
 });
+
+
+// Set up global error handling
+if (! function_exists('globalErrorHandler')) {
+    function globalErrorHandler($errno, $errstr, $errfile, $errline)
+    {
+        date_default_timezone_set('America/Denver');
+
+        $errorDir  = __DIR__ . '/logs/';
+        $errorFile = $errorDir . 'siteError.log';
+
+        // Ensure directory exists
+        if (! is_dir($errorDir)) {
+            mkdir($errorDir, 0755, true);
+        }
+
+        $timeStamp    = date('Y-m-d H:i:s');
+        $errorMessage = $timeStamp . ' [' . $errno . '] ' . $errstr . ' in ' . $errfile . ' on line ' . $errline;
+
+        error_log($errorMessage . PHP_EOL, 3, $errorFile);
+    }
+}
+if (! function_exists('globalExceptionHandler')) {
+    // Set up global exception handler
+    function globalExceptionHandler($exception)
+    {
+        date_default_timezone_set('America/Denver');
+
+        $errorDir  = __DIR__ . '/logs/';
+        $errorFile = $errorDir . 'siteError.log';
+
+        // Ensure directory exists
+        if (! is_dir($errorDir)) {
+            mkdir($errorDir, 0755, true);
+        }
+
+        $timeStamp    = date('Y-m-d H:i:s');
+        $errorMessage = $timeStamp . ' [EXCEPTION] ' . $exception->getMessage() . ' in ' . $exception->getFile() . ' on line ' . $exception->getLine();
+
+        error_log($errorMessage . PHP_EOL, 3, $errorFile);
+    }
+}
+// Register the handlers
+// set_error_handler('globalErrorHandler');
+set_exception_handler('globalExceptionHandler');
+
+// Handle fatal errors
+register_shutdown_function(function () {
+    $error = error_get_last();
+    if ($error !== null && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        globalErrorHandler($error['type'], $error['message'], $error['file'], $error['line']);
+    }
+});

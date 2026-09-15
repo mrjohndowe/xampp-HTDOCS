@@ -159,7 +159,7 @@
                         <!--<label class="wide">Production video / studio<input name="production" maxlength="300" value="<?php echo htmlspecialchars((string) ($_POST['production'] ?? $video['production'])) ?>" placeholder="Production company, studio, creator, or production title">
 
                         </label>-->
-                        <fieldset class="wide name-choices">
+                        <fieldset class="wide production-choices name-choices">
                             <legend>Actors / Characters</legend>
                             <p>Choose every name tagged in this video. Create or manage names in Admin.</p>
                             <div id="nameChoices">
