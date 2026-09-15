@@ -15,13 +15,7 @@ $me    = $participants['me'];
 
         <header class="conversation-header">
 
-            <button
-                class="header-button back-button"
-                type="button"
-                aria-label="Back"
-            >
-                ‹
-            </button>
+            <button class="header-button back-button" href="<?= e($config['base_path']) ?>" type="button" aria-label="Back">‹</button>
 
             <div class="contact">
 

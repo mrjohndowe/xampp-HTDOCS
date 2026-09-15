@@ -157,6 +157,6 @@ if (
 jsonResponse(
     [
         'success' => true,
-        'url' =>'/conversation/uploads/avatars/'. $fileName,
+        'url' =>'/conversation/assets/avatars/'. $fileName,
     ]
 );

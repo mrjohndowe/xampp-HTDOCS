@@ -2,7 +2,7 @@
   "use strict";
 
 
-  const appBasePath = "/conversation";
+  const appBasePath = String(window.APP_BASE_PATH || "").replace(/\/$/, "");
   const conversation = window.CONVERSATION_DATA || {};
   const emojiMap = window.EMOJI_MAP || {};
   const participants = conversation.participants || {};
@@ -76,7 +76,7 @@
       participants[id] || {
         id,
         name: id,
-        avatar: appUrl("/assets/images/default-avatar.png"),
+        avatar: appUrl("/assets/images/avatars/default-avatar.png"),
         side: "incoming",
       }
     );
@@ -87,7 +87,7 @@
       return "";
     }
 
-    const avatar = participant.avatar || "/assets/images/default-avatar.png";
+    const avatar = participant.avatar || "/assets/images/avatars/default-avatar.png";
 
     return `
       <img

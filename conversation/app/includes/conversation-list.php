@@ -1,87 +1,52 @@
- <div class = "conversation-library" >
-    <header class  = "library-header" >
-        <h1>Conversations</h1>
-            <p>Choose Who You Want to Open .</p>
-    </header>
-<?php
-    if (! $conversationList) : ?>
+<header class="conversation-header conversation-list-header">
 
-        <div class="empty-conversations">
+    <div class="conversation-list-heading">Messages</div>
 
-            No conversations found.
+</header>
 
-        </div>
+<main class="conversation-list-screen">
+
+    <div class="conversation-list-title">
+        <h1>Messages</h1>
+    </div>
+
+    <?php if (!$conversationList): ?>
+
+        <div class="empty-conversations">No conversations found.</div>
 
     <?php else: ?>
 
         <div class="conversation-list">
 
-            <?php
-                foreach (
-                    $conversationList as $item
-                ):
-            ?>
+            <?php foreach ($conversationList as $item): ?>
 
                 <?php
-                    $avatar =
-                        $item['avatar'];
+                $avatar = (string) ($item['avatar'] ?? '/assets/images/avatar/default-avatar.png');
 
-                    if (
-                        ! preg_match(
-                            '#^[a-z][a-z0-9+.-]*://#i',
-                            $avatar
-                        )
-                    ) {
-                        $avatar = $appBasePath . '/' . ltrim( $avatar, '/' );
-                    }
+                if (!preg_match('#^[a-z][a-z0-9+.-]*://#i', $avatar)) {
+                    $avatar = $appBasePath . '/' . ltrim($avatar, '/');
+                }
                 ?>
 
-                <a
-                    class="conversation-card"
-                    href="<?php echo e(
-    $appBasePath
-    . '/?c='
-    . urlencode(
-        $item['id']
-    )
-) ?>"
-                >
+                <a class="conversation-card" href="<?= e($appBasePath . '/?c=' . urlencode($item['id'])) ?>">
 
-                    <img
-                        class="conversation-card-avatar"
-                        src="<?php echo e($avatar) ?>"
-                        alt=""
-                    >
+                    <img class="conversation-card-avatar" src="<?= e($avatar) ?>" alt="">
 
-                    <div
-                        class="conversation-card-content"
-                    >
+                    <div class="conversation-card-content">
 
-                        <div
-                            class="conversation-card-top" >
+                        <div class="conversation-card-top">
 
-                            <strong>
-                                <?php echo e( $item['name'] ) ?>
-                            </strong>
+                            <strong><?= e($item['name']) ?></strong>
 
-                            <span class="conversation-arrow" >› </span>
+                            <span class="conversation-arrow">›</span>
 
                         </div>
 
-                        <?php
-                            if (
-                                $item['description']
-                                !== ''
-                            ):
-                        ?>
+                        <?php if (($item['description'] ?? '') !== ''): ?>
 
-                            <p>
-                                <?php echo e(
-    $item[
-        'description'
-    ]
-) ?>
-                            </p>
+                            <div class="conversation-preview">
+                                <?= e($item['description']) ?>
+                            </div>
 
                         <?php endif; ?>
 
@@ -95,4 +60,4 @@
 
     <?php endif; ?>
 
-</div>
+</main>

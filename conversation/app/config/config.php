@@ -8,7 +8,7 @@ return [
     'paths' => [
         'root' => dirname(__DIR__, 2),
         'storage' => dirname(__DIR__, 2) . '\storage',
-        'uploads' => dirname(__DIR__, 2) . '\public\uploads',
+        'uploads' => dirname(__DIR__, 2) . '\public\assets\images',
     ],
 
     'conversation' => [

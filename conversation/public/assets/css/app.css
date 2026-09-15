@@ -619,3 +619,234 @@ button {
         top: 8px;
     }
 }
+
+.conversation-list-header {
+    min-height: 105px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 38px 16px 12px;
+}
+
+.conversation-list-heading {
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.conversation-list-screen {
+    flex: 1;
+    overflow-y: auto;
+    background: #000;
+    padding: 12px 0 30px;
+    scrollbar-width: none;
+}
+
+.conversation-list-screen::-webkit-scrollbar {
+    display: none;
+}
+
+.conversation-list-title {
+    padding: 10px 20px 8px;
+}
+
+.conversation-list-title h1 {
+    margin: 0;
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.conversation-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.conversation-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 76px;
+    padding: 9px 15px;
+    color: #fff;
+    background: #000;
+    text-decoration: none;
+}
+
+.conversation-card:hover {
+    background: #18181a;
+}
+
+.conversation-card-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #3a3a3c;
+}
+
+.conversation-card-content {
+    min-width: 0;
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid #29292b;
+}
+
+.conversation-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.conversation-card-top strong {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.conversation-arrow {
+    margin-right: 3px;
+    color: #636366;
+    font-size: 27px;
+    line-height: 1;
+}
+
+.conversation-preview {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #8e8e93;
+    font-size: 13px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.empty-conversations {
+    padding: 40px 20px;
+    color: #8e8e93;
+    text-align: center;
+}
+
+.conversation-list-header {
+    min-height: 105px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 38px 16px 12px;
+}
+
+.conversation-list-heading {
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.conversation-list-screen {
+    flex: 1;
+    overflow-y: auto;
+    background: #000;
+    padding: 12px 0 30px;
+    scrollbar-width: none;
+}
+
+.conversation-list-screen::-webkit-scrollbar {
+    display: none;
+}
+
+.conversation-list-title {
+    padding: 8px 18px 12px;
+}
+
+.conversation-list-title h1 {
+    margin: 0;
+    color: #fff;
+    font-size: 32px;
+    font-weight: 700;
+}
+
+.conversation-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.conversation-card {
+    width: 100%;
+    min-height: 74px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 14px;
+    color: #fff;
+    background: #000;
+    text-decoration: none;
+    transition: background 0.15s ease;
+}
+
+.conversation-card:hover {
+    background: #19191b;
+}
+
+.conversation-card:visited,
+.conversation-card:active {
+    color: #fff;
+    text-decoration: none;
+}
+
+.conversation-card-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    border-radius: 50%;
+    object-fit: cover;
+    background: #3a3a3c;
+}
+
+.conversation-card-content {
+    min-width: 0;
+    flex: 1;
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-bottom: 1px solid #2c2c2e;
+}
+
+.conversation-card-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.conversation-card-top strong {
+    overflow: hidden;
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.conversation-arrow {
+    color: #636366;
+    font-size: 25px;
+    line-height: 1;
+}
+
+.conversation-preview {
+    margin-top: 3px;
+    overflow: hidden;
+    color: #8e8e93;
+    font-size: 13px;
+    line-height: 18px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.empty-conversations {
+    padding: 40px 20px;
+    color: #8e8e93;
+    text-align: center;
+}

@@ -13,8 +13,16 @@
         <?= e($config['app_name']) ?>
     </title>
 
-    <link rel="stylesheet" href="<?= e(($config['base_path'] ?? '') . '/assets/css/app.css') ?>">
-    <!-- <link rel="stylesheet" href="<?= e(($appBasePath ?? '') . '/conversation/assets/css/app.css') ?>"> -->
+  <?php
+
+    $cssFile = dirname(__DIR__, 2) . '/public/assets/css/app.css';
+    $cssVersion = is_file($cssFile) ? filemtime($cssFile) : time();
+
+    ?>
+
+    <link rel="stylesheet" href="/conversation/assets/css/app.css?v=<?= $cssVersion ?>">
+
+    <!-- <link rel="stylesheet" href="<?= e($config['base_path'] ?? '') ?> .'/assets/css/app.css?v=' . <?= $cssVersion ?> .'"'> -->
 </head>
 
 <body>
