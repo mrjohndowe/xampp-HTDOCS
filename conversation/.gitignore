@@ -1,0 +1,31 @@
+# User uploaded avatars
+/public/uploads/avatars/*
+!/public/uploads/avatars/.gitkeep
+
+# Conversation runtime data
+/storage/conversations/*.json
+!/storage/conversations/conversation.json
+
+# Logs
+/storage/logs/*
+!/storage/logs/.gitkeep
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+
+# PHP dependencies if added later
+/vendor/
+
+# Environment configuration
+.env
+.env.*
+!.env.example
+
+/public/assets/images/avatars/*
+!/public/assets/images/avatars/.gitkeep
+storage/logs/.gitkeep
