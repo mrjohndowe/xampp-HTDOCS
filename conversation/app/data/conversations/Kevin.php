@@ -21,7 +21,7 @@ return [
 
     'avatar' => 'public/assets/images/avatars/default-avatar.png',
 
-    'description'  => 'I didnt do it, I swear!',
+    'description'  => 'I didnt do it, I swear! ' . number_format(rand(25, 75) / 100, 2),
 
 
     $timingVars = [
@@ -30,7 +30,7 @@ return [
         'receiveDelay' => rand(2500, 3500),
         'waitDelay' => rand(5000, 7500),
         'seperatorDelay' => rand(10000, 15000),
-        'mistakeChance' => number_format(rand(2, 15) / 1000, 2),
+        'mistakeChance' => number_format(rand(25, 75) / 100, 2),
     ],
     /*
     |--------------------------------------------------------------------------

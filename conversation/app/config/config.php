@@ -19,6 +19,16 @@ return [
         'scroll_duration' => 500,
     ],
 
+    'ai_reply' => [
+        // Set to false to keep the simulator completely scripted.
+        'enabled' => true,
+        'ollama_url' => 'http://127.0.0.1:11434/api/chat',
+        'model' => 'llama3.2:latest',
+        'timeout_seconds' => 45,
+        'max_history_messages' => 12,
+        'fallback_reply' => 'I hear you. What would you like me to say?',
+    ],
+
     'uploads' => [
         'max_avatar_size' => 5 * 1024 * 1024,
         'allowed_types' => [

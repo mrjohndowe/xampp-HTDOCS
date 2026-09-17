@@ -72,6 +72,7 @@ if ($conversationId !== '') {
     */
 
     $conversation = $conversationData['conversation'];
+    $conversation['id'] = $conversationId;
 
     /*
     |--------------------------------------------------------------------------

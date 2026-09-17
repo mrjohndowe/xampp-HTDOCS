@@ -1,4 +1,21 @@
 <?php
+
+function getHeader(string $need = ''): string
+{
+    $faviconUrl = '/.global/assets/favicon.svg?v=2';
+
+    switch ($need) {
+        case 'no-header':
+            $display = '<link rel="icon shortcut icon" type="image/svg+xml" sizes="any" href="'. htmlspecialchars($faviconUrl, ENT_QUOTES, 'UTF-8'). '">';
+            break;
+
+        default:
+            $display = '<head><link rel="icon shortcut icon" type="image/svg+xml" sizes="any" href="'. htmlspecialchars($faviconUrl, ENT_QUOTES, 'UTF-8'). '"></head>';
+    }
+
+    return $display;
+}
+
 $error_config = [
     E_ALL => true,  // Usually false if you want custom rules
     E_ERROR => true,  // Stop and log critical errors

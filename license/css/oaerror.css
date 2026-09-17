@@ -1,0 +1,228 @@
+.container {
+	margin: 0.5em 5% auto;
+	box-shadow: 0px 0px 5px 5px;
+}
+.bs-callout {
+  padding: 20px;
+  margin: 20px 0;
+  border: 1px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+}
+.bs-callout-red {
+  border-left-color: #ce4844;
+}
+.bs-callout-blue{
+	border-left-color: #337ab7;
+}
+.alert{
+	border-radius: 0;
+}
+.user_block{
+	border: 1px solid transparent;
+	border-radius: 0;
+	border-color: #ddd;
+	color: black;
+	margin-left:auto;
+	margin-right:auto;
+	float:center;
+	background-color: white;
+	padding: 13px;   
+}
+.oaerror {
+  width: 90%; /* Configure it fit in your design  */
+  margin: 0 auto; /* Centering Stuff */
+  background-color: #FFFFFF; /* Default background */
+  padding: 20px;
+  border: 1px solid #eee;
+  border-left-width: 5px;
+  border-radius: 3px;
+  margin: 0 auto;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 16px;
+}
+
+.danger {
+  border-left-color: #d9534f; /* Left side border color */
+  background-color: rgba(217, 83, 79, 0.1); /* Same color as the left border with reduced alpha to 0.1 */
+}
+.success {
+  border-left-color: #56f442; /* Left side border color */
+  background-color: rgba(88, 244, 67, 0.1); /* Same color as the left border with reduced alpha to 0.1 */
+}
+
+	/**** LAYOUT ****/
+.list-inline>li {
+	padding: 0 10px 0 0;
+}
+.container-pad {
+	padding: 30px 15px;
+}
+
+
+/**** MODULE ****/
+.bgc-fff {
+	background-color: #fff!important;
+}
+.box-shad {
+	-webkit-box-shadow: 1px 1px 0 rgba(0,0,0,.2);
+	box-shadow: 1px 1px 0 rgba(0,0,0,.2);
+}
+.brdr {
+	border: 1px solid #ededed;
+}
+
+/* Font changes */
+.fnt-smaller {
+	font-size: .9em;
+}
+.fnt-lighter {
+	color: #bbb;
+}
+
+/* Padding - Margins */
+.pad-10 {
+	padding: 10px!important;
+}
+.mrg-0 {
+	margin: 0!important;
+}
+.btm-mrg-10 {
+	margin-bottom: 10px!important;
+}
+.btm-mrg-20 {
+	margin-bottom: 20px!important;
+}
+
+/* Color  */
+.clr-535353 {
+	color: #535353;
+}
+/**** MEDIA QUERIES ****/
+@media only screen and (max-width: 991px) {
+	#truck-list .truck-list {
+		padding: 5px!important;
+	}
+	#truck-list .truck-list a {
+		margin: 0;
+	}
+	#truck-list .truck-list .media-body {
+		padding: 10px;
+	}
+}
+
+@media only screen and (min-width: 992px) {
+	#truck-list .truck-list img {
+		max-width: 180px;
+	}
+}
+.info {
+  border-left-color: #5bc0de;
+  background-color: rgba(91, 192, 222, 0.1);
+}
+.panel-order .row {
+	border-bottom: 1px solid #ccc;
+}
+
+.panel-order .row:last-child {
+	border: 0px;
+}
+
+.panel-order .row .col-md-1 {
+	text-align: center;
+	padding-top: 15px;
+}
+
+.panel-order .row .col-md-1 img {
+	width: 50px;
+	max-height: 50px;
+}
+
+.panel-order .row .row {
+	border-bottom: 0;
+}
+
+.panel-order .row .col-md-11 {
+	border-left: 1px solid #ccc;
+}
+
+.panel-order .row .row .col-md-12 {
+	padding-top: 7px;
+	padding-bottom: 7px;
+}
+
+.panel-order .row .row .col-md-12:last-child {
+	font-size: 11px;
+	color: #555;
+	background: #efefef;
+}
+
+.panel-order .btn-group {
+	margin: 0px;
+	padding: 0px;
+}
+
+.panel-order .panel-body {
+	padding-top: 0px;
+	padding-bottom: 0px;
+}
+
+.panel-order .panel-deading {
+	margin-bottom: 0;
+}
+.panel{
+	border-radius: 0;
+}
+
+meter { -webkit-appearance: none; } //Crucial, this will disable the default styling in Webkit browsers
+
+meter::-webkit-meter-bar {
+	background: #FFF;
+	border: 1px solid #CCC;
+}
+
+/* meter::-webkit-meter-even-less-good-value {
+	background: yellow;
+	background: -moz-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a1d4e6), color-stop(100%, #6bb4d1));
+	background: -webkit-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -o-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -ms-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: linear-gradient(to bottom, #a1d4e6 0%, #6bb4d1 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a1d4e6', endColorstr='#6bb4d1',GradientType=0);
+	float: left;
+} */
+
+meter::-webkit-meter-optimum-value {
+	/* background: #87C7DE;
+	background: -moz-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #a1d4e6), color-stop(100%, #6bb4d1));
+	background: -webkit-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -o-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: -ms-linear-gradient(top, #a1d4e6 0%, #6bb4d1 100%);
+	background: linear-gradient(to bottom, #a1d4e6 0%, #6bb4d1 100%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#a1d4e6', endColorstr='#6bb4d1',GradientType=0); */
+	float: left;
+}
+
+meter::-webkit-meter-suboptimum-value {
+	/* */
+	float: left;
+}
+
+
+
+progress {
+	vertical-align: -0.2em;
+	color:red;
+}
+.oversized {
+	position: absolute;
+	top: 15px;
+	left: 500px;
+}
+.license {
+	position: absolute;
+	top: 10px;
+	left: -200px;
+}

@@ -91,6 +91,36 @@ waits two seconds, then finishes the message.
 Click the contact image at the top of the phone to upload another avatar.
 
 Uploaded files are stored in: `public/uploads/avatars/`
+
+#### AI-assisted replies with Ollama
+
+Add a `wait_for_response` entry to a conversation's `messages` list where the
+script should stop for a visitor response:
+
+```php
+[
+    'type' => 'wait_for_response',
+],
+```
+
+When the visitor sends the next message, the simulator sends the recent
+conversation context to the local Ollama server and displays the generated
+reply as the other participant. The server is configured in
+`app/config/config.php` under `ai_reply`; change `model` there to any model
+shown by `ollama list`, or set `enabled` to `false` to turn AI replies off.
+
+Each conversation may override the model and define the other participant's
+tone with a top-level `reply` block:
+
+```php
+'reply' => [
+    'model' => 'llama3.2:latest',
+    'system_prompt' => 'Reply as Alex in one or two casual sentences.',
+],
+```
+
+If the local model service is temporarily unavailable, the endpoint returns a
+short configured fallback reply instead of breaking the conversation.
 #### Stored messages
 Manually sent messages are written to:
 `storage/conversations/conversation.json`

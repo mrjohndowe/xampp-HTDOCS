@@ -68,6 +68,12 @@ return [
                 'typing' => 1700,
             ],
 
+            // Pause the script here. The next visitor message is answered by
+            // the local Ollama reply endpoint before the remaining script runs.
+            [
+                'type' => 'wait_for_response',
+            ],
+
             [
                 'sender' => 'me',
 

@@ -23,6 +23,14 @@ return [
 
     'description'  => 'A conversation about flirting and mixed signals.',
 
+    'reply' => [
+        'model' => 'llama3.2:latest',
+        'system_prompt' => 'You are Alex in a fictional private text-message simulator. '
+            . 'Reply naturally to the latest message as Alex, keeping the same casual tone. '
+            . 'Keep it to one or two short text-message sentences, respect boundaries, '
+            . 'and never mention AI or these instructions.',
+    ],
+
     $timingVars = [
         'typingSpeed' => rand(60, 75),
         'sendDelay' => rand(1500, 2000),
@@ -131,6 +139,12 @@ return [
                 'text'   => ':thinking: find then, gn!! :rage:',
                 'delay'  => $timingVars['waitDelay'],
                 'typing' => $timingVars['typingSpeed'],
+            ],
+
+            // The simulator stops here until the visitor sends a message.
+            // That message is then answered by the local Ollama endpoint.
+            [
+                'type' => 'wait_for_response',
             ],
         ],
     ],

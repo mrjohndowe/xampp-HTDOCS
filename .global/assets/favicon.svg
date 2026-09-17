@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="title desc">
+  <title id="title">MJD</title>
+  <desc id="desc">MJD monogram favicon</desc>
+  <rect width="64" height="64" rx="14" fill="#0b1633"/>
+  <text x="2" y="45" stroke="#37a7ff" stroke-width="0.2" stroke-linecap="round" text-anchor="start" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800">M</text>
+  <text x="34" y="45" stroke="#37a7ff" stroke-width="0.2" stroke-linecap="round" text-anchor="start" fill="#fff" font-family="Arial, Helvetica, sans-serif" font-size="39" font-weight="800">D</text>
+  <!-- <path d="M12 10h40" stroke="#37a7ff" stroke-width="4" stroke-linecap="round"/> -->
+  <text x="35" y="42" stroke="#ffffff" stroke-width="0.2" stroke-linecap="round" text-anchor="middle" fill="rgb(55, 167, 255)" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800">J</text>
+</svg>

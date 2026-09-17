@@ -1,0 +1,37 @@
+
+
+.container {
+	margin: 0 auto;
+	padding: 15px 20px;
+	width:750px;
+}
+.imagePreview {
+	position: absolute;
+	top: 310px;
+    left: 25%;
+    z-index: 1;
+}
+/* .form-control {
+	padding: 29px 54px 23px;
+	border-radius: 3px;
+	background-color: rgba(8, 27, 35, 0.6);
+	margin-top: 7px;
+	box-sizing: border-box;
+	display: block;
+	
+} */
+
+/* input {
+    -webkit-writing-mode: horizontal-tb !important;
+    text-rendering: auto;
+    color: -internal-light-dark-color(black, white);
+    letter-spacing: normal;
+    word-spacing: normal;
+    text-transform: none;
+    text-indent: 0px;
+    text-shadow: none;
+    text-align: start;
+    -webkit-rtl-ordering: logical;
+    cursor: text;
+    font: 400 13.3333px Arial;
+} */

@@ -1,0 +1,172 @@
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    background: #d8d8d2;
+    font-family: "Times New Roman", serif;
+    color: #111
+}
+
+.toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: #222;
+    color: #fff;
+    padding: 9px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center
+}
+
+.toolbar select,
+.toolbar input,
+.toolbar button {
+    font: 14px Arial;
+    padding: 7px
+}
+
+.toolbar input {
+    width: 220px
+}
+
+.status {
+    font: 12px Arial;
+    min-width: 80px
+}
+
+.paper {
+    width: 1125px;
+    max-width: calc(100vw - 16px);
+    margin: 10px auto;
+    background: #f8faf4;
+    border: 3px solid #333;
+    box-shadow: 0 2px 12px #777
+}
+
+.title {
+    text-align: center;
+    font-size: 42px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 10px 4px;
+    border-bottom: 3px solid #333
+}
+
+.row {
+    display: grid;
+    border-bottom: 2px solid #333
+}
+
+.c2 {
+    grid-template-columns: 1fr 1fr
+}
+
+.c4 {
+    grid-template-columns: 160px 285px 285px 1fr
+}
+
+.c5 {
+    grid-template-columns: 160px 250px 145px 180px 1fr
+}
+
+.cell {
+    min-height: 54px;
+    padding: 5px 8px;
+    border-right: 2px solid #333;
+    font-weight: 700
+}
+
+.cell:last-child {
+    border-right: 0
+}
+
+.cell input[type=text],
+.cell input[type=number],
+.cell textarea {
+    width: 100%;
+    border: 0;
+    border-bottom: 1px solid #555;
+    background: transparent;
+    font: 18px "Times New Roman";
+    outline: none
+}
+
+.small {
+    font-size: 16px
+}
+
+.section {
+    text-align: center;
+    font-weight: 900;
+    font-size: 19px;
+    border-bottom: 2px solid #333;
+    padding: 3px;
+    text-transform: uppercase
+}
+
+.checks {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    align-items: center
+}
+
+.check {
+    white-space: nowrap
+}
+
+.check input {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle
+}
+
+.tall {
+    min-height: 90px
+}
+
+.remarks textarea {
+    min-height: 60px;
+    resize: vertical
+}
+
+.lines textarea {
+    min-height: 100px;
+    resize: vertical;
+    background: repeating-linear-gradient(to bottom, transparent 0, transparent 28px, #555 29px, #555 30px);
+    line-height: 30px
+}
+
+.subgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr
+}
+
+.refgrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 260px
+}
+
+.footergrid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr)
+}
+
+@media(max-width:800px) {
+    .paper {
+        min-width: 1050px
+    }
+
+    .wrap {
+        overflow: auto
+    }
+
+    .toolbar {
+        justify-content: flex-start;
+        overflow: auto
+    }
+}

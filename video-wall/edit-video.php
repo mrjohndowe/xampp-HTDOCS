@@ -1,0 +1,188 @@
+<?php
+
+    declare (strict_types = 1);
+    require_once __DIR__ . '/functions.php';
+    $id        = (string) ($_GET['id'] ?? $_POST['id'] ?? '');
+    $database  = db();
+    $statement = $database->prepare("SELECT v.*,COALESCE(NULLIF(v.display_name,''),v.original_name)AS name FROM videos v WHERE v.id=?");
+    $statement->execute([$id]);
+    $video = $statement->fetch();
+    if (! $video) {
+    http_response_code(404);
+    exit('Video not found.');
+    }
+    if ((string)$video['publish_date'] === '' && is_file((string)$video['path'])) {
+        $created = max(0, (new SplFileInfo((string)$video['path']))->getCTime());
+        if ($created > 0) {
+            $publishedDate = date('Y-m-d', $created);
+            $database->prepare('UPDATE videos SET created=?,publish_date=? WHERE id=?')->execute([$created, $publishedDate, $id]);
+            $video['created'] = $created;
+            $video['publish_date'] = $publishedDate;
+        }
+    }
+    $categories        = categoriesList();
+    $selectedStatement = $database->prepare('SELECT category_id FROM video_categories WHERE video_id=?');
+    $selectedStatement->execute([$id]);
+    $selectedCategoryIds = array_map('intval', $selectedStatement->fetchAll(PDO::FETCH_COLUMN));
+    $productions         = productionsList();
+    $selectedProduction  = $database->prepare('SELECT production_id FROM video_productions WHERE video_id=?');
+    $selectedProduction->execute([$id]);
+    $selectedProductionIds = array_map('intval', $selectedProduction->fetchAll(PDO::FETCH_COLUMN));
+    $names = namesList();
+    $selectedNames = $database->prepare('SELECT name_id FROM video_names WHERE video_id=?');
+    $selectedNames->execute([$id]);
+    $selectedNameIds = array_map('intval', $selectedNames->fetchAll(PDO::FETCH_COLUMN));
+    $error               = '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    try {
+        $name = trim((string) ($_POST['name'] ?? ''));
+        if ($name === '') {
+            throw new RuntimeException('Video name is required.');
+        }
+        $postedProductions   = $_POST['productionIds'] ?? [];
+        $selectedProductionIds = array_map('intval', is_array($postedProductions) ? $postedProductions : []);
+
+
+        $postedCategories    = $_POST['categoryIds'] ?? [];
+        $selectedCategoryIds = array_map('intval', is_array($postedCategories) ? $postedCategories : []);
+        $postedNames         = $_POST['nameIds'] ?? [];
+        $selectedNameIds     = array_map('intval', is_array($postedNames) ? $postedNames : []);
+        $notes               = trim((string) ($_POST['notes'] ?? ''));
+        $publishDate         = trim((string) ($_POST['publishDate'] ?? ''));
+        //$production          = trim((string) ($_POST['production'] ?? ''));
+        $active              = isset($_POST['active']) ? 1 : 0;
+        $database->beginTransaction();
+        $update = $database->prepare('UPDATE videos SET display_name=?,notes=?,publish_date=?,active=? WHERE id=?');
+        $update->execute([$name, $notes, $publishDate, $active, $id]);
+        setVideoCategories($database, $id, $selectedCategoryIds);
+        setVideoProduction($database, $id, $selectedProductionIds);
+        setVideoNames($database, $id, $selectedNameIds);
+        $database->commit();
+        header('Location: ' . ($active ? 'index.php' : 'admin.php'));
+        exit;
+    } catch (Throwable $exception) {
+        if ($database->inTransaction()) {
+            $database->rollBack();
+        }
+
+        $error = $exception->getMessage();
+    }
+    }
+?>
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="color-scheme" content="dark">
+    <title>Edit video · <?php echo htmlspecialchars(APP_NAME) ?></title>
+    <link rel="stylesheet" href="assets/css/app.css">
+    <link rel="stylesheet" href="assets/css/edit-video.css">
+    <link rel="stylesheet" href="assets/css/active-switch.css">
+    <link rel="stylesheet" href="assets/css/video-analysis.css">
+</head>
+
+<body>
+    <header class="topbar">
+        <a class="brand" href="index.php">
+            <img src="assets/img/dowe-video-wall-logo.png" alt="" class="brand-logo">
+            <span>
+                <?php echo htmlspecialchars(APP_NAME) ?>
+            </span>
+        </a>
+        <a class="button subtle" href="index.php">Cancel</a>
+    </header>
+    <main class="edit-page">
+        <form method="post" class="edit-card">
+            <input type="hidden" name="id" value="<?php echo htmlspecialchars($id) ?>">
+                <span class="eyebrow">EDIT VIDEO</span>
+                <h1>
+                    <?php echo htmlspecialchars((string) $video['name']) ?>
+                </h1>
+                <p class="source-path" title="<?php echo htmlspecialchars((string) $video['path']) ?>">
+                    <?php echo htmlspecialchars((string) $video['path']) ?>
+                </p>
+                <?php if ($error): ?>
+                    <div class="error"><?php echo htmlspecialchars($error) ?>
+                </div>
+                <?php endif; ?>
+                <section class="analysis-card" id="analysisCard" data-video-id="<?php echo htmlspecialchars($id) ?>">
+                    <div><span class="eyebrow">LOCAL AI VIDEO ANALYSIS</span><h2>Generate suggestions from video frames</h2><p>Uses your local Ollama service to analyze a few temporary still frames plus the file name. Nothing is saved until you review and save this form.</p></div>
+                    <button class="button primary" id="analyzeVideo" type="button">✦ Analyze with Ollama</button>
+                    <p class="analysis-status" id="analysisStatus" aria-live="polite"></p>
+                    <div class="analysis-progress" id="analysisProgress" hidden>
+                        <div class="analysis-progress-heading"><span id="analysisProgressStage">Preparing analysis…</span><span id="analysisProgressPercent">0%</span></div>
+                        <div class="analysis-progress-track" id="analysisProgressBar" role="progressbar" aria-label="Ollama analysis progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="analysisProgressFill"></span></div>
+                    </div>
+                    <div class="analysis-results" id="analysisResults" hidden></div>
+                </section>
+                    <div class="edit-grid">
+                        <label class="wide">Video name<input name="name" maxlength="180" value="<?php echo htmlspecialchars((string) ($_POST['name'] ?? $video['name'])) ?>" required></label>
+                        <label>Publish date
+                            <input type="date" name="publishDate" value="<?php echo htmlspecialchars((string) ($_POST['publishDate'] ?? $video['publish_date'])) ?>">
+                        </label>
+                        <fieldset class="wide category-choices">
+                            <legend>Categories</legend>
+                                <p>Select as many categories as you want. Leave all unchecked for Uncategorized.</p>
+                                    <div id="categoryChoices">
+                                    <?php foreach ($categories as $category): ?><label>
+                                        <input type="checkbox" name="categoryIds[]" value="<?php echo (int) $category['id'] ?>" <?php echo in_array((int) $category['id'], $selectedCategoryIds, true) ? 'checked' : '' ?>>
+                                        <span>
+                                            <?php echo htmlspecialchars((string) $category['name']) ?>
+                                        </span>
+                                        </label>
+                                        <?php endforeach; ?>
+                                        <?php if (! $categories): ?>
+                                            <small>No categories yet. Add your own categories in Admin.</small>
+                                            <?php endif; ?>
+                                    </div>
+                        </fieldset>
+                        <hr>
+
+                        <fieldset class="wide production-choices">
+                            <legend>Productions</legend>
+                                <p>Select as many productions/studios as you want. Leave all unchecked for Unknown.</p>
+                                    <div id="productionChoices">
+                                    <?php foreach ($productions as $studio): ?><label>
+                                        <input type="checkbox" name="productionIds[]" value="<?php echo (int) $studio['id'] ?>" <?php echo in_array((int) $studio['id'], $selectedProductionIds, true) ? 'checked' : '' ?>>
+                                        <span>
+                                            <?php echo htmlspecialchars((string) $studio['name']) ?>
+                                        </span>
+                                        </label>
+                                        <?php endforeach; ?>
+                                        <?php if (! $productions): ?>
+                                            <small>No Productions / Studios yet. Add your own Production/Studio in Admin.</small>
+                                            <?php endif; ?>
+                                    </div>
+                        </fieldset>
+
+                        <!--<label class="wide">Production video / studio<input name="production" maxlength="300" value="<?php echo htmlspecialchars((string) ($_POST['production'] ?? $video['production'])) ?>" placeholder="Production company, studio, creator, or production title">
+
+                        </label>-->
+                        <fieldset class="wide production-choices name-choices">
+                            <legend>Actors / Characters</legend>
+                            <p>Choose every name tagged in this video. Create or manage names in Admin.</p>
+                            <div id="nameChoices">
+                                <?php foreach ($names as $name): ?><label>
+                                    <input type="checkbox" name="nameIds[]" value="<?php echo (int)$name['id'] ?>" <?php echo in_array((int)$name['id'], $selectedNameIds, true) ? 'checked' : '' ?>>
+                                    <span><?php echo htmlspecialchars((string)$name['name']) ?></span>
+                                </label><?php endforeach; ?>
+                                <?php if (!$names): ?><small>No names yet. Add one in Admin or use an AI suggestion.</small><?php endif; ?>
+                            </div>
+                        </fieldset>
+                        <label class="wide">Video Info / Notes
+                            <textarea name="notes" rows="3" maxlength="2000" placeholder="Additional information or notes about the video">
+                                <?php echo htmlspecialchars((string) ($_POST['notes'] ?? $video['notes'])) ?>
+                            </textarea>
+                        </label>
+                        <label class="wide active-switch">
+                            <input type="checkbox" name="active" value="1" <?php echo(isset($_POST['id']) ? isset($_POST['active']) : (int) $video['active'] === 1) ? 'checked' : '' ?>><span><strong>Active in library</strong><small>Turn this off to hide the video without deleting its original file.</small></span></label>
+            </div>
+            <div class="edit-actions"><a class="button subtle" href="<?php echo (int) $video['active'] === 1 ? 'index.php' : 'admin.php' ?>">Cancel</a><button class="button primary" type="submit">Save video</button></div>
+        </form>
+    </main>
+    <script src="assets/js/video-analysis.js"></script>
+</body>
+
+</html>

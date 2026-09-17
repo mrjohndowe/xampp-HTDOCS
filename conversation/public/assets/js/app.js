@@ -6,6 +6,7 @@
   const emojiMap = window.EMOJI_MAP || {};
   const participants = conversation.participants || {};
   const messages = conversation.messages || [];
+  const conversationId = String(conversation.id || "");
 
   const messagesEl = document.getElementById("messages");
   const inputEl = document.getElementById("message-input");
@@ -14,6 +15,9 @@
   const contactAvatar = document.getElementById("contact-avatar");
 
   let playbackRunning = false;
+  let awaitingVisitorResponse = false;
+  let generatedReplyInProgress = false;
+  const chatHistory = [];
 
   const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -386,6 +390,7 @@ async function playIncoming(item, participant) {
   }
 
   createMessage(participant, item.text || "", item.timestamp ?? null);
+  chatHistory.push({ sender: item.sender, text: item.text || "" });
 }
 
   async function playOutgoing(item, participant) {
@@ -427,6 +432,7 @@ async function playIncoming(item, participant) {
     playSendSound();
 
     createMessage(participant, text, item.timestamp ?? null);
+    chatHistory.push({ sender: item.sender, text });
   }
 async function playConversation() {
   if (playbackRunning) {
@@ -444,6 +450,12 @@ async function playConversation() {
       if (item.type === "date_separator") {
         createDateSeparator(item.datetime);
         continue;
+      }
+
+      if (item.type === "wait_for_response") {
+        awaitingVisitorResponse = true;
+        inputEl?.focus();
+        break;
       }
 
       const participant = getParticipant(item.sender);
@@ -494,6 +506,7 @@ async function playConversation() {
     resizeComposer();
 
     createMessage(me, value);
+    chatHistory.push({ sender: "me", text: value });
 
     try {
       const response = await fetch(appUrl("/api/send-message.php"), {
@@ -515,8 +528,62 @@ async function playConversation() {
       }
 
       console.log("Message saved:", result);
+
+      if (awaitingVisitorResponse && !generatedReplyInProgress) {
+        await requestGeneratedReply();
+      }
     } catch (error) {
       console.error("Message persistence failed:", error);
+    }
+  }
+
+  async function requestGeneratedReply() {
+    generatedReplyInProgress = true;
+    awaitingVisitorResponse = false;
+
+    const other = getParticipant("other");
+    const typing = createTypingIndicator(other);
+
+    try {
+      const response = await fetch(appUrl("/api/generate-reply.php"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          conversationId,
+          history: chatHistory,
+        }),
+      });
+
+      const result = await parseJsonResponse(response);
+
+      if (!response.ok) {
+        throw new Error(result.error || `Reply request failed (${response.status})`);
+      }
+
+      if (typing) {
+        typing.remove();
+      }
+
+      const reply = String(result.reply || "").trim();
+
+      if (reply) {
+        playReceiveSound();
+        createMessage(other, reply);
+        chatHistory.push({ sender: "other", text: reply });
+      }
+    } catch (error) {
+      if (typing) {
+        typing.remove();
+      }
+
+      console.error("Generated reply failed:", error);
+      awaitingVisitorResponse = true;
+      alert("The reply could not be generated. Please try sending your message again.");
+    } finally {
+      generatedReplyInProgress = false;
     }
   }
 
