@@ -13,3 +13,5 @@ ALFA_DATA/
 **/alfacgiapi/
 video-wall/data/thumbnails/*.*
 novels/data/novelshelf.sqlite
+video-wall/data/analysis-collage.jpg
+video-wall/data/collage-watcher.pid
