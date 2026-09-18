@@ -4,6 +4,13 @@
 		ini_set('display_errors', 1);
 		error_reporting(E_ALL);
 	}
+
+	if ($_SERVER['HTTP_HOST'] == 'smokeemgirl.com' || $_SERVER['HTTP_HOST'] == '://smokeemgirl.com') {
+		header("Location: /conversation/");
+		exit();
+	}
+
+
 	if (!empty($_SERVER['HTTPS']) && ('on' == $_SERVER['HTTPS'])) {
 		$uri = 'https://';
 	} else {

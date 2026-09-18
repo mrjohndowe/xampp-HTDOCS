@@ -3,6 +3,11 @@
 declare(strict_types=1);
 
 return [
+
+
+
+
+
     'app_name' => 'Text Message Simulator',
     'base_path' => '/conversation',
     'paths' => [

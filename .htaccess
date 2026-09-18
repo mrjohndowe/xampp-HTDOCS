@@ -9,6 +9,26 @@ ErrorDocument 500 /.error/.error.php
 ErrorDocument 502 /.error/.error.php
 ErrorDocument 504 /.error/.error.php
 
+# .htaccess main domain to subdirectory redirect
+
+RewriteEngine on
+# Change example.com to be your main domain.
+RewriteCond %{HTTP_HOST} ^(www.)smokeemgirl.com$
+# Change 'subdirectory' to be the directory you will use for your main domain.
+RewriteCond %{REQUEST_URI} !^/conversation/
+# Don't change the following two lines.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+# Change 'subdirectory' to be the directory you will use for your main domain.
+RewriteRule ^(.*)$ /conversation/$1
+# Change example.com to be your main domain again.
+# Change 'subdirectory' to be the directory you will use for your main domain
+# followed by / then the main file for your site, index.php, index.html, etc.
+RewriteCond %{HTTP_HOST} ^(www.)?smokeemgirl.com$
+RewriteRule ^(/)?$ conversation/ [L]
+
+
+
 php_flag allow_url_include on
 DirectoryIndex index.php index.htm index.html index.shtml default.php
 

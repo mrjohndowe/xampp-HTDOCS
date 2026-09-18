@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 return [
 
+
     // SPEED VARIABLES
     $timingVars = [
         'typingSpeed' => rand(10, 25),
@@ -11,8 +12,9 @@ return [
         'receiveDelay' => rand(2500, 3500),
         'waitDelay' => rand(2500, 5000),
         'seperatorDelay' => rand(10000, 15000),
-        'mistakeChance' => number_format(rand(25, 75) / 100, 2),
+        'mistakeChance' => number_format(rand(2,5) / 100, 2),
     ],
+
 
     'name' => 'Riley',
     'avatar' => '/assets/images/avatars/default-avatar.png',
@@ -107,7 +109,7 @@ return [
             ],
             [
                 'sender' => 'other',
-                'text' => 'ahhh so now i can come over or what 😍',
+                'text' => 'ahhh so now i can come over or what 😂',
                 'delay' => $timingVars['waitDelay'],
                 'typing' => $timingVars['typingSpeed'],
             ],
@@ -264,7 +266,7 @@ return [
             ],
             [
                 'sender' => 'other',
-                'text' => 'lemme keep ur old panties 😅😍',
+                'text' => 'lemme keep ur old panties 😅😂',
                 'delay' => $timingVars['waitDelay'],
                 'typing' => $timingVars['typingSpeed'],
             ],
@@ -306,7 +308,7 @@ return [
             ],
             [
                 'sender' => 'me',
-                'text' => 'Fs fs 😅',
+                'text' => 'Fs fs 😁',
                 'delay' => $timingVars['waitDelay'],
                 'compose' => true,
                 'typingSpeed' => $timingVars['typingSpeed'],
@@ -320,105 +322,6 @@ return [
                 'typing' => $timingVars['typingSpeed'],
             ],
             // Photos 1-2
-            [
-                'sender' => 'other',
-                'text' => 'suck my balls to maybe?',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => "I'll start squirmling lmaooo",
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'me',
-                'text' => 'Lol maybeeee',
-                'delay' => $timingVars['waitDelay'],
-                'compose' => true,
-                'typingSpeed' => $timingVars['typingSpeed'],
-                'sendDelay' => $timingVars['sendDelay'],
-                'mistakeChance' => $timingVars['mistakeChance'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => 'where do u want me to cummm',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => 'wherever i want?',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'me',
-                'text' => 'Yesss',
-                'delay' => $timingVars['waitDelay'],
-                'compose' => true,
-                'typingSpeed' => $timingVars['typingSpeed'],
-                'sendDelay' => $timingVars['sendDelay'],
-                'mistakeChance' => $timingVars['mistakeChance'],
-            ],
-            [
-                'sender' => 'me',
-                'text' => 'I want you to do so many things to meee',
-                'delay' => $timingVars['waitDelay'],
-                'compose' => true,
-                'typingSpeed' => $timingVars['typingSpeed'],
-                'sendDelay' => $timingVars['sendDelay'],
-                'mistakeChance' => $timingVars['mistakeChance'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => 'wyd',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'me',
-                'text' => 'Being a crybaby about my phone lol',
-                'delay' => $timingVars['waitDelay'],
-                'compose' => true,
-                'typingSpeed' => $timingVars['typingSpeed'],
-                'sendDelay' => $timingVars['sendDelay'],
-                'mistakeChance' => $timingVars['mistakeChance'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => "I'm sorry lol",
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => 'I had to work late to smh',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => 'but do u have snap?',
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
-            [
-                'sender' => 'me',
-                'text' => "I thought my paycheck was gonna be more but it wasn't even enough to cover one phone",
-                'delay' => $timingVars['waitDelay'],
-                'compose' => true,
-                'typingSpeed' => $timingVars['typingSpeed'],
-                'sendDelay' => $timingVars['sendDelay'],
-                'mistakeChance' => $timingVars['mistakeChance'],
-            ],
-            [
-                'sender' => 'other',
-                'text' => "awww I'm sorry",
-                'delay' => $timingVars['waitDelay'],
-                'typing' => $timingVars['typingSpeed'],
-            ],
             [
                 'sender' => 'me',
                 'text' => 'With whoooo',
@@ -506,7 +409,6 @@ return [
                 'delay' => $timingVars['waitDelay'],
                 'typing' => $timingVars['typingSpeed'],
             ],
-            // The last blue line in Photo 2 is obscured; replace this after confirmation.
             [
                 'sender' => 'me',
                 'text' => 'Alright not too king rjthrrbj guy',
@@ -516,6 +418,286 @@ return [
                 'sendDelay' => $timingVars['sendDelay'],
                 'mistakeChance' => $timingVars['mistakeChance'],
             ],
+
+            [
+                'sender' => 'other',
+                'text' => 'suck my balls to maybe?',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => "I'll start squirmling lmaooo",
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'me',
+                'text' => 'Lol maybeeee',
+                'delay' => $timingVars['waitDelay'],
+                'compose' => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay' => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => 'where do u want me to cummm',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 12:16'
+            ],
+            [
+                'sender' => 'other',
+                'text' => 'wherever i want?',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'me',
+                'text' => 'Yesss',
+                'delay' => $timingVars['waitDelay'],
+                'compose' => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay' => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 12:24'
+            ],
+
+            [
+                'sender' => 'me',
+                'text' => 'I want you to do so many things to meee',
+                'delay' => $timingVars['waitDelay'],
+                'compose' => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay' => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 19:57'
+            ],
+
+            [
+                'sender' => 'other',
+                'text' => 'wyd',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'me',
+                'text' => 'Being a crybaby about my phone lol',
+                'delay' => $timingVars['waitDelay'],
+                'compose' => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay' => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => "I'm sorry lol",
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => 'I had to work late to smh',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => 'but do u have snap?',
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+            [
+                'sender' => 'me',
+                'text' => "I thought my paycheck was gonna be more but it wasn't even enough to cover one phone",
+                'delay' => $timingVars['waitDelay'],
+                'compose' => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay' => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+            [
+                'sender' => 'other',
+                'text' => "awww I'm sorry",
+                'delay' => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 20:57',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Me too it really makes me depressed as fuck lmaoo",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Im off Sunday and get off early on saturday",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 21:07',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender' => 'other',
+                'text'   => "mmm let's please have sex",
+                'delay'  => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-27 21:19',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Whenever you want darling :kissing_heart:",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'sender' => 'other',
+                'text'   => "do u have cnap?",
+                'delay'  => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Yeah bbyyy",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'sender' => 'other',
+                'text'   => "theKevin1.0",
+                'delay'  => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+
+            [
+                'sender' => 'other',
+                'text'   => "add me bby",
+                'delay'  => $timingVars['waitDelay'],
+                'typing' => $timingVars['typingSpeed'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-28 23:37',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Bbyyy",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-08-30 16:30',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Oh?",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-09-01 15:05',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'other',
+                'text'        => "Samantha",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => false,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "Riley",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+            [
+                'type' => 'date_separator',
+                'datetime' => '2026-09-02 10:05',
+                'delay' => $timingVars['seperatorDelay'],
+            ],
+
+            [
+                'sender'      => 'me',
+                'text'        => "How are you just gonna message me my name and not say anything?",
+                'delay'       => $timingVars['waitDelay'],
+                'compose'     => true,
+                'typingSpeed' => $timingVars['typingSpeed'],
+                'sendDelay'   => $timingVars['sendDelay'],
+                'mistakeChance' => $timingVars['mistakeChance'],
+            ],
+
+
+
+            // The last blue line in Photo 2 is obscured; replace this after confirmation.
+
         ],
     ],
 ];
