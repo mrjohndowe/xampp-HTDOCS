@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1, viewport-fit=cover" name="viewport" />
+    <meta content="#000000" name="theme-color" />
+    <title>Text Message Simulator</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+
+</head>
+
+<body>
+    <div class="app-shell">
+        <section aria-label="Text Message Simulator" class="phone">
+            <div class="phone-frame">
+                <div aria-hidden="true" class="dynamic-island"></div>
+                <section class="screen-view" id="conversation-list-view">
+                    <header class="conversation-header conversation-list-header">
+                        <div class="conversation-list-heading">Messages</div>
+                    </header>
+                    <main class="conversation-list-screen">
+                        <div class="conversation-list-title">
+                            <h1>Messages</h1>
+                        </div>
+                        <div class="conversation-list" id="conversation-list"></div>
+                    </main>
+                </section>
+                <section class="screen-view hidden" id="conversation-view">
+                    <header class="conversation-header">
+                        <button aria-label="Back to conversations" class="header-button back-button" id="back-button"
+                            type="button">‹</button>
+                        <div class="contact">
+                            <label class="contact-avatar-wrap" title="Change avatar">
+                                <img alt="Contact avatar" class="contact-avatar" id="contact-avatar" />
+                                <input accept="image/*" hidden="" id="avatar-upload" type="file" />
+                            </label>
+                            <div class="contact-copy">
+                                <strong id="contact-name">Contact</strong>
+                                <span class="contact-status">Text Message</span>
+                            </div>
+                        </div>
+                        <button aria-label="Conversation options" class="header-button info-button" id="info-button"
+                            type="button">ⓘ</button>
+                    </header>
+                    <main aria-live="polite" class="messages" id="messages"></main>
+                    <footer class="composer">
+                        <button aria-label="Send image" class="composer-action" id="image-button"
+                            type="button">+</button>
+                        <input accept="image/*" hidden="" id="image-upload" type="file" />
+                        <div class="composer-field">
+                            <textarea aria-label="Message" autocomplete="off" id="message-input"
+                                placeholder="Text Message" rows="1"></textarea>
+                            <button aria-label="Send" class="send-button" id="send-button" type="button">↑</button>
+                        </div>
+                    </footer>
+                </section>
+                <div aria-hidden="true" class="home-indicator"></div>
+            </div>
+        </section>
+    </div>
+    <div aria-labelledby="options-title" aria-modal="true" class="modal hidden" id="options-modal" role="dialog">
+        <div class="modal-card">
+            <h2 id="options-title">Conversation</h2>
+            <button class="modal-action" id="replay-button" type="button">Replay conversation</button>
+            <button class="modal-action" id="clear-avatar-button" type="button">Reset contact avatar</button>
+            <button class="modal-action secondary" id="close-modal-button" type="button">Close</button>
+        </div>
+    </div>
+
+</body>
+<script src="assets/js/app.js"></script>
+</html>

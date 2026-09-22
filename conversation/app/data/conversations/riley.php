@@ -115,6 +115,7 @@ return [
             ],
             [
                 'sender' => 'me',
+                'draft' => 'Did you forget about my ex? Someone I used to sleep next to every night lmao and he will not let me have anyone here',
                 'text' => 'Roommate lmao',
                 'delay' => $timingVars['waitDelay'],
                 'compose' => true,

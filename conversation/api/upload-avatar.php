@@ -1,13 +1,17 @@
 <?php
-
 declare(strict_types=1);
 
 require dirname(__DIR__) . '/app/helpers/helpers.php';
-
 $config = require dirname(__DIR__) . '/app/config/config.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     jsonResponse(['error' => 'Method not allowed.'], 405);
+}
+
+$conversationId = trim((string) ($_POST['conversation_id'] ?? ''));
+
+if ($conversationId === '' || !preg_match('/^[a-z0-9_-]+$/i', $conversationId)) {
+    jsonResponse(['error' => 'Invalid conversation ID.'], 400);
 }
 
 if (!isset($_FILES['avatar']) || !is_array($_FILES['avatar'])) {
@@ -20,14 +24,21 @@ if ($file['error'] !== UPLOAD_ERR_OK) {
     jsonResponse(['error' => 'Upload failed.'], 400);
 }
 
-if ($file['size'] > $config['uploads']['max_avatar_size']) {
+$maxSize = $config['uploads']['max_avatar_size'] ?? 5 * 1024 * 1024;
+
+if ($file['size'] > $maxSize) {
     jsonResponse(['error' => 'Avatar file is too large.'], 413);
 }
 
 $finfo = new finfo(FILEINFO_MIME_TYPE);
 $mime = $finfo->file($file['tmp_name']);
 
-$allowed = $config['uploads']['allowed_types'];
+$allowed = $config['uploads']['allowed_types'] ?? [
+    'image/jpeg',
+    'image/png',
+    'image/webp',
+    'image/gif',
+];
 
 if (!in_array($mime, $allowed, true)) {
     jsonResponse(['error' => 'Unsupported image type.'], 415);
@@ -48,18 +59,46 @@ if ($extension === null) {
 
 $uploadDir = dirname(__DIR__) . '/public/assets/images/avatars';
 
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0775, true);
+if (!is_dir($uploadDir) && !mkdir($uploadDir, 0775, true)) {
+    jsonResponse(['error' => 'Unable to create avatar directory.'], 500);
 }
 
-$fileName = 'avatar_' . bin2hex(random_bytes(10)) . '.' . $extension;
+$fileName = $conversationId . '_' . bin2hex(random_bytes(6)) . '.' . $extension;
 $destination = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
 
 if (!move_uploaded_file($file['tmp_name'], $destination)) {
     jsonResponse(['error' => 'Unable to save avatar.'], 500);
 }
 
+$avatarUrl = '/assets/images/avatars/' . $fileName;
+
+$storageDir = dirname(__DIR__) . '/storage';
+
+if (!is_dir($storageDir)) {
+    mkdir($storageDir, 0775, true);
+}
+
+$overrideFile = $storageDir . '/avatar-overrides.json';
+
+$overrides = [];
+
+if (is_file($overrideFile)) {
+    $decoded = json_decode((string) file_get_contents($overrideFile), true);
+
+    if (is_array($decoded)) {
+        $overrides = $decoded;
+    }
+}
+
+$overrides[$conversationId] = $avatarUrl;
+
+file_put_contents(
+    $overrideFile,
+    json_encode($overrides, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES),
+    LOCK_EX
+);
+
 jsonResponse([
     'success' => true,
-    'url' => '/assets/images/avatars/' . $fileName,
+    'url' => $avatarUrl,
 ]);

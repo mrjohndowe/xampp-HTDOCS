@@ -83,6 +83,20 @@ if ($conversationId !== '') {
     | the conversation is with.
     */
 
+    $avatarOverrideFile = dirname(__DIR__) . '/storage/avatar-overrides.json';
+    $avatarOverrides = [];
+
+    if (is_file($avatarOverrideFile)) {
+        $decoded = json_decode((string) file_get_contents($avatarOverrideFile), true);
+
+        if (is_array($decoded)) {
+            $avatarOverrides = $decoded;
+        }
+    }
+
+    $savedAvatar = $avatarOverrides[$conversationId] ?? null;
+
+
     if ( !isset($conversation['participants']) || !is_array($conversation['participants'])) {
         $conversation['participants'] = [];
     }
@@ -97,7 +111,7 @@ if ($conversationId !== '') {
 
     $conversation['participants']['other']['name'] = (string) ( $conversationData['name'] ?? 'Unknown');
 
-    $conversation['participants']['other']['avatar'] = (string) ( $conversationData['avatar'] ?? '/assets/images/default-avatar.png');
+    $conversation['participants']['other']['avatar'] = (string) ($savedAvatar ?? $conversationData['avatar'] ?? '/assets/images/default-avatar.png');
 
     /*
     |--------------------------------------------------------------------------
@@ -106,11 +120,13 @@ if ($conversationId !== '') {
     */
 
     $conversationMeta = [
-        'id' => $conversationId,
-        'name' => (string) ($conversationData['name'] ?? $conversationId ),
-        'avatar' => (string) ($conversationData['avatar'] ?? '/assets/images/default-avatar.png'),
-        'description' => (string) ($conversationData['description'] ?? ''),
-    ];
+    'id' => $conversationId,
+    'name' => (string) ($conversationData['name'] ?? $conversationId),
+    'avatar' => (string) ($savedAvatar ?? $conversationData['avatar'] ?? '/assets/images/default-avatar.png'),
+    'description' => (string) ($conversationData['description'] ?? ''),
+
+];
+
 }
 
 /*
@@ -118,6 +134,11 @@ if ($conversationId !== '') {
 | Normalize participant avatar URLs
 |--------------------------------------------------------------------------
 */
+
+
+
+
+
 
 if ($conversation !== null && isset($conversation['participants']) && is_array($conversation['participants'])) {
     foreach ($conversation['participants'] as &$participant) {
@@ -142,6 +163,8 @@ if ($conversation !== null && isset($conversation['participants']) && is_array($
 
     unset($participant);
 }
+
+
 
 /*
 |--------------------------------------------------------------------------

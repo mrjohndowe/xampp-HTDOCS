@@ -36,6 +36,12 @@ return [
         'sendDelay' => rand(1500, 2000),
         'receiveDelay' => rand(2500, 3500),
         'waitDelay' => rand(1000, 2500),
+        'draftPause' => rand(1800, 2500),
+        'deleteSpeed' => 30,
+        'recomposePause' => rand(700, 900),
+        'seperatorDelay' => rand(10000, 15000),
+        'mistakeChance' => number_format(rand(2,5) / 100, 2),
+        'draftMistakeChance'=> number_format(rand(2,5) /100 , 2),
     ],
     /*
     |--------------------------------------------------------------------------
@@ -127,11 +133,33 @@ return [
 
             [
                 'sender'      => 'me',
+                'draft'       => 'I hate the way you talk to me sometime',
+                'recomposePause' => $timingVars['recomposePause'],
                 'text'        => 'NVM on the flirting & roleplaying with me :rofl:',
                 'delay'       => $timingVars['waitDelay'],
                 'compose'     => true,
                 'typingSpeed' => $timingVars['typingSpeed'],
                 'sendDelay'   => $timingVars['sendDelay'],
+                'draftPause'  => $timingVars['draftPause'],
+            ],
+
+            [
+                'sender' => 'me',
+
+                'draft' => 'I still miss you and I wish things were different',
+                'text' => 'I hope everything works out for you',
+
+                'delay' => 1400,
+                'compose' => true,
+
+                'typingSpeed' => 65,
+                'recomposeTypingSpeed' => 70,
+                'deleteSpeed' => 35,
+                'draftPause' => 1200,
+                'recomposePause' => 500,
+                'sendDelay' => 700,
+
+                'mistakeChance' => 0.04,
             ],
 
             [

@@ -1,5 +1,6 @@
 <?php
 
+
 $participants = $conversation['participants'];
 
 $other = $participants['other'];

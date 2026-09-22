@@ -296,6 +296,23 @@ function createDateSeparator(datetime) {
     inputEl.style.height = `${Math.min(inputEl.scrollHeight, 110)}px`;
   }
 
+  async function deleteComposerText(speed = 35) {
+    if (!inputEl) {
+      return;
+    }
+
+    while (inputEl.value.length > 0) {
+      inputEl.value = inputEl.value.slice(0, -1);
+
+      playBackspaceSound();
+      resizeComposer();
+
+      inputEl.scrollTop = inputEl.scrollHeight;
+
+      await sleep(Number(speed || 35) + Math.floor(Math.random() * 25));
+    }
+  }
+
 async function typeIntoComposer(
   text,
   speed = 55,
@@ -393,47 +410,62 @@ async function playIncoming(item, participant) {
   chatHistory.push({ sender: item.sender, text: item.text || "" });
 }
 
-  async function playOutgoing(item, participant) {
-    await sleep(Number(item.delay || 0));
+async function playOutgoing(item, participant) {
+  await sleep(Number(item.delay || 0));
 
-    if (item.image) {
-      await sleep(Number(item.sendDelay || 0));
-
-      playSendSound();
-
-      createImageMessage(
-        participant,
-        item.image,
-        item.timestamp ?? null,
-        item.caption ?? "",
-      );
-
-      return;
-    }
-
-    const text = String(item.text || "");
-
-    if (item.compose) {
-      await typeIntoComposer(
-        text,
-        Number(item.typingSpeed || 65),
-        item.pauseAt || {},
-        Number(item.mistakeChance ?? 0.06),
-      );
-
-      await sleep(Number(item.sendDelay || 0));
-
-      if (inputEl) {
-        inputEl.value = "";
-        resizeComposer();
-      }
-    }
+  if (item.image) {
+    await sleep(Number(item.sendDelay || 0));
 
     playSendSound();
 
-    createMessage(participant, text, item.timestamp ?? null);
-    chatHistory.push({ sender: item.sender, text });
+    createImageMessage(
+      participant,
+      item.image,
+      item.timestamp ?? null,
+      item.caption ?? "",
+    );
+
+    return;
   }
+
+  const draft = String(item.draft || "");
+  const text = String(item.text || "");
+
+  if (item.compose) {
+    if (draft) {
+      await typeIntoComposer(
+        draft,
+        Number(item.typingSpeed || 65),
+        item.draftPauseAt || {},
+        Number(item.draftMistakeChance ?? item.mistakeChance ?? 0.06),
+      );
+
+      await sleep(Number(item.draftPause || 1000));
+
+      await deleteComposerText(Number(item.deleteSpeed || 35));
+
+      await sleep(Number(item.recomposePause || 500));
+    }
+
+    await typeIntoComposer(
+      text,
+      Number(item.recomposeTypingSpeed ?? item.typingSpeed ?? 65),
+      item.pauseAt || {},
+      Number(item.mistakeChance ?? 0.06),
+    );
+
+    await sleep(Number(item.sendDelay || 0));
+
+    if (inputEl) {
+      inputEl.value = "";
+      resizeComposer();
+    }
+  }
+
+  playSendSound();
+
+  createMessage(participant, text, item.timestamp ?? null);
+}
 async function playConversation() {
   if (playbackRunning) {
     return;
@@ -595,6 +627,11 @@ async function playConversation() {
     const formData = new FormData();
 
     formData.append("avatar", file);
+
+    const conversationId =
+      new URLSearchParams(window.location.search).get("c") || "";
+
+    formData.append("conversation_id", conversationId);
 
     const response = await fetch(appUrl("/api/upload-avatar.php"), {
       method: "POST",
