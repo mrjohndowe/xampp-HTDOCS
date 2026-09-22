@@ -1,0 +1,231 @@
+/* Created by {------ANKIT ------} */
+
+/* --- GLOBAL RESET & BASE STYLES --- */
+body {
+    background-color: #000;
+    color: #0F0; /* Default Text Color (Dark Green/Hacker) */
+    font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    overflow: hidden; /* Prevent body scroll */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+}
+
+#terminal-container {
+    width: 95%;
+    max-width: 800px;
+    height: 98vh;
+    max-height: 98vh;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+}
+
+/* --- OUTPUT WINDOW --- */
+#output-window {
+    flex-grow: 1;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 5px;
+    line-height: 1.5;
+    /* Custom Scrollbar for a cyber look */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-main) #000;
+}
+
+#output-window::-webkit-scrollbar {
+    width: 8px;
+}
+#output-window::-webkit-scrollbar-track {
+    background: #000;
+}
+#output-window::-webkit-scrollbar-thumb {
+    background-color: var(--color-main);
+    border-radius: 20px;
+    border: 1px solid #000;
+}
+
+.line {
+    opacity: 0.95;
+    transition: color 0.3s;
+}
+
+.prompt-text {
+    opacity: 0.7;
+}
+
+.system-message {
+    color: var(--color-accent);
+    text-shadow: 0 0 5px var(--color-accent);
+}
+
+.error-message {
+    color: var(--color-error);
+    font-weight: bold;
+}
+
+/* --- INPUT BAR --- */
+#input-bar {
+    display: flex;
+    align-items: center;
+    border-top: 1px solid var(--color-main-low-opacity);
+    padding-top: 5px;
+    position: sticky;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+}
+
+#command-input {
+    flex-grow: 1;
+    background: transparent;
+    border: none;
+    color: inherit;
+    font-family: inherit;
+    font-size: inherit;
+    outline: none;
+    caret-color: transparent;
+    padding: 0;
+    margin: 0 2px;
+}
+
+/* --- VISUAL FX --- */
+#cursor {
+    animation: blink 1s step-end infinite;
+    color: var(--color-main);
+}
+@keyframes blink {
+    from, to { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Progress Bar Style */
+.progress-bar {
+    width: 100%;
+    background-color: #333;
+    border: 1px solid var(--color-main);
+    margin: 5px 0;
+    height: 10px;
+    box-shadow: 0 0 5px var(--color-main);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
+    background-color: var(--color-main);
+    transition: width 0.5s ease;
+    box-shadow: 0 0 5px var(--color-main-low-opacity);
+}
+
+/* Glitch Spark on Hover FX */
+#terminal-container:hover {
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+#terminal-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.05s ease-in-out;
+}
+#terminal-container:hover::after {
+    /* Random Glitch Spark Effect */
+    opacity: 0.2;
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), var(--color-error) 0%, transparent 5%);
+    animation: glitchSpark 0.1s steps(2, jump) infinite;
+}
+@keyframes glitchSpark {
+    0% { transform: translate(1px, 1px); }
+    50% { transform: translate(-1px, -1px); }
+    100% { transform: translate(1px, 1px); }
+}
+
+/* Binary Rain / Matrix FX */
+#background-fx {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.15;
+    transition: opacity 0.5s;
+}
+.matrix-hidden {
+    display: none !important;
+}
+
+/* --- THEMES (Custom Properties) --- */
+body[data-theme='dark'] {
+    --color-main: #0F0;         /* Dark Green (Hacker) */
+    --color-main-low-opacity: rgba(0, 255, 0, 0.3);
+    --color-accent: #0FF;       /* Cyan */
+    --color-error: #F00;
+}
+body[data-theme='blue'] {
+    --color-main: #33F;         /* Neon Blue (Futuristic) */
+    --color-main-low-opacity: rgba(51, 51, 255, 0.3);
+    --color-accent: #0FF;       /* Cyan */
+    --color-error: #F00;
+}
+body[data-theme='pink'] {
+    --color-main: #FF69B4;      /* Soft Pink (Aesthetic) */
+    --color-main-low-opacity: rgba(255, 105, 180, 0.3);
+    --color-accent: #9400D3;    /* Dark Violet */
+    --color-error: #F00;
+}
+body[data-theme='neon'] {
+    --color-main: #F0F;         /* Glitch Purple/Magenta */
+    --color-main-low-opacity: rgba(255, 0, 255, 0.3);
+    --color-accent: #0FF;       /* Cyan */
+    --color-error: #F00;
+}
+body[data-theme='red'] {
+    --color-main: #FF3333;      /* Crimson Red (Alert Mode) */
+    --color-main-low-opacity: rgba(255, 51, 51, 0.3);
+    --color-accent: #FFCC00;    /* Amber */
+    --color-error: #FFF;
+}
+body[data-theme='purple'] {
+    --color-main: #9370DB;      /* Glitch Purple (Experimental) */
+    --color-main-low-opacity: rgba(147, 112, 219, 0.3);
+    --color-accent: #0FF;
+    --color-error: #FF00FF;
+}
+
+/* Apply main color variable to relevant elements */
+body {
+    color: var(--color-main);
+}
+.system-message, .prompt-text, #cursor {
+    color: var(--color-main);
+}
+
+@media (max-width: 600px) {
+    body {
+        font-size: 14px;
+    }
+    #terminal-container {
+        padding: 5px;
+        width: 100%;
+    }
+    .prompt-text {
+        display: none;
+    }
+}
