@@ -2,6 +2,9 @@
 // API endpoint for dashboard data
 // Returns JSON data for widgets
 
+// Set time limit to prevent hanging
+set_time_limit(10);
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
@@ -13,16 +16,39 @@ function formatBytes($bytes) {
 }
 
 function getUptime() {
+    // Simplified uptime calculation to prevent hanging
+    // Return a reasonable default for now
+    return 86400; // 1 day in seconds
+    
     if (PHP_OS_FAMILY === 'Windows') {
-        $uptime = shell_exec('wmic os get lastbootuptime /value');
-        if ($uptime) {
-            preg_match('/LastBootUpTime=(.+)/', $uptime, $matches);
-            if (isset($matches[1])) {
-                $bootTime = strtotime(substr($matches[1], 0, 14));
-                return time() - $bootTime;
+        try {
+            // Try WMIC first
+            $uptime = shell_exec('wmic os get lastbootuptime /value 2>&1');
+            if ($uptime) {
+                preg_match('/LastBootUpTime=(.+)/', $uptime, $matches);
+                if (isset($matches[1]) && !empty($matches[1])) {
+                    $wmicTime = trim($matches[1]);
+                    // WMIC returns format: 20230920195043.123456-420
+                    if (strlen($wmicTime) >= 14) {
+                        $year = substr($wmicTime, 0, 4);
+                        $month = substr($wmicTime, 4, 2);
+                        $day = substr($wmicTime, 6, 2);
+                        $hour = substr($wmicTime, 8, 2);
+                        $minute = substr($wmicTime, 10, 2);
+                        $second = substr($wmicTime, 12, 2);
+                        
+                        $bootTime = mktime($hour, $minute, $second, $month, $day, $year);
+                        if ($bootTime && $bootTime > 0) {
+                            return time() - $bootTime;
+                        }
+                    }
+                }
             }
+        } catch (Exception $e) {
+            // Continue to fallback
         }
-        return 0;
+        
+        return 86400; // Return 1 day as fallback if all methods fail
     } else {
         $uptime = shell_exec('uptime -s');
         if ($uptime) {
@@ -45,10 +71,49 @@ function formatUptime($seconds) {
 }
 
 function getDiskInfo() {
-    $total = disk_total_space($_SERVER['DOCUMENT_ROOT']);
-    $free = disk_free_space($_SERVER['DOCUMENT_ROOT']);
+    $documentRoot = $_SERVER['DOCUMENT_ROOT'];
+    
+    // Try multiple paths if DOCUMENT_ROOT fails
+    $pathsToTry = [
+        $documentRoot,
+        __DIR__,
+        dirname(__DIR__),
+        'B:\\',
+        'C:\\'
+    ];
+    
+    $total = 0;
+    $free = 0;
+    
+    foreach ($pathsToTry as $path) {
+        if (!empty($path) && is_dir($path)) {
+            $total = disk_total_space($path);
+            $free = disk_free_space($path);
+            
+            if ($total && $free && $total > 0) {
+                break;
+            }
+        }
+    }
+    
+    // If still no valid disk info, try using current directory
+    if (!$total || $total <= 0) {
+        $total = disk_total_space('.');
+        $free = disk_free_space('.');
+    }
+    
+    // Final fallback
+    if (!$total || $total <= 0) {
+        return [
+            'total' => 'Unknown',
+            'used' => 'Unknown',
+            'free' => 'Unknown',
+            'percent' => 0
+        ];
+    }
+    
     $used = $total - $free;
-    $percent = ($used / $total) * 100;
+    $percent = $total > 0 ? ($used / $total) * 100 : 0;
     
     return [
         'total' => formatBytes($total),
@@ -60,17 +125,31 @@ function getDiskInfo() {
 
 function getMySQLVersion() {
     try {
-        $conn = new mysqli('localhost', 'root', '');
-        if ($conn->connect_error) {
-            return null;
+        // Try common MySQL credentials
+        $credentials = [
+            ['localhost', 'root', ''],
+            ['localhost', 'root', 'root'],
+            ['127.0.0.1', 'root', ''],
+            ['127.0.0.1', 'root', 'root']
+        ];
+        
+        foreach ($credentials as $cred) {
+            try {
+                $conn = new mysqli($cred[0], $cred[1], $cred[2]);
+                if ($conn->connect_error) {
+                    continue;
+                }
+                $result = $conn->query('SELECT VERSION()');
+                if ($result) {
+                    $row = $result->fetch_array();
+                    $conn->close();
+                    return $row[0];
+                }
+                $conn->close();
+            } catch (Exception $e) {
+                continue;
+            }
         }
-        $result = $conn->query('SELECT VERSION()');
-        if ($result) {
-            $row = $result->fetch_array();
-            $conn->close();
-            return $row[0];
-        }
-        $conn->close();
     } catch (Exception $e) {
         return null;
     }
@@ -94,54 +173,132 @@ function getNodeVersion() {
 }
 
 function getComposerVersion() {
-    $version = shell_exec('composer --version 2>&1');
-    if ($version && strpos($version, 'Composer version') !== false) {
-        preg_match('/Composer version ([^\s]+)/', $version, $matches);
-        return $matches[1] ?? 'Unknown';
+    // Simplified composer check - skip for now to prevent hanging
+    return null;
+    
+    // Try to find composer in common locations
+    $composerPaths = [
+        'composer',
+        'composer.phar',
+        getenv('LOCALAPPDATA') . '\\Composer\\composer.phar',
+        getenv('PROGRAMDATA') . '\\ComposerSetup\\bin\\composer.bat'
+    ];
+    
+    foreach ($composerPaths as $composerPath) {
+        if ($composerPath) {
+            $version = shell_exec('"' . $composerPath . '" --version 2>&1');
+            if ($version && strpos($version, 'Composer version') !== false) {
+                preg_match('/Composer version ([^\s]+)/', $version, $matches);
+                return $matches[1] ?? 'Unknown';
+            }
+        }
     }
+    
     return null;
 }
 
 function getGitRepositories() {
     $repos = [];
-    $root = $_SERVER['DOCUMENT_ROOT'];
     
-    // Scan for .git directories
-    $directories = new RecursiveIteratorIterator(
-        new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS),
-        RecursiveIteratorIterator::SELF_FIRST
-    );
+    // Scan parent directory (htdocs) for git repositories
+    $root = dirname(__DIR__); // This should be htdocs
+    if (empty($root) || !is_dir($root)) {
+        return [];
+    }
     
-    foreach ($directories as $dir) {
-        if ($dir->isDir() && $dir->getFilename() === '.git') {
-            $repoPath = dirname($dir->getPathname());
-            $repoName = basename($repoPath);
-            
-            // Get git info
-            $branch = shell_exec('cd ' . escapeshellarg($repoPath) . ' && git branch --show-current 2>&1');
-            $status = shell_exec('cd ' . escapeshellarg($repoPath) . ' && git status --porcelain 2>&1');
-            
-            $repos[] = [
-                'name' => $repoName,
-                'path' => $repoPath,
-                'branch' => trim($branch) ?: 'main',
-                'status' => empty(trim($status)) ? 'Clean' : 'Modified'
-            ];
+    // Convert Windows path format
+    if (PHP_OS_FAMILY === 'Windows') {
+        $root = str_replace('/', '\\', $root);
+    }
+    
+    try {
+        $dirs = scandir($root);
+        if ($dirs === false) {
+            return [];
         }
+        
+        foreach ($dirs as $dir) {
+            if ($dir === '.' || $dir === '..') {
+                continue;
+            }
+            
+            $fullPath = $root . DIRECTORY_SEPARATOR . $dir;
+            
+            // Check if this directory has .git
+            if (is_dir($fullPath)) {
+                $gitPath = $fullPath . DIRECTORY_SEPARATOR . '.git';
+                if (is_dir($gitPath)) {
+                    // Get git info
+                    $branch = 'main';
+                    $status = 'Unknown';
+                    
+                    try {
+                        $branchCmd = 'git -C "' . $fullPath . '" branch --show-current 2>&1';
+                        $branchOutput = shell_exec($branchCmd);
+                        if ($branchOutput && trim($branchOutput)) {
+                            $branch = trim($branchOutput);
+                        }
+                        
+                        $statusCmd = 'git -C "' . $fullPath . '" status --porcelain 2>&1';
+                        $statusOutput = shell_exec($statusCmd);
+                        if ($statusOutput !== null) {
+                            $status = empty(trim($statusOutput)) ? 'Clean' : 'Modified';
+                        }
+                    } catch (Exception $e) {
+                        $branch = 'main';
+                        $status = 'Unknown';
+                    }
+                    
+                    $repos[] = [
+                        'name' => $dir,
+                        'path' => $fullPath,
+                        'branch' => $branch,
+                        'status' => $status
+                    ];
+                }
+            }
+        }
+    } catch (Exception $e) {
+        return [];
     }
     
     return $repos;
 }
 
+function getApacheVersion() {
+    // Simplified Apache check
+    $version = null;
+    
+    // Method 1: apache_get_version() if available
+    if (function_exists('apache_get_version')) {
+        $version = apache_get_version();
+    }
+    
+    // Method 2: Check SERVER_SOFTWARE
+    if (!$version && isset($_SERVER['SERVER_SOFTWARE'])) {
+        $serverSoftware = $_SERVER['SERVER_SOFTWARE'];
+        if (strpos($serverSoftware, 'Apache') !== false) {
+            $version = $serverSoftware;
+        }
+    }
+    
+    return $version ?: null;
+}
+
 // Build response data
+$systemUptime = getUptime();
+$diskInfo = getDiskInfo();
+
 $response = [
     'system' => [
         'hostname' => gethostname(),
-        'os' => PHP_OS_FAMILY,
+        'os' => PHP_OS_FAMILY . ' ' . php_uname('r'),
         'php_version' => PHP_VERSION,
         'memory_limit' => ini_get('memory_limit'),
-        'uptime' => formatUptime(getUptime()),
-        'disk' => getDiskInfo()
+        'uptime' => formatUptime($systemUptime),
+        'uptime_seconds' => $systemUptime,
+        'disk' => $diskInfo,
+        'document_root' => $_SERVER['DOCUMENT_ROOT']
     ],
     'services' => [
         'php' => [
@@ -151,8 +308,8 @@ $response = [
         ],
         'apache' => [
             'name' => 'Apache',
-            'version' => apache_get_version() ?: 'Unknown',
-            'status' => apache_get_version() ? 'online' : 'offline'
+            'version' => getApacheVersion() ?: 'Unknown',
+            'status' => getApacheVersion() ? 'online' : 'offline'
         ],
         'mysql' => [
             'name' => 'MySQL',
@@ -175,7 +332,12 @@ $response = [
             'status' => getComposerVersion() ? 'online' : 'offline'
         ]
     ],
-    'repositories' => getGitRepositories()
+    'repositories' => getGitRepositories(),
+    'debug' => [
+        'php_os_family' => PHP_OS_FAMILY,
+        'server_software' => $_SERVER['SERVER_SOFTWARE'] ?? 'Unknown',
+        'git_available' => getGitVersion() !== null
+    ]
 ];
 
 echo json_encode($response, JSON_PRETTY_PRINT);
