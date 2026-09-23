@@ -43,13 +43,15 @@ echo json_encode($response);
 
 function launchExplorer($path) {
     if (empty($path) || !is_dir($path)) {
-        return ['success' => false, 'message' => 'Invalid path'];
+        return ['success' => false, 'message' => 'Invalid path: ' . $path];
     }
     
     if (PHP_OS_FAMILY === 'Windows') {
+        // Convert to Windows path format
+        $path = str_replace('/', '\\', $path);
         $command = 'explorer "' . $path . '"';
-        pclose(popen('start /B ' . $command, 'r'));
-        return ['success' => true, 'message' => 'Explorer opened'];
+        $result = pclose(popen('start /B ' . $command, 'r'));
+        return ['success' => true, 'message' => 'Explorer opened: ' . $path];
     } else {
         $command = 'xdg-open "' . $path . '"';
         shell_exec($command);
@@ -59,11 +61,14 @@ function launchExplorer($path) {
 
 function launchVSCode($path) {
     if (empty($path) || !is_dir($path)) {
-        return ['success' => false, 'message' => 'Invalid path'];
+        return ['success' => false, 'message' => 'Invalid path: ' . $path];
     }
     
-    // Try to find VS Code executable
+    // Convert to Windows path format
     if (PHP_OS_FAMILY === 'Windows') {
+        $path = str_replace('/', '\\', $path);
+        
+        // Try to find VS Code executable
         $vscodePaths = [
             getenv('LOCALAPPDATA') . '\\Programs\\Microsoft VS Code\\Code.exe',
             getenv('PROGRAMFILES') . '\\Microsoft VS Code\\Code.exe',
@@ -71,9 +76,9 @@ function launchVSCode($path) {
         ];
         
         $vscodePath = null;
-        foreach ($vscodePaths as $path) {
-            if (file_exists($path)) {
-                $vscodePath = $path;
+        foreach ($vscodePaths as $vscodePathCheck) {
+            if ($vscodePathCheck && file_exists($vscodePathCheck)) {
+                $vscodePath = $vscodePathCheck;
                 break;
             }
         }
@@ -81,17 +86,17 @@ function launchVSCode($path) {
         if ($vscodePath) {
             $command = '"' . $vscodePath . '" "' . $path . '"';
             pclose(popen('start /B ' . $command, 'r'));
-            return ['success' => true, 'message' => 'VS Code opened'];
+            return ['success' => true, 'message' => 'VS Code opened: ' . $path];
         } else {
             // Try using 'code' command if in PATH
             $command = 'code "' . $path . '"';
             $result = shell_exec($command . ' 2>&1');
             if (empty($result) || strpos($result, 'error') === false) {
-                return ['success' => true, 'message' => 'VS Code opened'];
+                return ['success' => true, 'message' => 'VS Code opened via PATH: ' . $path];
             }
         }
         
-        return ['success' => false, 'message' => 'VS Code not found'];
+        return ['success' => false, 'message' => 'VS Code not found in system'];
     } else {
         $command = 'code "' . $path . '"';
         shell_exec($command);
@@ -101,20 +106,23 @@ function launchVSCode($path) {
 
 function launchTerminal($path) {
     if (empty($path) || !is_dir($path)) {
-        return ['success' => false, 'message' => 'Invalid path'];
+        return ['success' => false, 'message' => 'Invalid path: ' . $path];
     }
     
+    // Convert to Windows path format
     if (PHP_OS_FAMILY === 'Windows') {
+        $path = str_replace('/', '\\', $path);
+        
         // Try Windows Terminal first, then fallback to cmd
         $wtPath = getenv('LOCALAPPDATA') . '\\Microsoft\\WindowsApps\\wt.exe';
-        if (file_exists($wtPath)) {
+        if ($wtPath && file_exists($wtPath)) {
             $command = '"' . $wtPath . '" -d "' . $path . '"';
             pclose(popen('start /B ' . $command, 'r'));
-            return ['success' => true, 'message' => 'Windows Terminal opened'];
+            return ['success' => true, 'message' => 'Windows Terminal opened: ' . $path];
         } else {
             $command = 'cmd /k "cd /d "' . $path . '""';
             pclose(popen('start /B ' . $command, 'r'));
-            return ['success' => true, 'message' => 'Command Prompt opened'];
+            return ['success' => true, 'message' => 'Command Prompt opened: ' . $path];
         }
     } else {
         // Linux terminal
