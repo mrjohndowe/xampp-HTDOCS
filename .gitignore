@@ -15,3 +15,7 @@ video-wall/data/thumbnails/*.*
 novels/data/novelshelf.sqlite
 video-wall/data/analysis-collage.jpg
 video-wall/data/collage-watcher.pid
+.global/folderOrganizer/downloads
+.global/folderOrganizer/download/FolderOrganizer-0.1.7-x64.msi
+.global/folderOrganizer/download/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20.1_1.msi
+.global/folderOrganizer/**/*.*
