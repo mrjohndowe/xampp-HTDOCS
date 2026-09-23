@@ -1,0 +1,293 @@
+<?php
+
+declare(strict_types=1);
+// $check = ini_get("disable_functions") ? ini_get("disable_functions") : "NO FUNCTIONS DISABLED";
+// echo $check . PHP_EOL;
+
+// exit;
+header('Content-Type: application/json');
+
+date_default_timezone_set('America/Denver');
+
+$root = realpath($_SERVER['DOCUMENT_ROOT']);
+
+$response = [
+
+    "success" => true,
+
+    "timestamp" => date('c'),
+
+    "projects" => [],
+
+    "activity" => [],
+
+    "system" => [],
+
+    "stats" => []
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| Scan Projects
+|--------------------------------------------------------------------------
+*/
+
+$ignore = [
+
+    '.git',
+    '.vs',
+    'node_modules',
+    'vendor',
+    '.idea',
+    '.vscode'
+
+];
+
+foreach (scandir($root) as $item) {
+
+    if ($item == "." || $item == "..")
+        continue;
+
+    if (in_array($item, $ignore))
+        continue;
+
+    $path = $root . DIRECTORY_SEPARATOR . $item;
+
+    if (!is_dir($path))
+        continue;
+
+    $response["projects"][] = [
+
+        "name" => $item,
+
+        "path" => $path,
+
+        "modified" => date(
+            "Y-m-d H:i:s",
+            filemtime($path)
+        ),
+
+        "git" => is_dir($path . "/.git"),
+
+        "website" => file_exists($path . "/index.php")
+
+    ];
+}
+
+/*
+|--------------------------------------------------------------------------
+| Recent Activity
+|--------------------------------------------------------------------------
+*/
+
+$files = [];
+
+$iterator = new RecursiveIteratorIterator(
+    new RecursiveDirectoryIterator(
+        $root,
+        FilesystemIterator::SKIP_DOTS
+    )
+);
+
+foreach ($iterator as $file) {
+
+    if (!$file->isFile())
+        continue;
+
+    $files[] = [
+
+        "name" => $file->getFilename(),
+
+        "path" => $file->getPathname(),
+
+        "modified" => $file->getMTime()
+
+    ];
+}
+
+usort($files, function ($a, $b) {
+
+    return $b["modified"] <=> $a["modified"];
+});
+
+foreach (array_slice($files, 0, 15) as $file) {
+
+    $response["activity"][] = [
+
+        "file" => $file["name"],
+
+        "path" => $file["path"],
+
+        "time" => date(
+            "Y-m-d H:i:s",
+            $file["modified"]
+        )
+
+    ];
+}
+
+/*
+|--------------------------------------------------------------------------
+| Disk Stats
+|--------------------------------------------------------------------------
+*/
+
+$total = @disk_total_space($root);
+
+$free = @disk_free_space($root);
+
+$used = $total - $free;
+
+$response["stats"] = [
+
+    "disk" => [
+
+        "total" => $total,
+
+        "free" => $free,
+
+        "used" => $used,
+
+        "percent" => $total
+            ? round(($used / $total) * 100, 1)
+            : 0
+
+    ]
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| PHP
+|--------------------------------------------------------------------------
+*/
+
+$response["system"][] = [
+
+    "name" => "PHP",
+
+    "status" => "online",
+
+    "version" => PHP_VERSION
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| Apache
+|--------------------------------------------------------------------------
+*/
+
+$response["system"][] = [
+
+    "name" => "Apache",
+
+    "status" => "online",
+
+    "version" => $_SERVER['SERVER_SOFTWARE'] ?? ""
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| MySQL
+|--------------------------------------------------------------------------
+*/
+if (extension_loaded('mysqli')) {
+    $mysqli = @new mysqli(
+        "127.0.0.1",
+        "mylocalhost",
+        "IFv[AHsJTLzMyumW",
+        ""
+    );
+    // ...
+
+}
+
+$response["system"][] = [
+
+    "name" => "MySQL",
+
+    "status" => $mysqli->connect_errno
+        ? "offline"
+        : "online",
+
+    "version" => $mysqli->connect_errno
+        ? ""
+        : $mysqli->server_info
+
+];
+
+if (!$mysqli->connect_errno) {
+
+    $mysqli->close();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Git
+|--------------------------------------------------------------------------
+*/
+
+exec("git --version", $git, $code);
+
+$response["system"][] = [
+
+    "name" => "Git",
+
+    "status" => $code === 0
+        ? "online"
+        : "offline",
+
+    "version" => $git[0] ?? ""
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| Node
+|--------------------------------------------------------------------------
+*/
+
+exec("node -v", $node, $code);
+
+$response["system"][] = [
+
+    "name" => "Node.js",
+
+    "status" => $code === 0
+        ? "online"
+        : "offline",
+
+    "version" => $node[0] ?? ""
+
+];
+
+/*
+|--------------------------------------------------------------------------
+| Composer
+|--------------------------------------------------------------------------
+*/
+
+exec("composer --version", $composer, $code);
+
+$response["system"][] = [
+
+    "name" => "Composer",
+
+    "status" => $code === 0
+        ? "online"
+        : "offline",
+
+    "version" => $composer[0] ?? ""
+
+];
+
+echo json_encode(
+
+    $response,
+
+    JSON_PRETTY_PRINT
+
+);

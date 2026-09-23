@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>myLocalHost - Windows Development Dashboard</title>
+    <link rel="icon" href="/.global/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #58a6ff;
+            --accent-hover: #79c0ff;
+            --border: #30363d;
+            --success: #238636;
+            --warning: #d29922;
+            --danger: #f85149;
+            --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Noto Sans', Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .logo i {
+            color: var(--accent);
+            font-size: 1.8rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 24px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        .nav-links a.active {
+            color: var(--accent);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 80px 0;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, var(--accent) 0%, #a855f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s;
+            cursor: pointer;
+            border: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--success);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2ea043;
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--border);
+        }
+
+        /* Features Grid */
+        .features {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 48px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow);
+        }
+
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            background-color: var(--bg-tertiary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+
+        .feature-icon i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .feature-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Quick Access */
+        .quick-access {
+            padding: 60px 0;
+            background-color: var(--bg-secondary);
+        }
+
+        .quick-access-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .quick-access-item {
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            text-decoration: none;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+
+        .quick-access-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .quick-access-item i {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        .quick-access-item span {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        /* Stats */
+        .stats {
+            padding: 60px 0;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 24px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--bg-secondary);
+            border-top: 1px solid var(--border);
+            padding: 32px 0;
+            text-align: center;
+        }
+
+        .footer-content {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-top: 16px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .features-grid,
+            .quick-access-grid,
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <a href="#" class="logo">
+                    <i class="fas fa-server"></i>
+                    myLocalHost
+                </a>
+                <ul class="nav-links">
+                    <li><a href="#" class="active">Dashboard</a></li>
+                    <li><a href="myLocalhost.php">File Manager</a></li>
+                    <li><a href="#">Projects</a></li>
+                    <li><a href="#">Databases</a></li>
+                    <li><a href="#">Settings</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>Your Windows Development Hub</h1>
+                <p>Manage projects, repositories, websites, databases, terminals, and AI tools from a single, unified interface.</p>
+                <div class="cta-buttons">
+                    <a href="myLocalhost.php" class="btn btn-primary">
+                        <i class="fas fa-folder-open"></i>
+                        Open File Manager
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-code"></i>
+                        View Projects
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">Everything You Need</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <h3>Git Integration</h3>
+                        <p>Manage repositories, track changes, and collaborate with built-in Git tools.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fab fa-docker"></i>
+                        </div>
+                        <h3>Docker Support</h3>
+                        <p>Container management and deployment made simple from your dashboard.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <h3>Database Management</h3>
+                        <p>Direct access to phpMyAdmin and database administration tools.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-terminal"></i>
+                        </div>
+                        <h3>Terminal Access</h3>
+                        <p>Quick terminal access for commands and scripts execution.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <h3>Website Manager</h3>
+                        <p>Manage virtual hosts, Apache configuration, and web projects.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <h3>AI Assistant</h3>
+                        <p>Integrated AI tools to help with development tasks and code generation.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-access">
+            <div class="container">
+                <h2 class="section-title">Quick Access</h2>
+                <div class="quick-access-grid">
+                    <a href="myLocalhost.php" class="quick-access-item">
+                        <i class="fas fa-folder-open"></i>
+                        <span>File Manager</span>
+                    </a>
+                    <a href="/phpmyadmin" target="_blank" class="quick-access-item">
+                        <i class="fas fa-database"></i>
+                        <span>phpMyAdmin</span>
+                    </a>
+                    <a href="#" class="quick-access-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span>Git Repos</span>
+                    </a>
+                    <a href="#" class="quick-access-item">
+                        <i class="fas fa-laptop-code"></i>
+                        <span>VS Code</span>
+                    </a>
+                    <a href="#" class="quick-access-item">
+                        <i class="fas fa-server"></i>
+                        <span>Apache</span>
+                    </a>
+                    <a href="#" class="quick-access-item">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="stats">
+            <div class="container">
+                <h2 class="section-title">System Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="projectCount">0</div>
+                        <div class="stat-label">Active Projects</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="repoCount">0</div>
+                        <div class="stat-label">Git Repositories</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="dbCount">0</div>
+                        <div class="stat-label">Databases</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="uptime">0d</div>
+                        <div class="stat-label">System Uptime</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>myLocalHost v2.0 - Your Windows Development Dashboard</p>
+                <div class="footer-links">
+                    <a href="#">Documentation</a>
+                    <a href="#">Support</a>
+                    <a href="#">GitHub</a>
+                    <a href="#">Settings</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Simulated stats - in production, these would come from API endpoints
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate stats on load
+            animateValue('projectCount', 0, 12, 1000);
+            animateValue('repoCount', 0, 8, 1000);
+            animateValue('dbCount', 0, 5, 1000);
+            document.getElementById('uptime').textContent = '15d';
+        });
+
+        function animateValue(id, start, end, duration) {
+            const obj = document.getElementById(id);
+            const range = end - start;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const current = Math.floor(start + range * progress);
+                obj.textContent = current;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+    </script>
+</body>
+</html>
