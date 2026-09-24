@@ -4,130 +4,206 @@ declare(strict_types=1);
 
 header('Content-Type: application/json');
 
-date_default_timezone_set('America/Denver');
+const ROOT = 'B:/htdocs';
 
-$root = realpath($_SERVER['DOCUMENT_ROOT']);
-// $root = realpath("G:\.gitClones");
+function git(string $repository, string $command): string
+{
+    $cwd = escapeshellarg($repository);
 
-$response = [
-    "success" => true,
-    "repositories" => []
-];
+    $output = [];
 
-$ignore = [
-    '.git',
-    'vendor',
-    'node_modules',
-    '.idea',
-    '.vs',
-    '.vscode'
-];
+    @exec(
+        "cd /d {$cwd} && git {$command} 2>NUL",
+        $output
+    );
 
-$projects = scandir($root);
+    return trim(implode("\n", $output));
+}
 
-foreach ($projects as $project) {
+function hasFile(string $path): bool
+{
+    return file_exists($path);
+}
 
-    if ($project === "." || $project === "..") {
+$repositories = [];
+
+$iterator = new DirectoryIterator(ROOT);
+
+foreach ($iterator as $directory) {
+
+    if (!$directory->isDir()) {
         continue;
     }
 
-    if (in_array($project, $ignore, true)) {
+    if ($directory->isDot()) {
         continue;
     }
 
-    $path = realpath($root . DIRECTORY_SEPARATOR . $project);
+    $path = $directory->getPathname();
 
-    if ($path === false || !is_dir($path)) {
+    if (!is_dir($path . DIRECTORY_SEPARATOR . '.git')) {
         continue;
     }
 
-    if (!is_dir($path . DIRECTORY_SEPARATOR . ".git")) {
-        continue;
+    $status = git(
+        $path,
+        'status --porcelain'
+    );
+
+    $aheadBehind = git(
+        $path,
+        'rev-list --left-right --count @{upstream}...HEAD'
+    );
+
+    $ahead = 0;
+    $behind = 0;
+
+    if ($aheadBehind !== '') {
+
+        $parts = preg_split('/\s+/', $aheadBehind);
+
+        if (count($parts) >= 2) {
+
+            $behind = (int)$parts[0];
+            $ahead  = (int)$parts[1];
+
+        }
+
     }
 
-    $repo = [
+    $repositories[] = [
 
-        "name" => $project,
+        /*
+        ============================================
+        Basic
+        ============================================
+        */
 
-        "branch" => "",
+        'name' => $directory->getFilename(),
 
-        "clean" => true,
+        'path' => str_replace('\\', '/', $path),
 
-        "modified" => 0,
+        /*
+        ============================================
+        Git
+        ============================================
+        */
 
-        "ahead" => 0,
+        'branch' => git(
+            $path,
+            'branch --show-current'
+        ),
 
-        "behind" => 0,
+        'clean' => $status === '',
 
-        "lastCommit" => "",
+        'modified' => $status === ''
+            ? 0
+            : substr_count($status, "\n") + 1,
 
-        "lastAuthor" => ""
+        'ahead' => $ahead,
+
+        'behind' => $behind,
+
+        /*
+        ============================================
+        Commit
+        ============================================
+        */
+
+        'lastCommit' => git(
+            $path,
+            'rev-parse --short HEAD'
+        ),
+
+        'lastMessage' => git(
+            $path,
+            'log -1 --pretty=%s'
+        ),
+
+        'lastAuthor' => git(
+            $path,
+            'log -1 --pretty=%an'
+        ),
+
+        'lastDate' => git(
+            $path,
+            'log -1 --pretty=%cr'
+        ),
+
+        /*
+        ============================================
+        Remote
+        ============================================
+        */
+
+        'remote' => git(
+            $path,
+            'remote get-url origin'
+        ),
+
+        /*
+        ============================================
+        Detection
+        ============================================
+        */
+
+        'website' => hasFile($path.'/index.php')
+            || hasFile($path.'/index.html'),
+
+        'composer' => hasFile($path.'/composer.json'),
+
+        'node' => hasFile($path.'/package.json'),
+
+        'readme' =>
+            hasFile($path.'/README.md') ||
+            hasFile($path.'/readme.md'),
+
+        'laravel' =>
+            hasFile($path.'/artisan'),
+
+        'vite' =>
+            hasFile($path.'/vite.config.js'),
+
+        'docker' =>
+            hasFile($path.'/docker-compose.yml') ||
+            hasFile($path.'/docker-compose.yaml') ||
+            hasFile($path.'/Dockerfile'),
+
+        'env' =>
+            hasFile($path.'/.env')
 
     ];
 
-    exec(
-        'git -C ' . escapeshellarg($path) . ' branch --show-current',
-        $output
-    );
-
-    $repo["branch"] = trim($output[0] ?? "");
-
-    $output = [];
-
-    exec(
-        'git -C ' . escapeshellarg($path) . ' status --porcelain',
-        $output
-    );
-
-    $repo["modified"] = count($output);
-
-    $repo["clean"] = empty($output);
-
-    $output = [];
-
-    exec(
-        'git -C ' . escapeshellarg($path) . ' log -1 --pretty=format:"%an|%ar"',
-        $output
-    );
-
-    if (!empty($output)) {
-
-        [$author, $time] = array_pad(
-            explode("|", $output[0], 2),
-            2,
-            ""
-        );
-
-        $repo["lastAuthor"] = $author;
-
-        $repo["lastCommit"] = $time;
-    }
-
-    $output = [];
-
-    exec(
-        'git -C ' .
-            escapeshellarg($path) .
-            ' rev-list --left-right --count @{upstream}...HEAD 2>NUL',
-        $output
-    );
-
-    if (!empty($output)) {
-
-        $parts = preg_split('/\s+/', trim($output[0]));
-
-        if (count($parts) === 2) {
-
-            $repo["behind"] = (int)$parts[0];
-
-            $repo["ahead"] = (int)$parts[1];
-        }
-    }
-
-    $response["repositories"][] = $repo;
 }
 
+usort(
+
+    $repositories,
+
+    fn($a, $b) =>
+
+        strcasecmp(
+
+            $a['name'],
+
+            $b['name']
+
+        )
+
+);
+
 echo json_encode(
-    $response,
-    JSON_PRETTY_PRINT
+
+    [
+
+        'success' => true,
+
+        'count' => count($repositories),
+
+        'repositories' => $repositories
+
+    ],
+
+    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+
 );

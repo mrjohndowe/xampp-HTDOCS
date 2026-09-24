@@ -1,13 +1,6 @@
 <?php
 
 declare(strict_types=1);
-
-session_start();
-ini_set("display_errors", 1);
-
-const APP_NAME = 'MrJohnDowe';
-// const APP_VERSION = getVersionNumber();
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,11 +13,13 @@ const APP_NAME = 'MrJohnDowe';
         name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-    <title><?= APP_NAME ?></title>
+    <title>myLocalHost</title>
 
-    <link
-        rel="stylesheet"
-        href="assets/css/app.css?v=<?= getVersionNumber() ?>">
+    <link rel="stylesheet" href="assets/css/theme.css?v=<?= getVersionNumber() ?>">
+    <link rel="stylesheet" href="assets/css/layout.css?v=<?= getVersionNumber() ?>">
+    <link rel="stylesheet" href="assets/css/sidebar.css?v=<?= getVersionNumber() ?>">
+    <link rel="stylesheet" href="assets/css/widgets.css?v=<?= getVersionNumber() ?>">
+    <link rel="stylesheet" href="assets/css/app.css?v=<?= getVersionNumber() ?>">
 
 </head>
 
@@ -36,31 +31,29 @@ const APP_NAME = 'MrJohnDowe';
 
             <div class="logo">
 
-                <span class="logo-icon">⚡</span>
-
-                <span class="logo-text">
-
-                    MrJohnDowe
-
-                </span>
+                myLocalHost
 
             </div>
 
             <nav>
 
-                <a class="active" href="#">Dashboard</a>
+                <button class="nav active">🏠 Dashboard</button>
 
-                <a href="myLocalhost.php">File Manager</a>
+                <button class="nav">📂 Projects</button>
 
-                <a href="#">Websites</a>
+                <button class="nav">🌐 Websites</button>
 
-                <a href="#">Databases</a>
+                <button class="nav">🗄 Databases</button>
 
-                <a href="#">Git</a>
+                <button class="nav">🌿 Git</button>
 
-                <a href="#">Terminal</a>
+                <button class="nav">💻 Terminal</button>
 
-                <a href="#">Settings</a>
+                <button class="nav">🤖 AI</button>
+
+                <button class="nav">📜 Logs</button>
+
+                <button class="nav">⚙ Settings</button>
 
             </nav>
 
@@ -68,45 +61,18 @@ const APP_NAME = 'MrJohnDowe';
 
         <main>
 
-            <header id="dashboardHeader">
+            <header>
 
-                <div>
+                <h1>Dashboard</h1>
 
-                    <h1>Dashboard</h1>
-
-                    <small>
-
-                        Local Development Environment
-
-                    </small>
-
-                </div>
-
-                <div class="profile">
-
-                    Administrator
-
-                </div>
+                <input
+                    id="search"
+                    type="search"
+                    placeholder="Search... (Ctrl+K)">
 
             </header>
 
-            <section class="hero">
-
-                <input
-
-                    id="search"
-
-                    type="search"
-
-                    placeholder="Search projects, files, commands...">
-
-            </section>
-
-            <section
-
-                id="dashboardGrid"
-
-                class="grid">
+            <section id="dashboardGrid">
 
             </section>
 
@@ -114,12 +80,11 @@ const APP_NAME = 'MrJohnDowe';
 
     </div>
 
-    <script type="module" src="assets/js/app.js?v=<?= getVersionNumber() ?>"></script>
+    <script type="module" src="frontend/app.js?v=<?= getVersionNumber() ?>"></script>
 
 </body>
 
 </html>
-
 <?php
 function getVersionNumber()
 {
