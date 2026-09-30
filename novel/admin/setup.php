@@ -1,6 +1,16 @@
 <?php
 require_once __DIR__ . '/../config.php';
 if (admin_exists()) { header('Location: ' . app_url('admin/login.php')); exit; }
+
+// Require local access for first-run setup to prevent remote takeover
+$remote_addr = $_SERVER['REMOTE_ADDR'] ?? '';
+$is_local = in_array($remote_addr, ['127.0.0.1', '::1'], true) || 
+            (filter_var($remote_addr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) && str_starts_with($remote_addr, '127.'));
+if (!$is_local) {
+    http_response_code(403);
+    exit('<!doctype html><html><head><meta charset="utf-8"><title>Setup Restricted</title></head><body><h1>403 Forbidden</h1><p>First-run administrator setup is restricted to local access only. Please access this page from the server itself (localhost/127.0.0.1).</p></body></html>');
+}
+
 $err = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $t = $_POST['csrf_token'] ?? '';
