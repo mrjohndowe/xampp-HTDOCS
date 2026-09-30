@@ -49,7 +49,7 @@ function launchExplorer($path) {
     if (PHP_OS_FAMILY === 'Windows') {
         // Convert to Windows path format
         $path = str_replace('/', '\\', $path);
-        $command = 'explorer "' . $path . '"';
+        $command = 'explorer ' . escapeshellarg($path);
         $result = pclose(popen('start /B ' . $command, 'r'));
         return ['success' => true, 'message' => 'Explorer opened: ' . $path];
     } else {
@@ -89,7 +89,7 @@ function launchVSCode($path) {
             return ['success' => true, 'message' => 'VS Code opened: ' . $path];
         } else {
             // Try using 'code' command if in PATH
-            $command = 'code "' . $path . '"';
+            $command = 'code ' . escapeshellarg($path);
             $result = shell_exec($command . ' 2>&1');
             if (empty($result) || strpos($result, 'error') === false) {
                 return ['success' => true, 'message' => 'VS Code opened via PATH: ' . $path];
@@ -98,7 +98,7 @@ function launchVSCode($path) {
         
         return ['success' => false, 'message' => 'VS Code not found in system'];
     } else {
-        $command = 'code "' . $path . '"';
+        $command = 'code ' . escapeshellarg($path);
         shell_exec($command);
         return ['success' => true, 'message' => 'VS Code opened'];
     }
@@ -120,7 +120,7 @@ function launchTerminal($path) {
             pclose(popen('start /B ' . $command, 'r'));
             return ['success' => true, 'message' => 'Windows Terminal opened: ' . $path];
         } else {
-            $command = 'cmd /k "cd /d "' . $path . '""';
+            $command = 'cmd /k cd /d ' . escapeshellarg($path);
             pclose(popen('start /B ' . $command, 'r'));
             return ['success' => true, 'message' => 'Command Prompt opened: ' . $path];
         }
@@ -128,7 +128,7 @@ function launchTerminal($path) {
         // Linux terminal
         $terminals = ['gnome-terminal', 'xterm', 'konsole'];
         foreach ($terminals as $terminal) {
-            $command = $terminal . ' --working-directory="' . $path . '"';
+            $command = $terminal . ' --working-directory=' . escapeshellarg($path);
             shell_exec($command . ' 2>&1');
             return ['success' => true, 'message' => 'Terminal opened'];
         }
