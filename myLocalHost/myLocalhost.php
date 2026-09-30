@@ -2472,7 +2472,7 @@ function fm_get_size($file)
     // try a shell command
     if ($exec_works) {
         $arg = escapeshellarg($file);
-        $cmd = ($iswin) ? "for %F in (\"$file\") do @echo %~zF" : ($isdarwin ? "stat -f%z $arg" : "stat -c%s $arg");
+        $cmd = ($iswin) ? "for %F in (" . escapeshellarg($file) . ") do @echo %~zF" : ($isdarwin ? "stat -f%z $arg" : "stat -c%s $arg");
         @exec($cmd, $output);
         if (is_array($output) && ctype_digit($size = trim(implode("\n", $output)))) {
             return $size;
