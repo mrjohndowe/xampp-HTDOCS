@@ -3,6 +3,7 @@
     RewriteEngine On
     RewriteRule (^|/)\.git(?:/|$) - [F,L,NC]
 </IfModule>
+
 ErrorDocument 400 /.error/.error.php
 ErrorDocument 401 /.error/.error.php
 ErrorDocument 403 /.error/.error.php

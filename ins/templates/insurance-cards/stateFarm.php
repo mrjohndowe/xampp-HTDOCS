@@ -5,9 +5,12 @@ declare(strict_types=1);
 $company = $company ?? [];
 $card = $card ?? [];
 
+$esc = static fn(mixed $value): string => htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
+
 $companyName = trim((string)($company['name'] ?? 'INSURANCE INFORMATION'));
 $companySubtitle = trim((string)($company['subtitle'] ?? 'Mutual Automobile Insurance Co.'));
 $companyLogo = trim((string)($company['logo'] ?? ''));
+$companyLogo = 'uploads/companies/company_2_9744898b5f475d1c.png';
 
 $insuredName = trim((string)($card['insured_name'] ?? ''));
 $secondaryInsured = trim((string)($card['secondary_insured'] ?? ''));
@@ -21,8 +24,17 @@ $vehicleModel = trim((string)($card['vehicle_model'] ?? ''));
 $vehicleYear = trim((string)($card['vehicle_year'] ?? ''));
 $vin = trim((string)($card['vin'] ?? ''));
 
-$agentName = trim((string)($card['agent_name'] ?? ''));
-$agentPhone = trim((string)($card['agent_phone'] ?? ''));
+// $agentName = trim((string)($card['agent_name'] ?? ''));
+
+$names = $r->generateNames(1);
+$names = $names[0];
+$fName = $names['first_name'];
+$lName = $names['last_name'];
+
+$agentName = $fName . ' '. $lName;
+
+// $agentPhone = trim((string)($card['agent_phone'] ?? ''));
+$agentPhone = generatePhoneNumber('800');
 
 $barcode = '';
 
@@ -34,20 +46,21 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
     }
 }
 
-$logoUrl = '';
+// $logoUrl = '';
+
+// if ($companyLogo !== '') {
+//     if (filter_var($companyLogo, FILTER_VALIDATE_URL)) {
+//         $logoUrl = $companyLogo;
+//     } else {
+//         $logoPath = __DIR__ . '/../../uploads/companies/' . basename($companyLogo);
+
+//         if (is_file($logoPath)) {
+//             $logoUrl = '/ins/uploads/companies/' . basename($companyLogo);
+//         }
+//     }
+// }
 
 
-
-if ($companyLogo !== '') {
-    if (preg_match('#^http?://#i', $companyLogo)) {
-        $logoUrl = $companyLogo;
-    } else {
-        $logoUrl = __DIR__ . ltrim($companyLogo, '/');
-    }
-}
-
-$esc = static fn(mixed $value): string =>
-    htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
 ?>
 
 <style>
@@ -163,6 +176,9 @@ $esc = static fn(mixed $value): string =>
 .insurance-company-2-value.right {
     text-align: right;
 }
+.insurance-company-2-value.right.vin {
+    font-size: 11px;
+}
 
 .insurance-company-2-secondary {
     display: block;
@@ -223,8 +239,8 @@ $esc = static fn(mixed $value): string =>
 
         <div class="insurance-company-2-header">
 
-            <?php if ($logoUrl !== ''): ?>
-                <img class="insurance-company-2-logo" src="<?= $esc($logoUrl) ?>" alt="" >
+           <?php if ($companyLogo !== ''): ?>
+                <img class="insurance-company-2-logo" src="<?= $esc($companyLogo) ?>" alt="<?= $esc($companyName) ?> logo">
             <?php else: ?>
                 <div class="insurance-company-2-logo-placeholder">
                     INSURANCE
@@ -295,7 +311,7 @@ $esc = static fn(mixed $value): string =>
                     </div>
 
                     <div class="insurance-company-2-label">VIN</div>
-                    <div class="insurance-company-2-value right">
+                    <div class="insurance-company-2-value right vin">
                         <?= $esc($vin) ?>
                     </div>
                 </div>

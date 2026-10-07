@@ -2,6 +2,8 @@
 
 declare(strict_types=1);
 
+require '../.global/extra/functions.php';
+
 function e(mixed $value): string
 {
     return htmlspecialchars((string)$value, ENT_QUOTES, 'UTF-8');
@@ -248,4 +250,27 @@ function generateBarcodeSvg(string $value, int $width = 520, int $height = 90): 
         . '&includetext';
 
     return $url;
+}
+
+function generatePhoneNumber(string $areaCode = ''): string {
+    if($areaCode !== ''){
+        $areaCode = preg_replace('/\D/', '', $areaCode);
+        if(strlen($areaCode) !== 3) {
+            $areaCode = '';
+        }
+    }
+
+    if($areaCode === ''){
+        $areaCode = (string)randon_int(200, 999);
+    }
+
+    $prefix = (string)random_int(200, 999);
+    $lineNumber = (string)random_int(0, 9999);
+
+    return sprintf(
+        '(%s) %s-%04d',
+        $areaCode,
+        $prefix,
+        (int)$lineNumber
+    );
 }
