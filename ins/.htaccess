@@ -1,0 +1,25 @@
+DirectoryIndex index.php
+
+Options -Indexes
+
+RewriteEngine On
+
+# Allow the main router
+RewriteRule ^index\.php$ - [L]
+
+# Block direct access to PHP files inside protected directories
+RewriteRule ^(?:config|database|assets/includes)/.*\.php$ - [F,L,NC]
+
+# Block direct access to SQLite database files
+RewriteRule ^database/.*\.(?:sqlite|db|sqlite3)$ - [F,L,NC]
+
+# Block hidden files
+RewriteRule (^|/)\. - [F,L]
+
+# Block direct access to page files
+RewriteRule ^pages/.*\.php$ - [F,L,NC]
+
+# Everything else goes through index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]

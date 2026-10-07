@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/config/database.php';
-
 $errors = [];
 
 $values = [
@@ -14,8 +12,9 @@ $values = [
     'vehicle_model' => '',
     'vin' => '',
     'license_plate' => '',
-    'effective_date' => '',
+    'effective_date' => date('Y-m-d'),
     'expiration_date' => '',
+    'term' => '1_year',
     'liability_bod' => '',
     'property_damage' => ''
 ];
@@ -37,9 +36,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values['vin'] = strtoupper(postString('vin'));
     $values['license_plate'] = strtoupper(postString('license_plate'));
     $values['effective_date'] = postString('effective_date');
-    $values['expiration_date'] = postString('expiration_date');
+    $values['term'] = postString('term');
     $values['liability_bod'] = postString('liability_bod');
     $values['property_damage'] = postString('property_damage');
+
+    $termMonths = [
+        '1_month' => 1,
+        '6_months' => 6,
+        '1_year' => 12
+    ];
+
+    if (!isset($termMonths[$values['term']])) {
+        $errors[] = 'Please select an insurance term.';
+    }
 
     if (!$values['company_id']) {
         $errors[] = 'Please select an insurance company.';
@@ -53,16 +62,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Effective date is required.';
     }
 
-    if ($values['expiration_date'] === '') {
-        $errors[] = 'Expiration date is required.';
-    }
+    if (!$errors) {
 
-    if (
-        $values['effective_date'] !== '' &&
-        $values['expiration_date'] !== '' &&
-        $values['expiration_date'] < $values['effective_date']
-    ) {
-        $errors[] = 'Expiration date cannot be before the effective date.';
+        try {
+            $effectiveDate = new DateTime($values['effective_date']);
+
+            $expirationDate = clone $effectiveDate;
+            $expirationDate->modify('+' . $termMonths[$values['term']] . ' months');
+
+            $values['expiration_date'] = $expirationDate->format('Y-m-d');
+
+        } catch (Exception $e) {
+            $errors[] = 'Invalid effective date.';
+        }
     }
 
     if (!$errors) {
@@ -119,10 +131,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':property_damage' => $values['property_damage']
             ]);
 
-            redirect('view.php?id=' . $pdo->lastInsertId());
+            redirect('index.php?p=view&id=' . $pdo->lastInsertId());
 
         } catch (PDOException $e) {
             $errors[] = 'Unable to create the insurance card.';
+        }
+    }
+}
+
+$displayExpirationDate = '';
+
+if ($values['effective_date'] !== '' && $values['term'] !== '') {
+    $termMonths = [
+        '1_month' => 1,
+        '6_months' => 6,
+        '1_year' => 12
+    ];
+
+    if (isset($termMonths[$values['term']])) {
+        try {
+            $effectiveDate = new DateTime($values['effective_date']);
+            $effectiveDate->modify('+' . $termMonths[$values['term']] . ' months');
+            $displayExpirationDate = $effectiveDate->format('Y-m-d');
+        } catch (Exception $e) {
+            $displayExpirationDate = '';
         }
     }
 }
@@ -135,22 +167,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Insurance Card</title>
     <link rel="stylesheet" href="assets/css/style.css?v=<?= getVersionNumber() ?>">
+    <script src="assets/js/app.js?v=<?= getVersionNumber() ?>" defer></script>
 </head>
 <body>
 
 <header class="topbar">
     <div class="topbar-inner">
 
-        <a href="index.php" class="brand">
+        <a href="index.php?p=dashboard" class="brand">
             <span class="brand-icon">IC</span>
             <span>Insurance Cards</span>
         </a>
 
         <nav>
-            <a href="index.php">Dashboard</a>
-            <a href="create.php">Create Card</a>
-            <a href="admin/index.php">Admin</a>
+            <a href="index.php?p=dashboard">Dashboard</a>
+            <a href="index.php?p=create">Create Card</a>
+            <a href="index.php?p=admin">Admin</a>
         </nav>
+
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
 
     </div>
 </header>
@@ -211,8 +246,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
 
                 <div class="field">
+                    <label for="term">Policy Term</label>
+                    <select id="term" name="term" required>
+                        <option value="1_month" <?= $values['term'] === '1_month' ? 'selected' : '' ?>>1 Month</option>
+                        <option value="6_months" <?= $values['term'] === '6_months' ? 'selected' : '' ?>>6 Months</option>
+                        <option value="1_year" <?= $values['term'] === '1_year' ? 'selected' : '' ?>>1 Year</option>
+                    </select>
+                </div>
+
+                <div class="field">
                     <label for="expiration_date">Expiration Date</label>
-                    <input type="date" id="expiration_date" name="expiration_date" value="<?= e($values['expiration_date']) ?>" required>
+                    <input type="date" id="expiration_date" value="<?= e($displayExpirationDate) ?>" readonly>
                 </div>
 
             </div>
@@ -269,7 +313,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
 
             <div class="form-actions">
-                <a href="index.php" class="btn btn-secondary">Cancel</a>
+                <a href="index.php?p=dashboard" class="btn btn-secondary">Cancel</a>
                 <button type="submit" class="btn btn-primary">Create Insurance Card</button>
             </div>
 
@@ -278,6 +322,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </section>
 
 </main>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const effectiveDate = document.getElementById('effective_date');
+    const term = document.getElementById('term');
+    const expirationDate = document.getElementById('expiration_date');
+
+    function calculateExpirationDate() {
+        if (!effectiveDate.value || !term.value) {
+            expirationDate.value = '';
+            return;
+        }
+
+        const date = new Date(effectiveDate.value + 'T00:00:00');
+
+        const months = {
+            '1_month': 1,
+            '6_months': 6,
+            '1_year': 12
+        };
+
+        date.setMonth(date.getMonth() + months[term.value]);
+
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        expirationDate.value = `${year}-${month}-${day}`;
+    }
+
+    effectiveDate.addEventListener('change', calculateExpirationDate);
+    term.addEventListener('change', calculateExpirationDate);
+
+    calculateExpirationDate();
+});
+</script>
 
 </body>
 </html>

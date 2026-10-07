@@ -13,21 +13,60 @@ function e(mixed $value): string
 /**
  * Generate a unique insurance policy number.
  */
-function generatePolicyNumber(PDO $pdo): string
-{
-    do {
-        $policyNumber = 'AUTO-' . date('Y') . '-' . strtoupper(bin2hex(random_bytes(4)));
+function generatePolicyNumber( PDO $pdo, int $companyId, string $type = 'numbers', int $length = 8, string $prefix = '' ): string {$type = strtolower(trim($type));
 
-        $stmt = $pdo->prepare("
-            SELECT COUNT(*)
-            FROM insurance_cards
-            WHERE policy_number = :policy_number
-        ");
+    if (!in_array($type, ['numbers', 'words'], true)) {
+        $type = 'numbers';
+    }
 
-        $stmt->execute([':policy_number' => $policyNumber]);
+    $length = max(1, min(32, $length));
 
-        $exists = (int)$stmt->fetchColumn() > 0;
-    } while ($exists);
+    $prefix = strtoupper(trim($prefix));
+    $prefix = preg_replace('/[^A-Z0-9]/', '', $prefix);
+
+    if (strlen($prefix) >= $length) {
+        $prefix = substr($prefix, 0, $length - 1);
+    }
+
+    $remainingLength = $length - strlen($prefix);
+
+    if ($type === 'words') {
+        $characters = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    } else {
+        $characters = '0123456789';
+    }
+
+    $suffix = '';
+
+    $characterCount = strlen($characters);
+
+    for ($i = 0; $i < $remainingLength; $i++) {
+        $suffix .= $characters[random_int(0, $characterCount - 1)];
+    }
+
+    $policyNumber = $prefix . $suffix;
+
+    $stmt = $pdo->prepare("
+        SELECT COUNT(*)
+        FROM insurance_cards
+        WHERE company_id = :company_id
+            AND policy_number = :policy_number
+    ");
+
+    $stmt->execute([
+        ':company_id' => $companyId,
+        ':policy_number' => $policyNumber
+    ]);
+
+    if ((int)$stmt->fetchColumn() > 0) {
+        return generatePolicyNumber(
+            $pdo,
+            $companyId,
+            $type,
+            $length,
+            $prefix
+        );
+    }
 
     return $policyNumber;
 }
