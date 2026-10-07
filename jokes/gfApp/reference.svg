@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="1200" viewBox="0 0 900 1200">
+  <rect width="900" height="1200" fill="#fff7fb"/>
+  <rect x="36" y="36" width="828" height="1128" rx="24" fill="#ffffff" stroke="#b83270" stroke-width="12"/>
+  <text x="450" y="380" text-anchor="middle" font-family="Georgia, serif" font-size="50" fill="#6d1742">APPLICATION FOR</text>
+  <text x="450" y="475" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="80" fill="#a21d5d">GIRLFRIEND</text>
+  <text x="450" y="570" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="80" fill="#a21d5d">CANDIDATES</text>
+  <path d="M190 650h520" stroke="#e8a5c4" stroke-width="5"/>
+  <text x="450" y="730" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" fill="#6d1742">OFFICIAL APPLICATION FORM</text>
+  <text x="450" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="62" fill="#c23d7b">♥</text>
+</svg>

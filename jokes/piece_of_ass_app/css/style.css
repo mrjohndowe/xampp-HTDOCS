@@ -44,7 +44,8 @@ body {
     margin: 10px auto;
     background: #f8faf4;
     border: 3px solid #333;
-    box-shadow: 0 2px 12px #777
+    box-shadow: 0 2px 12px #777;
+    zoom: 1.5
 }
 
 .title {
@@ -168,5 +169,11 @@ body {
     .toolbar {
         justify-content: flex-start;
         overflow: auto
+    }
+}
+
+@media print {
+    .paper {
+        zoom: 1
     }
 }

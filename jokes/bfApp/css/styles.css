@@ -1,0 +1,476 @@
+
+    * {
+        box-sizing: border-box;
+    }
+
+    @page {
+        size: Letter portrait;
+        margin: 0.25in;
+    }
+
+    html,
+    body {
+        margin: 0;
+        padding: 0;
+        background: #ffffff;
+        color: #111111;
+        font-family: "Times New Roman", Times, serif;
+    }
+
+    body {
+        font-size: 8px;
+    }
+
+    .page {
+        width: 8.5in;
+        min-height: 11in;
+        margin: 0 auto;
+        padding: 8px;
+        background: #fff;
+        zoom: 1.5;
+    }
+
+    .header {
+        border: 1px solid #111;
+        text-align: center;
+        padding: 5px 8px 3px;
+        margin-bottom: 4px;
+    }
+
+    .title {
+        font-size: 25px;
+        font-weight: bold;
+        line-height: 25px;
+        letter-spacing: -0.6px;
+    }
+
+    .subtitle {
+        font-size: 10px;
+        font-weight: bold;
+        line-height: 12px;
+    }
+
+    .application-meta {
+        border: 1px solid #111;
+        padding: 5px 8px;
+        margin-bottom: 4px;
+    }
+
+    .meta-row {
+        display: grid;
+        grid-template-columns: 1.6fr 1.25fr 0.7fr 1.1fr 1.9fr;
+        gap: 8px;
+        margin-bottom: 4px;
+        align-items: end;
+    }
+
+    .meta-row:last-child {
+        margin-bottom: 0;
+    }
+
+    .field {
+        display: flex;
+        align-items: end;
+        gap: 3px;
+        white-space: nowrap;
+    }
+
+    .line {
+        border-bottom: 1px solid #111;
+        height: 12px;
+        flex: 1;
+        min-width: 20px;
+    }
+
+    .sections {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 4px;
+    }
+
+    .section {
+        border: 1px solid #111;
+        min-height: 157px;
+        overflow: hidden;
+    }
+
+    .section-title {
+        text-align: center;
+        font-weight: bold;
+        font-size: 9px;
+        border-bottom: 1px solid #111;
+        padding: 3px 2px;
+        background: #f5f5f5;
+        white-space: nowrap;
+    }
+
+    .section-body {
+        padding: 4px 6px 5px;
+    }
+
+    .question {
+        margin-bottom: 4px;
+        line-height: 9px;
+    }
+
+    .question strong {
+        font-weight: bold;
+    }
+
+    .answer-line {
+        display: block;
+        border-bottom: 1px solid #111;
+        height: 10px;
+        margin-top: 1px;
+    }
+
+    .answer-line.short {
+        width: 72%;
+    }
+
+    .answer-line.medium {
+        width: 86%;
+    }
+
+    .answer-line.full {
+        width: 100%;
+    }
+
+    .checks {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        column-gap: 5px;
+        row-gap: 1px;
+        margin-top: 2px;
+        padding-left: 3px;
+    }
+
+    .checks.single {
+        grid-template-columns: 1fr;
+    }
+
+    .check {
+        line-height: 9px;
+        white-space: nowrap;
+    }
+
+    .box {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border: 1px solid #111;
+        margin-right: 3px;
+        vertical-align: -1px;
+        appearance: none;
+        padding: 0;
+        background: #fff;
+        cursor: pointer;
+    }
+
+    .box:checked {
+        background: #111;
+        box-shadow: inset 0 0 0 1px #fff;
+    }
+
+    .check {
+        cursor: pointer;
+    }
+
+    .fillable-answer,
+    .fillable-signature,
+    .notes-line {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        color: inherit;
+        outline: none;
+        background: transparent;
+        cursor: text;
+    }
+
+    .fillable-answer {
+        height: 14px;
+        margin-top: -1px;
+        margin-bottom: -1px;
+        padding: 0 2px;
+        border: 0;
+        border-bottom: 1px solid #111;
+        background: #fffdf2;
+        position: relative;
+        z-index: 1;
+    }
+
+    .fillable-answer:hover,
+    .fillable-signature:hover,
+    .notes-line:hover,
+    .mini-table input:hover,
+    .inline-answer:hover,
+    .declaration-name:hover,
+    .application-meta input:hover {
+        background: #fff9df;
+    }
+
+    .fillable-answer:focus,
+    .fillable-signature:focus,
+    .notes-line:focus,
+    .mini-table input:focus,
+    .inline-answer:focus,
+    .declaration-name:focus,
+    .application-meta input:focus {
+        background: #fff2a8;
+        outline: 1px solid #a66b00;
+        outline-offset: 0;
+        z-index: 2;
+    }
+
+    @media print {
+        input.fillable-answer {
+            border: 0;
+            border-bottom: 1px solid #111;
+            background: transparent !important;
+        }
+    }
+
+    .inline-answer,
+    .declaration-name {
+        height: 12px;
+        padding: 0 2px;
+        border: 0;
+        border-bottom: 1px solid #111;
+        outline: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+    }
+
+    .inline-answer {
+        width: 48px;
+    }
+
+    .declaration-name {
+        width: 120px;
+    }
+
+    .fillable-signature {
+        min-height: 18px;
+        flex: 1;
+    }
+
+    .mini-table input {
+        display: block;
+        width: 100%;
+        height: 18px;
+        min-width: 0;
+        padding: 0;
+        border: 0;
+        outline: none;
+        background: transparent;
+        color: inherit;
+        font: inherit;
+    }
+
+    .notes-line {
+        height: 18px;
+        margin: 0;
+        padding: 0 2px;
+        border: 0;
+        border-bottom: 1px solid #111;
+        font: inherit;
+    }
+
+    .mini-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 3px;
+        font-size: 7px;
+    }
+
+    .mini-table th,
+    .mini-table td {
+        border: 1px solid #111;
+        height: 15px;
+        text-align: center;
+        padding: 1px;
+    }
+
+    .bottom {
+        display: grid;
+        grid-template-columns: 1.05fr 1fr;
+        gap: 4px;
+        margin-top: 4px;
+    }
+
+    .declaration,
+    .official {
+        border: 1px solid #111;
+        min-height: 104px;
+    }
+
+    .bottom-title {
+        text-align: center;
+        font-size: 11px;
+        font-weight: bold;
+        border-bottom: 1px solid #111;
+        padding: 3px;
+    }
+
+    .bottom-body {
+        padding: 5px 7px;
+        font-size: 8px;
+        line-height: 10px;
+    }
+
+    .declaration-text {
+        margin-bottom: 4px;
+    }
+
+    .official-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2px 12px;
+    }
+
+    .notes {
+        margin-top: 5px;
+    }
+
+    .notes-line {
+        border-bottom: 1px solid #111;
+        height: 12px;
+    }
+
+    .signature-row {
+        display: grid;
+        grid-template-columns: 1fr 70px;
+        gap: 10px;
+        margin-top: 5px;
+    }
+
+    .signature-field {
+        display: flex;
+        gap: 3px;
+        align-items: end;
+    }
+
+    .submit-area {
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .submit-button {
+        font-family: "Times New Roman", Times, serif;
+        font-size: 11px;
+        padding: 4px 18px;
+        border: 1px solid #111;
+        background: #eee;
+        cursor: pointer;
+    }
+
+    .success {
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    input[type="text"],
+    input[type="date"] {
+        border: 0;
+        border-bottom: 1px solid #111;
+        outline: none;
+        font-family: inherit;
+        font-size: 8px;
+        padding: 0 2px;
+        background: transparent;
+    }
+
+    input[type="text"]:focus,
+    input[type="date"]:focus {
+        background: #f4f4f4;
+    }
+
+    input.fillable-answer {
+        border: 1px solid #d0c49e;
+        border-bottom: 1px solid #111;
+        border-radius: 2px;
+        background: #fffdf2;
+    }
+
+    input.fillable-answer:focus {
+        background: #fff2a8;
+    }
+
+    @media print {
+        body {
+            background: #fff;
+        }
+
+        .page {
+            width: 100%;
+            min-height: auto;
+            padding: 0;
+            zoom: 1;
+        }
+
+        .submit-area,
+        .success {
+            display: none;
+        }
+
+        .section,
+        .application-meta,
+        .header,
+        .declaration,
+        .official {
+            break-inside: avoid;
+        }
+    }
+
+    @media screen and (max-width: 900px) {
+        .page {
+            width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            zoom: 1.5;
+        }
+
+        .sections {
+            min-width: 0;
+        }
+
+        .bottom {
+            min-width: 0;
+        }
+    }
+.autosave-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border: 1px solid #111;
+    margin-bottom: 4px;
+    padding: 3px 6px;
+    font-family: "Times New Roman", Times, serif;
+    font-size: 8px;
+    font-weight: bold;
+    min-height: 18px;
+}
+
+.autosave-dot {
+    width: 6px;
+    height: 6px;
+    border: 1px solid #111;
+    border-radius: 50%;
+    background: #fff;
+}
+
+.autosave-status.saving .autosave-dot {
+    background: #999;
+}
+
+.autosave-status.saved .autosave-dot {
+    background: #111;
+}
+
+.autosave-status.error .autosave-dot {
+    background: #555;
+}

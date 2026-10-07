@@ -3,9 +3,11 @@
 session_start();
 
 $dbDir = __DIR__ . '/data';
-if (!is_dir($dbDir))
-  mkdir($dbDir, 0775, true);
-$db = new PDO('sqlite:' . $dbDir . '/applications.sqlite');
+$dbFile = $dbDir . DIRECTORY_SEPARATOR . 'applications.sqlite';
+if (!is_dir($dbDir) && !mkdir($dbDir, 0775, true) && !is_dir($dbDir)) {
+  throw new RuntimeException('Unable to create the application data directory.');
+}
+$db = new PDO('sqlite:' . $dbFile);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec("CREATE TABLE IF NOT EXISTS applications (
  id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -49,62 +51,7 @@ if (isset($_GET['api'])) {
   exit;
 }
 
-function hairColor(): array
-{
-  $hColor = [
-    'BLACK' => 'BLACK',
-    'BROWN' => 'BROWN',
-    'BLONDE' => 'BLONDE',
-    'RED' => 'RED',
-    'GRAY' => 'GRAY',
-    'BALD' => 'BALD',
-    'OTHER' => 'OTHER'
-  ];
-
-  return $hColor;
-}
-
-function hairColorSelect(): string
-{
-  $hColor = hairColor();
-  $hairSelection = '<select name="hair_color">';
-  $hairSelection .= '<option value="">Select Hair Color</option>';
-  foreach ($hColor as $key => $value) {
-    $hairSelection .= '<option value="' . $key . '">' . $value . '</option>';
-  }
-  $hairSelection .= '</select>';
-  return $hairSelection;
-}
-
-function eyeColor(): array
-{
-  $eColor = [
-    'BROWN' => 'BROWN',
-    'BLUE' => 'BLUE',
-    'GREEN' => 'GREEN',
-    'HAZEL' => 'HAZEL',
-    'GRAY' => 'GRAY',
-    'OTHER' => 'OTHER'
-  ];
-  return $eColor;
-}
-
-function eyeColorSelect(): string
-{
-  $eColor = eyeColor();
-  $eyeSelection = '<select name="eye_color">';
-  $eyeSelection .= '<option value="">Select Eye Color</option>';
-  foreach ($eColor as $key => $value) {
-    $eyeSelection .= '<option value="' . $key . '">' . $value . '</option>';
-  }
-  $eyeSelection .= '</select>';
-  return $eyeSelection;
-}
-
-function box(string $name, string $label = ''): string
-{
-  return '<label class="check"><input type="checkbox" name="' . $name . '"> <span>' . $label . '</span></label>';
-}
+require __DIR__ . '/extra/functions.php';
 ?>
 <!doctype html>
 <html>
@@ -112,7 +59,7 @@ function box(string $name, string $label = ''): string
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
         <title>Application for a Piece of Ass</title>
-        <link rel="stylesheet" href="css/style.css">
+        <link rel="stylesheet" href="css/style.css?v=<?= filemtime(__DIR__ . '/css/style.css') ?>">
     </head>
     <body>
         <div class="toolbar">
@@ -144,17 +91,17 @@ function box(string $name, string $label = ''): string
                     <div class="cell">CHEST SIZE<br>BRA SIZE<input name="chest_bra" type="text"></div>
                     <div class="cell">DO YOU PLAN TO USE ENLARGEMENT<input name="enlargement" type="text"></div>
                 </div>
-                <div class="row" style="grid-template-columns:270px 1fr 200px">
+                <div class="row split-3">
                     <div class="cell">ARE YOUR BREASTS/BALLS REAL:<div class="checks"><?= box('real_yes', 'YES') ?><?= box('real_no', 'NO') ?></div> </div>
                     <div class="cell">DO YOU LIKE THEM:<div class="checks"><?= box('like_sucked', 'SUCKED') ?><?= box('like_chewed', 'CHEWED') ?><?= box('like_kissed', 'KISSED') ?><?= box('like_caressed', 'CARESSED') ?><?= box('like_squeezed', 'SQUEEZED') ?><?= box('like_none', 'NONE OF THE ABOVE') ?></div><input name="like_remarks" placeholder="REMARKS"></div>
                     <div class="cell">CAN YOU STAY OUT LATE:<div class="checks"><?= box('late_yes', 'YES') ?><?= box('late_no', 'NO') ?></div> </div>
                 </div>
-                <div class="row" style="grid-template-columns:270px 1fr">
+                <div class="row split-2">
                     <div class="cell">HOW LATE:<div class="checks"><?= box('late_all', 'ALL NIGHT') ?><?= box('late_days', 'SEVERAL DAYS') ?></div> </div>
                     <div class="cell remarks">REMARKS<textarea name="remarks1"></textarea></div>
                 </div>
                 <div class="section">PENIS OR PUSSY SIZE?</div>
-                <div class="row" style="grid-template-columns:1fr 230px 200px">
+                <div class="row split-3-equal">
                     <div class="cell">
                         <div class="checks">
                             <?= box('size_small', 'SMALL') ?>
@@ -169,7 +116,7 @@ function box(string $name, string $label = ''): string
                     <div class="cell">REMARKS<input name="oral_remarks"></div>
                 </div>
                 <div class="section">WHILE SCREWING, DO YOU PREFER ALL THAT APPLY</div>
-                <div class="row" style="grid-template-columns:1fr 200px">
+                <div class="row split-2-even">
                     <div class="cell">
                         <div class="checks">
                             <?= box('pref_sleep', 'GO TO SLEEP') ?>
@@ -191,7 +138,7 @@ function box(string $name, string $label = ''): string
                     <div class="cell tall">LIST THE TOP THREE POSITIONS YOU LIKE BEST:<br>1. <input name="pos1"><br>2. <input name="pos2"><br>3. <input name="pos3"></div>
                 </div>
                 <div class="section">WHEN YOU CLIMAX DO YOU</div>
-                <div class="row" style="grid-template-columns:1fr 200px">
+                <div class="row split-2-even">
                     <div class="cell">
                         <div class="checks">
                             <?= box('climax_wiggle', 'WIGGLE') ?>
@@ -248,90 +195,6 @@ function box(string $name, string $label = ''): string
                 </div>
             </form>
         </div>
-        <script>
-            let currentId = 0,
-              timer = null;
-            const form = document.getElementById('appForm'),
-              statusEl = document.getElementById('status'),
-              records = document.getElementById('records'),
-              search = document.getElementById('search');
-
-            function data() {
-              const o = {};
-              new FormData(form).forEach((v, k) => o[k] = v);
-              form.querySelectorAll('input[type=checkbox]').forEach(x => o[x.name] = x.checked);
-              return o
-            }
-
-            function fill(o) {
-              form.reset();
-              Object.entries(o || {}).forEach(([k, v]) => {
-                const e = form.elements[k];
-                if (!e) return;
-                if (e.type === 'checkbox') e.checked = !!v;
-                else e.value = v ?? ''
-              })
-            }
-            async function save() {
-              statusEl.textContent = 'Saving...';
-              const r = await fetch('?api=save', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                  id: currentId,
-                  form: data()
-                })
-              });
-              const j = await r.json();
-              currentId = j.id;
-              statusEl.textContent = 'Saved';
-              await list();
-              records.value = String(currentId)
-            }
-
-            function queue() {
-              clearTimeout(timer);
-              statusEl.textContent = 'Unsaved';
-              timer = setTimeout(save, 700)
-            }
-            form.addEventListener('input', queue);
-            form.addEventListener('change', queue);
-            async function list() {
-              const r = await fetch('?api=list');
-              const a = await r.json(),
-                term = search.value.toLowerCase();
-              const old = records.value;
-              records.innerHTML = '<option value="">New application</option>';
-              a.filter(x => x.name.toLowerCase().includes(term)).forEach(x => {
-                const op = document.createElement('option');
-                op.value = x.id;
-                op.textContent = x.name + ' — ' + x.updated_at;
-                records.appendChild(op)
-              });
-              if ([...records.options].some(o => o.value === old)) records.value = old
-            }
-            records.addEventListener('change', async () => {
-              if (!records.value) {
-                currentId = 0;
-                fill({});
-                return
-              }
-              const r = await fetch('?api=load&id=' + records.value),
-                j = await r.json();
-              currentId = +j.id;
-              fill(JSON.parse(j.form_json || '{}'));
-              statusEl.textContent = 'Loaded'
-            });
-            search.addEventListener('input', list);
-            document.getElementById('newBtn').onclick = () => {
-              currentId = 0;
-              records.value = '';
-              fill({});
-              statusEl.textContent = 'New'
-            };
-            list();
-        </script>
+        <script src="extra/app.js?v=<?= filemtime(__DIR__ . '/extra/app.js') ?>" defer></script>
     </body>
 </html>
