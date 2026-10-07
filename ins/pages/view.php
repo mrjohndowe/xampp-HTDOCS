@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/config/database.php';
-
 $id = getId();
 
 if (!$id) {
-    redirect('index.php');
+    redirect('index.php?p=dashboard');
 }
 
 $stmt = $pdo->prepare("
@@ -39,11 +37,12 @@ if (!$card) {
     exit('Insurance card not found.');
 }
 
-$vehicle = trim(
-    ($card['vehicle_year'] ?? '') . ' ' .
-    ($card['vehicle_make'] ?? '') . ' ' .
-    ($card['vehicle_model'] ?? '')
-);
+$companyAddress = trim(implode(', ', array_filter([
+    $card['company_address'] ?? '',
+    $card['company_city'] ?? '',
+    $card['company_state'] ?? '',
+    formatZip($card['company_zip'] ?? '')
+])));
 
 ?>
 <!DOCTYPE html>
@@ -51,42 +50,47 @@ $vehicle = trim(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Insurance Card - <?= e($card['policy_number']) ?></title>
+    <title>Insurance Card</title>
     <link rel="stylesheet" href="assets/css/style.css?v=<?= getVersionNumber() ?>">
+    <script src="assets/js/app.js?v=<?= getVersionNumber() ?>" defer></script>
 </head>
 <body>
 
 <header class="topbar">
     <div class="topbar-inner">
-        <a href="index.php" class="brand">
+
+        <a href="index.php?p=dashboard" class="brand">
             <span class="brand-icon">IC</span>
             <span>Insurance Cards</span>
         </a>
 
         <nav>
-            <a href="index.php">Dashboard</a>
-            <a href="create.php">Create Card</a>
-            <a href="admin/index.php">Admin</a>
+            <a href="index.php?p=dashboard">Dashboard</a>
+            <a href="index.php?p=create">Create Card</a>
+            <a href="index.php?p=admin">Admin</a>
         </nav>
+
+        <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
+
     </div>
 </header>
 
 <main class="container">
 
-    <div class="page-header no-print">
+    <div class="page-header">
         <div>
             <h1>Insurance Card</h1>
-            <p><?= e($card['policy_number']) ?></p>
+            <p>Policy <?= e($card['policy_number']) ?></p>
         </div>
 
-        <div class="card-actions" style="margin-top:0;">
-            <a href="index.php" class="btn btn-secondary">Back</a>
-            <a href="edit.php?id=<?= $id ?>" class="btn btn-secondary">Edit</a>
-            <a href="print.php?id=<?= $id ?>" class="btn btn-primary">Print Card</a>
+        <div class="card-actions">
+            <a href="index.php?p=edit&id=<?= $id ?>" class="btn btn-primary">Edit</a>
+            <a href="index.php?p=print&id=<?= $id ?>" class="btn btn-secondary">Print</a>
+            <a href="index.php?p=dashboard" class="btn btn-secondary">Back</a>
         </div>
     </div>
 
-    <div style="max-width:760px;margin:0 auto;">
+    <div class="insurance-grid">
 
         <article class="insurance-card">
 
@@ -99,28 +103,34 @@ $vehicle = trim(
                     <div>
 
                         <?php if (!empty($card['company_logo'])): ?>
-                            <img src="<?= e($card['company_logo']) ?>" alt="<?= e($card['company_name']) ?>" style="max-width:150px;max-height:50px;margin-bottom:8px;">
+
+                            <img
+                                src="<?= e($card['company_logo']) ?>"
+                                alt="<?= e($card['company_name']) ?>"
+                                class="insurance-company-logo"
+                            >
+
                         <?php endif; ?>
 
                         <div class="insurance-company">
                             <?= e($card['company_name']) ?>
                         </div>
 
-                        <div class="insurance-company-address">
+                        <?php if ($companyAddress !== ''): ?>
 
-                            <?php if ($card['company_address']): ?>
-                                <?= e($card['company_address']) ?><br>
-                            <?php endif; ?>
+                            <div class="insurance-company-address">
+                                <?= e($companyAddress) ?>
+                            </div>
 
-                            <?php if ($card['company_city'] || $card['company_state'] || $card['company_zip']): ?>
-                                <?= e($card['company_city']) ?><?php if ($card['company_city'] && $card['company_state']): ?>, <?php endif; ?><?= e($card['company_state']) ?> <?= e(formatZip($card['company_zip'])) ?>
-                            <?php endif; ?>
+                        <?php endif; ?>
 
-                            <?php if ($card['company_phone']): ?>
-                                <br><?= e($card['company_phone']) ?>
-                            <?php endif; ?>
+                        <?php if (!empty($card['company_phone'])): ?>
 
-                        </div>
+                            <div class="insurance-company-address">
+                                <?= e($card['company_phone']) ?>
+                            </div>
+
+                        <?php endif; ?>
 
                     </div>
 
@@ -156,12 +166,14 @@ $vehicle = trim(
                         <div class="insurance-value"><?= e(formatDate($card['expiration_date'])) ?></div>
                     </div>
 
-                    <div class="insurance-field full">
+                    <div class="insurance-field">
                         <div class="insurance-label">Vehicle</div>
-                        <div class="insurance-value"><?= e($vehicle) ?></div>
+                        <div class="insurance-value">
+                            <?= e(trim(($card['vehicle_year'] ?? '') . ' ' . ($card['vehicle_make'] ?? '') . ' ' . ($card['vehicle_model'] ?? ''))) ?>
+                        </div>
                     </div>
 
-                    <div class="insurance-field full">
+                    <div class="insurance-field">
                         <div class="insurance-label">VIN</div>
                         <div class="insurance-value"><?= e($card['vin']) ?></div>
                     </div>
@@ -184,7 +196,7 @@ $vehicle = trim(
                 </div>
 
                 <div class="insurance-card-footer">
-                    This card is provided as identification of insurance coverage. Coverage is subject to the terms, conditions and exclusions of the applicable insurance policy.
+                    Carry this card in your vehicle as proof of insurance.
                 </div>
 
             </div>

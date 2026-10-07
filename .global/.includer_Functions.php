@@ -1,4 +1,5 @@
 <?php
+include '.global/.includer_Functions.php';
 
 function getHeader(string $need = ''): string
 {
