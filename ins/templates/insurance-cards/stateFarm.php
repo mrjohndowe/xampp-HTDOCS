@@ -36,11 +36,13 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
 
 $logoUrl = '';
 
+
+
 if ($companyLogo !== '') {
-    if (preg_match('#^https?://#i', $companyLogo)) {
+    if (preg_match('#^http?://#i', $companyLogo)) {
         $logoUrl = $companyLogo;
     } else {
-        $logoUrl = '/ins/uploads/companies/' . ltrim($companyLogo, '/');
+        $logoUrl = __DIR__ . ltrim($companyLogo, '/');
     }
 }
 
@@ -222,11 +224,7 @@ $esc = static fn(mixed $value): string =>
         <div class="insurance-company-2-header">
 
             <?php if ($logoUrl !== ''): ?>
-                <img
-                    class="insurance-company-2-logo"
-                    src="<?= $esc($logoUrl) ?>"
-                    alt=""
-                >
+                <img class="insurance-company-2-logo" src="<?= $esc($logoUrl) ?>" alt="" >
             <?php else: ?>
                 <div class="insurance-company-2-logo-placeholder">
                     INSURANCE

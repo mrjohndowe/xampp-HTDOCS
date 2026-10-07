@@ -411,6 +411,8 @@ $success = $_GET['success'] ?? '';
                     <select name="card_template">
                         <option value="default">Default</option>
                         <option value="alternate">Alternate</option>
+                        <option value="stateFarm">State Farm</option>
+                        <option value="allState">All State</option>
                     </select>
                 </div>
 
