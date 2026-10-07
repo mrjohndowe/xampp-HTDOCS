@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $zip = normalizeZip(postString('zip'));
         $phone = postString('phone');
         $website = postString('website');
+        $cardTemplate = postString('card_template');
 
         $errors = [];
 
@@ -160,6 +161,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             phone = :phone,
                             website = :website,
                             logo = :logo,
+                            card_template = :card_template,
                             updated_at = CURRENT_TIMESTAMP
                         WHERE id = :id
                     ");
@@ -174,6 +176,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':website' => $website,
                         ':logo' => $logoPath,
                         ':id' => $companyId,
+                        ':card_template' => $cardTemplate,
                     ]);
 
                     redirect('index.php?p=companies&success=updated');
@@ -189,7 +192,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             zip,
                             phone,
                             website,
-                            logo
+                            logo,
+                            card_template
                         )
                         VALUES (
                             :name,
@@ -199,7 +203,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                             :zip,
                             :phone,
                             :website,
-                            :logo
+                            :logo,
+                            :card_template
+
                         )
                     ");
 
@@ -212,6 +218,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':phone' => $phone,
                         ':website' => $website,
                         ':logo' => $logoPath,
+                        ':card_template' => $cardTemplate,
+
                     ]);
 
                     redirect('index.php?p=companies&success=added');
@@ -345,27 +353,27 @@ $success = $_GET['success'] ?? '';
 
             <div class="form-grid">
 
-                <div class="form-group">
+                <div class="field field-full">
                     <label for="name">Company Name</label>
                     <input type="text" id="name" name="name" value="<?= e($editCompany['name'] ?? '') ?>" required>
                 </div>
 
-                <div class="form-group">
+                <div class="field">
                     <label for="phone">Phone</label>
                     <input type="text" id="phone" name="phone" value="<?= e($editCompany['phone'] ?? '') ?>">
                 </div>
 
-                <div class="form-group full">
+                <div class="field full">
                     <label for="address">Address</label>
                     <input type="text" id="address" name="address" value="<?= e($editCompany['address'] ?? '') ?>">
                 </div>
 
-                <div class="form-group">
+                <div class="field">
                     <label for="city">City</label>
                     <input type="text" id="city" name="city" value="<?= e($editCompany['city'] ?? '') ?>">
                 </div>
 
-                <div class="form-group">
+                <div class="field">
                     <label for="state">State</label>
                     <input type="text" id="state" name="state" list="state-list" value="<?= e($editCompany['state'] ?? '') ?>" placeholder="Type or select a state" maxlength="50" autocomplete="address-level1">
                     <datalist id="state-list">
@@ -376,17 +384,17 @@ $success = $_GET['success'] ?? '';
                     </datalist>
                 </div>
 
-                <div class="form-group">
+                <div class="field">
                     <label for="zip">ZIP Code</label>
                     <input type="text" id="zip" name="zip" value="<?= e(formatZip($editCompany['zip'] ?? '')) ?>" maxlength="10">
                 </div>
 
-                <div class="form-group">
+                <div class="field">
                     <label for="website">Website</label>
                     <input type="url" id="website" name="website" value="<?= e($editCompany['website'] ?? '') ?>">
                 </div>
 
-                <div class="form-group full">
+                <div class="field full">
                     <label for="logo">Company Logo</label>
 
                     <?php if (!empty($editCompany['logo'])): ?>
@@ -398,6 +406,12 @@ $success = $_GET['success'] ?? '';
                     <?php endif; ?>
 
                     <input type="file" id="logo" name="logo" accept="image/png,image/jpeg,image/webp,image/svg+xml">
+                </div>
+                <div class="field full">
+                    <select name="card_template">
+                        <option value="default">Default</option>
+                        <option value="alternate">Alternate</option>
+                    </select>
                 </div>
 
             </div>
@@ -446,6 +460,7 @@ $success = $_GET['success'] ?? '';
                                 <th>Address</th>
                                 <th>Phone</th>
                                 <th>Website</th>
+                                <th>Print</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -474,6 +489,8 @@ $success = $_GET['success'] ?? '';
                                     <td><?= e($company['phone']) ?></td>
 
                                     <td><?= e($company['website']) ?></td>
+
+                                    <td><?= ucfirst(e($company['card_template'])) ?></td>
 
                                     <td>
                                         <a href="index.php?p=companies&edit=<?= (int)$company['id'] ?>" class="btn btn-secondary">Edit</a>

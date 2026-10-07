@@ -14,7 +14,8 @@ $allowedPages = [
     'delete' => 'delete.php',
     'print' => 'print.php',
     'admin' => 'admin.php',
-    'companies' => 'companies.php'
+    'companies' => 'companies.php',
+    'vehicle-models' => 'vehicle-models.php'
 ];
 
 if (!isset($allowedPages[$viewpage])) {

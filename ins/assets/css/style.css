@@ -857,3 +857,26 @@ html.dark-mode .alert-success {
         box-shadow: none;
     }
 }
+
+.alternate-barcode {
+    padding: 12px 19px;
+    border-bottom: 1px solid #111111;
+    text-align: center;
+    background: #ffffff;
+}
+
+.alternate-barcode img {
+    display: block;
+    width: 520px;
+    max-width: 100%;
+    height: 90px;
+    margin: 0 auto;
+    object-fit: contain;
+}
+
+.alternate-barcode-data {
+    margin-top: 4px;
+    font-size: 7px;
+    color: #333333;
+    word-break: break-all;
+}

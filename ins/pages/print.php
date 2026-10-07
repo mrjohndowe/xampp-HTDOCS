@@ -33,16 +33,7 @@ $stmt->execute([
 
 $card = $stmt->fetch();
 
-if (!$card) {
-    http_response_code(404);
-    exit('Insurance card not found.');
-}
-
-$template = preg_replace(
-    '/[^a-zA-Z0-9_-]/',
-    '',
-    (string)($card['card_template'] ?? 'default')
-);
+$template = trim((string)($card['card_template'] ?? 'default'));
 
 $templateFile = __DIR__ . '/../templates/insurance-cards/' . $template . '.php';
 

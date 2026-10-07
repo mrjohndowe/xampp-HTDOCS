@@ -31,9 +31,10 @@ $errors = [];
 $values = [
     'company_id' => $card['company_id'],
     'insured_name' => $card['insured_name'],
+    'secondary_insured' => $card['secondary_insured'] ?? '',
     'vehicle_year' => $card['vehicle_year'],
-    'vehicle_make' => $card['vehicle_make'],
-    'vehicle_model' => $card['vehicle_model'],
+    'vehicle_make_id' => $card['vehicle_make_id'] ?? '',
+    'vehicle_model_id' => $card['vehicle_model_id'] ?? '',
     'vin' => $card['vin'],
     'license_plate' => $card['license_plate'],
     'effective_date' => $card['effective_date'],
@@ -42,12 +43,69 @@ $values = [
     'property_damage' => $card['property_damage']
 ];
 
+if (!$values['vehicle_make_id'] && !empty($card['vehicle_make'])) {
+    $makeStmt = $pdo->prepare("
+        SELECT id
+        FROM vehicle_makes
+        WHERE LOWER(TRIM(name)) = LOWER(TRIM(:name))
+        LIMIT 1
+    ");
+
+    $makeStmt->execute([
+        ':name' => $card['vehicle_make']
+    ]);
+
+    $values['vehicle_make_id'] = $makeStmt->fetchColumn() ?: '';
+}
+
+if (!$values['vehicle_model_id'] && $values['vehicle_make_id'] && !empty($card['vehicle_model'])) {
+    $modelStmt = $pdo->prepare("
+        SELECT id
+        FROM vehicle_models
+        WHERE make_id = :make_id
+          AND LOWER(TRIM(name)) = LOWER(TRIM(:name))
+        LIMIT 1
+    ");
+
+    $modelStmt->execute([
+        ':make_id' => $values['vehicle_make_id'],
+        ':name' => $card['vehicle_model']
+    ]);
+
+    $values['vehicle_model_id'] = $modelStmt->fetchColumn() ?: '';
+}
+
 $companies = $pdo->query("
     SELECT id, name
     FROM insurance_companies
     WHERE active = 1
     ORDER BY name ASC
 ")->fetchAll();
+
+$vehicleMakes = $pdo->query("
+    SELECT id, name
+    FROM vehicle_makes
+    WHERE active = 1
+    ORDER BY name ASC
+")->fetchAll();
+
+$vehicleModels = [];
+
+if ($values['vehicle_make_id']) {
+    $modelStmt = $pdo->prepare("
+        SELECT id, name
+        FROM vehicle_models
+        WHERE make_id = :make_id
+          AND active = 1
+        ORDER BY name ASC
+    ");
+
+    $modelStmt->execute([
+        ':make_id' => $values['vehicle_make_id']
+    ]);
+
+    $vehicleModels = $modelStmt->fetchAll();
+}
 
 $term = '';
 
@@ -73,16 +131,15 @@ try {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
     $values['company_id'] = postInt('company_id');
     $values['insured_name'] = postString('insured_name');
+    $values['secondary_insured'] = postString('secondary_insured');
     $values['vehicle_year'] = postInt('vehicle_year');
-    $values['vehicle_make'] = postString('vehicle_make');
-    $values['vehicle_model'] = postString('vehicle_model');
+    $values['vehicle_make_id'] = postInt('vehicle_make_id');
+    $values['vehicle_model_id'] = postInt('vehicle_model_id');
     $values['vin'] = strtoupper(postString('vin'));
     $values['license_plate'] = strtoupper(postString('license_plate'));
     $values['effective_date'] = postString('effective_date');
-    $values['expiration_date'] = postString('expiration_date');
     $values['liability_bod'] = postString('liability_bod');
     $values['property_damage'] = postString('property_damage');
     $term = postString('term');
@@ -105,8 +162,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Effective date is required.';
     }
 
+    if (!$values['vehicle_make_id']) {
+        $errors[] = 'Please select a vehicle make.';
+    }
+
+    if (!$values['vehicle_model_id']) {
+        $errors[] = 'Please select a vehicle model.';
+    }
+
     if (!isset($termMonths[$term])) {
         $errors[] = 'Please select a policy term.';
+    }
+
+    $vehicle = null;
+
+    if (!$errors) {
+        $vehicleStmt = $pdo->prepare("
+            SELECT
+                makes.id AS make_id,
+                makes.name AS make_name,
+                models.id AS model_id,
+                models.name AS model_name
+            FROM vehicle_models AS models
+            INNER JOIN vehicle_makes AS makes
+                ON makes.id = models.make_id
+            WHERE makes.id = :make_id
+              AND models.id = :model_id
+              AND makes.active = 1
+              AND models.active = 1
+            LIMIT 1
+        ");
+
+        $vehicleStmt->execute([
+            ':make_id' => $values['vehicle_make_id'],
+            ':model_id' => $values['vehicle_model_id']
+        ]);
+
+        $vehicle = $vehicleStmt->fetch();
+
+        if (!$vehicle) {
+            $errors[] = 'The selected vehicle model does not belong to the selected make.';
+        }
     }
 
     if (!$errors) {
@@ -121,17 +217,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (!$errors) {
-
         try {
-
             $stmt = $pdo->prepare("
                 UPDATE insurance_cards
                 SET
                     company_id = :company_id,
                     insured_name = :insured_name,
+                    secondary_insured = :secondary_insured,
                     vehicle_year = :vehicle_year,
                     vehicle_make = :vehicle_make,
                     vehicle_model = :vehicle_model,
+                    vehicle_make_id = :vehicle_make_id,
+                    vehicle_model_id = :vehicle_model_id,
                     vin = :vin,
                     license_plate = :license_plate,
                     effective_date = :effective_date,
@@ -145,9 +242,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([
                 ':company_id' => $values['company_id'],
                 ':insured_name' => $values['insured_name'],
+                ':secondary_insured' => $values['secondary_insured'],
                 ':vehicle_year' => $values['vehicle_year'],
-                ':vehicle_make' => $values['vehicle_make'],
-                ':vehicle_model' => $values['vehicle_model'],
+                ':vehicle_make' => $vehicle['make_name'],
+                ':vehicle_model' => $vehicle['model_name'],
+                ':vehicle_make_id' => $vehicle['make_id'],
+                ':vehicle_model_id' => $vehicle['model_id'],
                 ':vin' => $values['vin'],
                 ':license_plate' => $values['license_plate'],
                 ':effective_date' => $values['effective_date'],
@@ -158,10 +258,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
 
             redirect('index.php?p=view&id=' . $id);
-
         } catch (PDOException $e) {
             $errors[] = 'Unable to update the insurance card.';
         }
+    }
+
+    $vehicleModels = [];
+
+    if ($values['vehicle_make_id']) {
+        $modelStmt = $pdo->prepare("
+            SELECT id, name
+            FROM vehicle_models
+            WHERE make_id = :make_id
+              AND active = 1
+            ORDER BY name ASC
+        ");
+
+        $modelStmt->execute([
+            ':make_id' => $values['vehicle_make_id']
+        ]);
+
+        $vehicleModels = $modelStmt->fetchAll();
     }
 }
 
@@ -181,7 +298,6 @@ $displayExpirationDate = $values['expiration_date'];
 
 <header class="topbar">
     <div class="topbar-inner">
-
         <a href="index.php?p=dashboard" class="brand">
             <span class="brand-icon">IC</span>
             <span>Insurance Cards</span>
@@ -194,7 +310,6 @@ $displayExpirationDate = $values['expiration_date'];
         </nav>
 
         <button type="button" id="theme-toggle" class="theme-toggle" aria-label="Toggle dark mode" title="Toggle dark mode">🌙</button>
-
     </div>
 </header>
 
@@ -208,13 +323,11 @@ $displayExpirationDate = $values['expiration_date'];
     </div>
 
     <?php if ($errors): ?>
-
-        <div class="alert-error">
+        <div class="alert alert-error">
             <?php foreach ($errors as $error): ?>
                 <div><?= e($error) ?></div>
             <?php endforeach; ?>
         </div>
-
     <?php endif; ?>
 
     <section class="form-card">
@@ -232,14 +345,21 @@ $displayExpirationDate = $values['expiration_date'];
                     <select id="company_id" name="company_id" required>
                         <option value="">Select insurance company</option>
                         <?php foreach ($companies as $company): ?>
-                            <option value="<?= (int)$company['id'] ?>" <?= (string)$values['company_id'] === (string)$company['id'] ? 'selected' : '' ?>><?= e($company['name']) ?></option>
+                            <option value="<?= (int)$company['id'] ?>" <?= (string)$values['company_id'] === (string)$company['id'] ? 'selected' : '' ?>>
+                                <?= e($company['name']) ?>
+                            </option>
                         <?php endforeach; ?>
                     </select>
                 </div>
 
-                <div class="field field-full">
+                <div class="field">
                     <label for="insured_name">Named Insured</label>
                     <input type="text" id="insured_name" name="insured_name" value="<?= e($values['insured_name']) ?>" required>
+                </div>
+
+                <div class="field">
+                    <label for="secondary_insured">Additional Insured</label>
+                    <input type="text" id="secondary_insured" name="secondary_insured" value="<?= e($values['secondary_insured']) ?>">
                 </div>
 
                 <div class="field">
@@ -275,13 +395,29 @@ $displayExpirationDate = $values['expiration_date'];
                 </div>
 
                 <div class="field">
-                    <label for="vehicle_make">Make</label>
-                    <input type="text" id="vehicle_make" name="vehicle_make" value="<?= e($values['vehicle_make']) ?>">
+                    <label for="vehicle_make_id">Make</label>
+                    <select id="vehicle_make_id" name="vehicle_make_id" required>
+                        <option value="">Select Make</option>
+                        <?php foreach ($vehicleMakes as $make): ?>
+                            <option value="<?= (int)$make['id'] ?>" <?= (string)$values['vehicle_make_id'] === (string)$make['id'] ? 'selected' : '' ?>>
+                                <?= e($make['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
 
                 <div class="field">
-                    <label for="vehicle_model">Model</label>
-                    <input type="text" id="vehicle_model" name="vehicle_model" value="<?= e($values['vehicle_model']) ?>">
+                    <label for="vehicle_model_id">Model</label>
+                    <select id="vehicle_model_id" name="vehicle_model_id" required <?= $values['vehicle_make_id'] ? '' : 'disabled' ?>>
+                        <option value="">Select Model</option>
+
+                        <?php foreach ($vehicleModels as $model): ?>
+                            <option value="<?= (int)$model['id'] ?>" <?= (string)$values['vehicle_model_id'] === (string)$model['id'] ? 'selected' : '' ?>>
+                                <?= e($model['name']) ?>
+                            </option>
+                        <?php endforeach; ?>
+
+                    </select>
                 </div>
 
                 <div class="field">
@@ -330,6 +466,9 @@ document.addEventListener('DOMContentLoaded', function () {
     const effectiveDate = document.getElementById('effective_date');
     const term = document.getElementById('term');
     const expirationDate = document.getElementById('expiration_date');
+    const makeSelect = document.getElementById('vehicle_make_id');
+    const modelSelect = document.getElementById('vehicle_model_id');
+    const currentModelId = <?= json_encode((string)$values['vehicle_model_id']) ?>;
 
     function calculateExpirationDate() {
         if (!effectiveDate.value || !term.value) {
@@ -354,10 +493,64 @@ document.addEventListener('DOMContentLoaded', function () {
         expirationDate.value = `${year}-${month}-${day}`;
     }
 
+    async function loadModels(makeId, selectedModelId = '') {
+        modelSelect.innerHTML = '<option value="">Loading models...</option>';
+        modelSelect.disabled = true;
+
+        if (!makeId) {
+            modelSelect.innerHTML = '<option value="">Select Make First</option>';
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                'index.php?p=vehicle-models&make_id=' + encodeURIComponent(makeId),
+                {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Model request failed.');
+            }
+
+            const models = await response.json();
+
+            modelSelect.innerHTML = '<option value="">Select Model</option>';
+
+            models.forEach(function (model) {
+                const option = document.createElement('option');
+
+                option.value = model.id;
+                option.textContent = model.name;
+
+                if (String(model.id) === String(selectedModelId)) {
+                    option.selected = true;
+                }
+
+                modelSelect.appendChild(option);
+            });
+
+            modelSelect.disabled = false;
+        } catch (error) {
+            modelSelect.innerHTML = '<option value="">Unable to load models</option>';
+        }
+    }
+
+    makeSelect.addEventListener('change', function () {
+        loadModels(this.value);
+    });
+
     effectiveDate.addEventListener('change', calculateExpirationDate);
     term.addEventListener('change', calculateExpirationDate);
 
     calculateExpirationDate();
+
+    if (makeSelect.value) {
+        loadModels(makeSelect.value, currentModelId);
+    }
 });
 </script>
 

@@ -13,7 +13,6 @@ if (!is_dir($dbDir)) {
 $dbFile = $dbDir . '/insurance.sqlite';
 
 try {
-
     $pdo = new PDO('sqlite:' . $dbFile);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -36,17 +35,20 @@ try {
             phone TEXT,
             website TEXT,
             logo TEXT,
+            card_template TEXT NOT NULL DEFAULT 'default',
+            policy_number_type TEXT NOT NULL DEFAULT 'numbers',
+            policy_number_length INTEGER NOT NULL DEFAULT 8,
+            policy_number_prefix TEXT NOT NULL DEFAULT '',
             active INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
         )
     ");
 
-    /*
-     * Add missing columns to older databases.
-     */
+    $companyColumns = $pdo->query("
+        PRAGMA table_info(insurance_companies)
+    ")->fetchAll();
 
-    $companyColumns = $pdo->query("PRAGMA table_info(insurance_companies)")->fetchAll();
     $existingCompanyColumns = array_column($companyColumns, 'name');
 
     $companyMigrations = [
@@ -57,6 +59,10 @@ try {
         'phone' => 'ALTER TABLE insurance_companies ADD COLUMN phone TEXT',
         'website' => 'ALTER TABLE insurance_companies ADD COLUMN website TEXT',
         'logo' => 'ALTER TABLE insurance_companies ADD COLUMN logo TEXT',
+        'card_template' => "ALTER TABLE insurance_companies ADD COLUMN card_template TEXT NOT NULL DEFAULT 'default'",
+        'policy_number_type' => "ALTER TABLE insurance_companies ADD COLUMN policy_number_type TEXT NOT NULL DEFAULT 'numbers'",
+        'policy_number_length' => "ALTER TABLE insurance_companies ADD COLUMN policy_number_length INTEGER NOT NULL DEFAULT 8",
+        'policy_number_prefix' => "ALTER TABLE insurance_companies ADD COLUMN policy_number_prefix TEXT NOT NULL DEFAULT ''",
         'active' => 'ALTER TABLE insurance_companies ADD COLUMN active INTEGER NOT NULL DEFAULT 1',
     ];
 
@@ -151,23 +157,66 @@ try {
     }
 
     /*
+     * Vehicle makes
+     */
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS vehicle_makes (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+
+    /*
+     * Vehicle models
+     */
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS vehicle_models (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            make_id INTEGER NOT NULL,
+            name TEXT NOT NULL,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (make_id)
+                REFERENCES vehicle_makes(id)
+                ON DELETE CASCADE,
+            UNIQUE (make_id, name)
+        )
+    ");
+
+    $pdo->exec("
+        CREATE INDEX IF NOT EXISTS idx_vehicle_models_make_id
+        ON vehicle_models(make_id)
+    ");
+
+    /*
      * Insurance cards
      */
 
-    $cardColumns = $pdo->query("PRAGMA table_info(insurance_cards)")->fetchAll();
+    $cardColumns = $pdo->query("
+        PRAGMA table_info(insurance_cards)
+    ")->fetchAll();
+
     $existingCardColumns = array_column($cardColumns, 'name');
 
     if (!$cardColumns) {
-
         $pdo->exec("
             CREATE TABLE insurance_cards (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 company_id INTEGER NOT NULL,
                 insured_name TEXT NOT NULL,
+                secondary_insured TEXT NOT NULL DEFAULT '',
                 policy_number TEXT NOT NULL UNIQUE,
                 vehicle_year INTEGER,
                 vehicle_make TEXT,
                 vehicle_model TEXT,
+                vehicle_make_id INTEGER,
+                vehicle_model_id INTEGER,
                 vin TEXT,
                 license_plate TEXT,
                 effective_date TEXT NOT NULL,
@@ -178,22 +227,20 @@ try {
                 updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                 FOREIGN KEY (company_id)
                     REFERENCES insurance_companies(id)
-                    ON DELETE RESTRICT
+                    ON DELETE RESTRICT,
+                FOREIGN KEY (vehicle_make_id)
+                    REFERENCES vehicle_makes(id)
+                    ON DELETE SET NULL,
+                FOREIGN KEY (vehicle_model_id)
+                    REFERENCES vehicle_models(id)
+                    ON DELETE SET NULL
             )
         ");
-
-        $pdo->exec("
-            ALTER TABLE insurance_cards
-            ADD COLUMN secondary_insured TEXT NOT NULL DEFAULT ''
-        ");
-
     } elseif (!in_array('company_id', $existingCardColumns, true)) {
-
         $pdo->exec('PRAGMA foreign_keys = OFF');
         $pdo->beginTransaction();
 
         try {
-
             $oldCompanies = $pdo->query("
                 SELECT DISTINCT
                     company_name,
@@ -231,10 +278,13 @@ try {
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     company_id INTEGER NOT NULL,
                     insured_name TEXT NOT NULL,
+                    secondary_insured TEXT NOT NULL DEFAULT '',
                     policy_number TEXT NOT NULL UNIQUE,
                     vehicle_year INTEGER,
                     vehicle_make TEXT,
                     vehicle_model TEXT,
+                    vehicle_make_id INTEGER,
+                    vehicle_model_id INTEGER,
                     vin TEXT,
                     license_plate TEXT,
                     effective_date TEXT NOT NULL,
@@ -245,7 +295,13 @@ try {
                     updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (company_id)
                         REFERENCES insurance_companies(id)
-                        ON DELETE RESTRICT
+                        ON DELETE RESTRICT,
+                    FOREIGN KEY (vehicle_make_id)
+                        REFERENCES vehicle_makes(id)
+                        ON DELETE SET NULL,
+                    FOREIGN KEY (vehicle_model_id)
+                        REFERENCES vehicle_models(id)
+                        ON DELETE SET NULL
                 )
             ");
 
@@ -291,20 +347,109 @@ try {
             $pdo->exec("DROP TABLE insurance_cards_old");
 
             $pdo->commit();
-
         } catch (Throwable $e) {
-
             $pdo->rollBack();
-
             throw $e;
         }
 
         $pdo->exec('PRAGMA foreign_keys = ON');
     }
 
+    /*
+     * Add missing columns to existing insurance_cards.
+     */
+
+    $cardColumns = $pdo->query("
+        PRAGMA table_info(insurance_cards)
+    ")->fetchAll();
+
+    $existingCardColumns = array_column($cardColumns, 'name');
+
+    $cardMigrations = [
+        'secondary_insured' => "ALTER TABLE insurance_cards ADD COLUMN secondary_insured TEXT NOT NULL DEFAULT ''",
+        'vehicle_make_id' => "ALTER TABLE insurance_cards ADD COLUMN vehicle_make_id INTEGER",
+        'vehicle_model_id' => "ALTER TABLE insurance_cards ADD COLUMN vehicle_model_id INTEGER",
+    ];
+
+    foreach ($cardMigrations as $column => $sql) {
+        if (!in_array($column, $existingCardColumns, true)) {
+            $pdo->exec($sql);
+        }
+    }
+
+    /*
+     * Match existing text vehicle data to normalized IDs.
+     */
+
+    $pdo->exec("
+        UPDATE insurance_cards
+        SET vehicle_make_id = (
+            SELECT id
+            FROM vehicle_makes
+            WHERE LOWER(TRIM(vehicle_makes.name)) = LOWER(TRIM(insurance_cards.vehicle_make))
+            LIMIT 1
+        )
+        WHERE vehicle_make_id IS NULL
+          AND TRIM(COALESCE(vehicle_make, '')) <> ''
+    ");
+
+    $pdo->exec("
+        UPDATE insurance_cards
+        SET vehicle_model_id = (
+            SELECT models.id
+            FROM vehicle_models AS models
+            INNER JOIN vehicle_makes AS makes
+                ON makes.id = models.make_id
+            WHERE models.make_id = insurance_cards.vehicle_make_id
+              AND LOWER(TRIM(models.name)) = LOWER(TRIM(insurance_cards.vehicle_model))
+            LIMIT 1
+        )
+        WHERE vehicle_model_id IS NULL
+          AND vehicle_make_id IS NOT NULL
+          AND TRIM(COALESCE(vehicle_model, '')) <> ''
+    ");
+
+    /*
+     * Administration users.
+     *
+     * Initial password:
+     * ChangeMe123!
+     */
+
+    $pdo->exec("
+        CREATE TABLE IF NOT EXISTS admin_users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT NOT NULL UNIQUE,
+            password_hash TEXT NOT NULL,
+            active INTEGER NOT NULL DEFAULT 1,
+            created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            updated_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    ");
+
+    $adminCount = (int)$pdo->query("
+        SELECT COUNT(*)
+        FROM admin_users
+    ")->fetchColumn();
+
+    if ($adminCount === 0) {
+        $adminStmt = $pdo->prepare("
+            INSERT INTO admin_users (
+                username,
+                password_hash
+            )
+            VALUES (
+                :username,
+                :password_hash
+            )
+        ");
+
+        $adminStmt->execute([
+            ':username' => 'admin',
+            ':password_hash' => password_hash('ChangeMe123!', PASSWORD_DEFAULT),
+        ]);
+    }
 } catch (Throwable $e) {
-
     http_response_code(500);
-
     exit('Database initialization failed: ' . e($e->getMessage()));
 }

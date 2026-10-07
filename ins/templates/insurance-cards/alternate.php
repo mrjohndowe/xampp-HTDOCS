@@ -2,412 +2,625 @@
 
 declare(strict_types=1);
 
+$companyName = trim((string)($card['company_name'] ?? ''));
 $companyAddress = trim((string)($card['company_address'] ?? ''));
-
-$companyCityStateZip = trim(
-    implode(', ', array_filter([
-        trim((string)($card['company_city'] ?? '')),
-        trim((string)($card['company_state'] ?? ''))
-    ]))
-);
-
+$companyCity = trim((string)($card['company_city'] ?? ''));
+$companyState = trim((string)($card['company_state'] ?? ''));
 $companyZip = formatZip($card['company_zip'] ?? '');
+$companyPhone = trim((string)($card['company_phone'] ?? ''));
+$companyLogo = trim((string)($card['logo'] ?? ''));
+
+$insuredName = trim((string)($card['insured_name'] ?? ''));
+$secondaryInsured = trim((string)($card['secondary_insured'] ?? ''));
+
+$policyNumber = trim((string)($card['policy_number'] ?? ''));
+
+$effectiveDate = formatDate($card['effective_date'] ?? '');
+$expirationDate = formatDate($card['expiration_date'] ?? '');
+
+$vehicleYear = trim((string)($card['vehicle_year'] ?? ''));
+$vehicleMake = trim((string)($card['vehicle_make'] ?? ''));
+$vehicleModel = trim((string)($card['vehicle_model'] ?? ''));
+$vin = trim((string)($card['vin'] ?? ''));
+$licensePlate = trim((string)($card['license_plate'] ?? ''));
+
+$bodilyInjury = trim((string)($card['liability_bod'] ?? ''));
+$propertyDamage = trim((string)($card['property_damage'] ?? ''));
+
+$vehicle = trim(implode(' ', array_filter([
+    $vehicleYear,
+    $vehicleMake,
+    $vehicleModel
+])));
+
+$companyLocation = trim(implode(', ', array_filter([
+    $companyCity,
+    $companyState
+])));
 
 if ($companyZip !== '') {
-    $companyCityStateZip .= ($companyCityStateZip !== '' ? ' ' : '') . $companyZip;
+    $companyLocation .= ($companyLocation !== '' ? ' ' : '') . $companyZip;
 }
 
-$companyPhone = trim((string)($card['company_phone'] ?? ''));
-
-$companyLogo = trim((string)($card['company_logo'] ?? ''));
+$barcodeData = barcodeValue($card);
+$barcodeUrl = generateBarcodeSvg($barcodeData);
 
 $logoPath = '';
 
 if ($companyLogo !== '') {
-    $possibleLogo = __DIR__ . '/../../uploads/companies/' . basename($companyLogo);
+    if (preg_match('/^https?:\/\//i', $companyLogo)) {
+        $logoPath = $companyLogo;
+    } else {
+        $logoPath = '../../uploads/companies/' . ltrim(basename($companyLogo), '/\\');
+    }
+}
+?>
 
-    if (is_file($possibleLogo)) {
-        $logoPath = 'uploads/companies/' . basename($companyLogo);
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Insurance Identification Card</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    background: #ffffff;
+    color: #000000;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.print-page {
+    width: 8.5in;
+    height: 11in;
+    margin: 0 auto;
+    padding: .35in .45in;
+    background: #ffffff;
+}
+
+.insurance-card {
+    width: 7.6in;
+    height: 4.72in;
+    border: 1.2px solid #000000;
+    background: #ffffff;
+    position: relative;
+    overflow: hidden;
+}
+
+.insurance-card:first-child {
+    margin-bottom: .32in;
+}
+
+.card-header {
+    height: .72in;
+    border-bottom: 1px solid #000000;
+    display: grid;
+    grid-template-columns: 1.05in 1fr;
+}
+
+.company-box {
+    border-right: 1px solid #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .08in;
+}
+
+.company-logo {
+    max-width: .85in;
+    max-height: .52in;
+    object-fit: contain;
+}
+
+.company-logo-placeholder {
+    font-size: 9px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.company-box-information {
+    padding: .09in .14in;
+}
+
+.company-name {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.1;
+    text-transform: uppercase;
+}
+
+.company-address {
+    margin-top: 4px;
+    font-size: 8px;
+    line-height: 1.35;
+}
+
+.card-heading {
+    height: .34in;
+    border-bottom: 1px solid #000000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .3px;
+    text-transform: uppercase;
+}
+
+.policy-row {
+    height: .68in;
+    display: grid;
+    grid-template-columns: 2.1fr 1fr 1fr;
+    border-bottom: 1px solid #000000;
+}
+
+.policy-cell {
+    padding: .08in .11in;
+}
+
+.policy-cell + .policy-cell {
+    border-left: 1px solid #000000;
+}
+
+.label {
+    font-size: 7px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .35px;
+    margin-bottom: 3px;
+}
+
+.value {
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.policy-number {
+    font-size: 15px;
+    letter-spacing: .8px;
+}
+
+.insured-row {
+    height: .66in;
+    display: grid;
+    grid-template-columns: 1fr 2.15fr;
+    border-bottom: 1px solid #000000;
+}
+
+.insured-label {
+    padding: .09in .11in;
+    border-right: 1px solid #000000;
+}
+
+.insured-information {
+    padding: .08in .12in;
+}
+
+.insured-name {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.35;
+}
+
+.secondary-name {
+    margin-top: 2px;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.vehicle-row {
+    height: .85in;
+    display: grid;
+    grid-template-columns: 1.7fr 1fr 1.15fr;
+    border-bottom: 1px solid #000000;
+}
+
+.vehicle-cell {
+    padding: .08in .11in;
+}
+
+.vehicle-cell + .vehicle-cell {
+    border-left: 1px solid #000000;
+}
+
+.vehicle-description {
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 1.3;
+}
+
+.vin {
+    font-size: 8px;
+    font-weight: 700;
+    word-break: break-all;
+}
+
+.coverage-row {
+    height: .55in;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-bottom: 1px solid #000000;
+}
+
+.coverage-cell {
+    padding: .07in .11in;
+}
+
+.coverage-cell + .coverage-cell {
+    border-left: 1px solid #000000;
+}
+
+.barcode-row {
+    height: .75in;
+    display: grid;
+    grid-template-columns: 1fr 2.25fr;
+    border-bottom: 1px solid #000000;
+}
+
+.barcode-information {
+    padding: .08in .11in;
+    border-right: 1px solid #000000;
+    font-size: 7px;
+    line-height: 1.4;
+}
+
+.barcode-box {
+    padding: .05in .1in;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.barcode-box img {
+    display: block;
+    width: 4.55in;
+    height: .62in;
+    object-fit: contain;
+}
+
+.footer {
+    height: .47in;
+    padding: .07in .11in;
+    font-size: 6.5px;
+    line-height: 1.35;
+}
+
+.cut-line {
+    height: .32in;
+    position: relative;
+}
+
+.cut-line::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    border-top: 1px dashed #555555;
+}
+
+.cut-line span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 0 8px;
+    background: #ffffff;
+    color: #555555;
+    font-size: 7px;
+    letter-spacing: 1px;
+}
+
+@media screen {
+    body {
+        background: #eeeeee;
+    }
+
+    .print-page {
+        margin: 20px auto;
+        box-shadow: 0 0 12px rgba(0, 0, 0, .15);
     }
 }
 
-$primaryInsured = trim((string)($card['insured_name'] ?? ''));
-$secondaryInsured = trim((string)($card['secondary_insured'] ?? ''));
-
-$coverageBod = trim((string)($card['liability_bod'] ?? ''));
-$coveragePd = trim((string)($card['property_damage'] ?? ''));
-
-$vehicle = trim(implode(' ', array_filter([
-    trim((string)($card['vehicle_year'] ?? '')),
-    trim((string)($card['vehicle_make'] ?? '')),
-    trim((string)($card['vehicle_model'] ?? ''))
-])));
-
-$effectiveDate = formatDate($card['effective_date'] ?? '');
-$expirationDate = formatDate($card['expiration_date'] ?? '');
-?>
-
-<style>
-    .alternate-card-page {
-        width: 100%;
-        min-height: calc(100vh - 90px);
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        padding: 25px;
-        box-sizing: border-box;
+@media print {
+    @page {
+        size: Letter portrait;
+        margin: 0;
     }
 
-    .alternate-insurance-card {
+    html,
+    body {
         width: 8.5in;
-        min-height: 5.45in;
-        box-sizing: border-box;
-        background: #fff;
-        border: 1px solid #111;
-        color: #111;
-        font-family: Arial, Helvetica, sans-serif;
-        box-shadow: 0 4px 18px rgba(0, 0, 0, .15);
+        height: 11in;
+        margin: 0;
+        padding: 0;
     }
 
-    .alternate-card-header {
-        display: grid;
-        grid-template-columns: 1fr 2fr 1fr;
-        align-items: center;
-        min-height: 78px;
-        padding: 10px 16px;
-        border-bottom: 2px solid #111;
-        box-sizing: border-box;
+    .print-page {
+        margin: 0;
+        box-shadow: none;
     }
-
-    .alternate-company {
-        font-size: 16px;
-        font-weight: 800;
-        line-height: 1.15;
-    }
-
-    .alternate-company-logo {
-        max-width: 125px;
-        max-height: 55px;
-        object-fit: contain;
-        display: block;
-    }
-
-    .alternate-title {
-        text-align: center;
-        font-size: 18px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: .4px;
-    }
-
-    .alternate-card-id {
-        text-align: right;
-        font-size: 9px;
-        font-weight: 700;
-        line-height: 1.4;
-    }
-
-    .alternate-section {
-        border-bottom: 1px solid #111;
-    }
-
-    .alternate-section-title {
-        padding: 5px 9px;
-        background: #111;
-        color: #fff;
-        font-size: 9px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: .4px;
-    }
-
-    .alternate-grid {
-        display: grid;
-        grid-template-columns: 1.8fr 1fr 1fr;
-    }
-
-    .alternate-grid.vehicle-grid {
-        grid-template-columns: 1.7fr 1fr 1fr;
-    }
-
-    .alternate-field {
-        min-height: 48px;
-        padding: 7px 9px;
-        border-right: 1px solid #111;
-        box-sizing: border-box;
-    }
-
-    .alternate-field:last-child {
-        border-right: 0;
-    }
-
-    .alternate-label {
-        display: block;
-        margin-bottom: 4px;
-        font-size: 7px;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: .35px;
-    }
-
-    .alternate-value {
-        display: block;
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 1.25;
-        word-break: break-word;
-    }
-
-    .alternate-value.small {
-        font-size: 10px;
-    }
-
-    .alternate-insured {
-        min-height: 66px;
-    }
-
-    .alternate-insured-name {
-        display: block;
-        font-size: 13px;
-        font-weight: 700;
-        line-height: 1.35;
-    }
-
-    .alternate-insured-name + .alternate-insured-name {
-        margin-top: 2px;
-    }
-
-    .alternate-coverage-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
-
-    .alternate-coverage {
-        min-height: 58px;
-        padding: 8px 10px;
-        border-right: 1px solid #111;
-        box-sizing: border-box;
-    }
-
-    .alternate-coverage:last-child {
-        border-right: 0;
-    }
-
-    .alternate-footer {
-        display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        min-height: 65px;
-    }
-
-    .alternate-company-details {
-        padding: 9px 10px;
-        border-right: 1px solid #111;
-        font-size: 9px;
-        line-height: 1.45;
-    }
-
-    .alternate-company-details strong {
-        font-size: 10px;
-    }
-
-    .alternate-notice {
-        padding: 9px 10px;
-        font-size: 8px;
-        line-height: 1.35;
-    }
-
-    @media screen and (max-width: 900px) {
-        .alternate-card-page {
-            padding: 10px;
-            overflow-x: auto;
-        }
-
-        .alternate-insurance-card {
-            flex: 0 0 8.5in;
-        }
-    }
-
-    @media print {
-        @page {
-            size: landscape;
-            margin: 0.25in;
-        }
-
-        body {
-            background: #fff !important;
-        }
-
-        .alternate-card-page {
-            min-height: auto;
-            padding: 0;
-        }
-
-        .alternate-insurance-card {
-            width: 8.5in;
-            min-height: 5.45in;
-            box-shadow: none;
-            page-break-inside: avoid;
-        }
-    }
+}
 </style>
+</head>
 
-<div class="alternate-card-page">
-    <div class="alternate-insurance-card">
+<body>
 
-        <div class="alternate-card-header">
-            <div>
-                <?php if ($logoPath !== ''): ?>
-                    <img
-                        src="<?= e($logoPath) ?>"
-                        alt="<?= e($card['company_name']) ?>"
-                        class="alternate-company-logo"
-                    >
-                <?php else: ?>
-                    <div class="alternate-company">
-                        <?= e($card['company_name']) ?>
+<div class="print-page">
+
+    <?php for ($copy = 0; $copy < 2; $copy++): ?>
+
+        <div class="insurance-card">
+
+            <div class="card-header">
+
+                <div class="company-box">
+
+                    <?php if ($logoPath !== ''): ?>
+
+                        <img
+                            src="<?= e($logoPath) ?>"
+                            alt="<?= e($companyName) ?>"
+                            class="company-logo"
+                        >
+
+                    <?php else: ?>
+
+                        <div class="company-logo-placeholder">
+                            INSURANCE
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+                <div class="company-box-information">
+
+                    <div class="company-name">
+                        <?= e($companyName) ?>
                     </div>
-                <?php endif; ?>
-            </div>
 
-            <div class="alternate-title">
-                Insurance Identification Card
-            </div>
+                    <div class="company-address">
 
-            <div class="alternate-card-id">
-                POLICY<br>
-                <?= e($card['policy_number']) ?>
-            </div>
-        </div>
+                        <?php if ($companyAddress !== ''): ?>
+                            <?= e($companyAddress) ?><br>
+                        <?php endif; ?>
 
-        <div class="alternate-section">
-            <div class="alternate-section-title">
-                Named Insured
-            </div>
+                        <?php if ($companyLocation !== ''): ?>
+                            <?= e($companyLocation) ?><br>
+                        <?php endif; ?>
 
-            <div class="alternate-field alternate-insured">
-                <?php if ($primaryInsured !== ''): ?>
-                    <span class="alternate-insured-name">
-                        <?= e($primaryInsured) ?>
-                    </span>
-                <?php endif; ?>
+                        <?php if ($companyPhone !== ''): ?>
+                            <?= e($companyPhone) ?>
+                        <?php endif; ?>
 
-                <?php if ($secondaryInsured !== ''): ?>
-                    <span class="alternate-insured-name">
-                        <?= e($secondaryInsured) ?>
-                    </span>
-                <?php endif; ?>
-            </div>
-        </div>
+                    </div>
 
-        <div class="alternate-section">
-            <div class="alternate-section-title">
-                Policy Information
-            </div>
-
-            <div class="alternate-grid">
-                <div class="alternate-field">
-                    <span class="alternate-label">Policy Number</span>
-                    <span class="alternate-value">
-                        <?= e($card['policy_number']) ?>
-                    </span>
                 </div>
 
-                <div class="alternate-field">
-                    <span class="alternate-label">Effective</span>
-                    <span class="alternate-value">
+            </div>
+
+            <div class="card-heading">
+                Automobile Insurance Identification Card
+            </div>
+
+            <div class="policy-row">
+
+                <div class="policy-cell">
+
+                    <div class="label">
+                        Policy Number
+                    </div>
+
+                    <div class="value policy-number">
+                        <?= e($policyNumber) ?>
+                    </div>
+
+                </div>
+
+                <div class="policy-cell">
+
+                    <div class="label">
+                        Effective
+                    </div>
+
+                    <div class="value">
                         <?= e($effectiveDate) ?>
-                    </span>
+                    </div>
+
                 </div>
 
-                <div class="alternate-field">
-                    <span class="alternate-label">Expiration</span>
-                    <span class="alternate-value">
+                <div class="policy-cell">
+
+                    <div class="label">
+                        Expiration
+                    </div>
+
+                    <div class="value">
                         <?= e($expirationDate) ?>
-                    </span>
+                    </div>
+
                 </div>
-            </div>
-        </div>
 
-        <div class="alternate-section">
-            <div class="alternate-section-title">
-                Vehicle Information
             </div>
 
-            <div class="alternate-grid vehicle-grid">
-                <div class="alternate-field">
-                    <span class="alternate-label">Vehicle</span>
-                    <span class="alternate-value">
+            <div class="insured-row">
+
+                <div class="insured-label">
+
+                    <div class="label">
+                        Named Insured
+                    </div>
+
+                </div>
+
+                <div class="insured-information">
+
+                    <?php if ($insuredName !== ''): ?>
+
+                        <div class="insured-name">
+                            <?= e($insuredName) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <?php if ($secondaryInsured !== ''): ?>
+
+                        <div class="secondary-name">
+                            <?= e($secondaryInsured) ?>
+                        </div>
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
+
+            <div class="vehicle-row">
+
+                <div class="vehicle-cell">
+
+                    <div class="label">
+                        Covered Vehicle
+                    </div>
+
+                    <div class="vehicle-description">
                         <?= e($vehicle) ?>
-                    </span>
+                    </div>
+
                 </div>
 
-                <div class="alternate-field">
-                    <span class="alternate-label">VIN</span>
-                    <span class="alternate-value small">
-                        <?= e($card['vin']) ?>
-                    </span>
+                <div class="vehicle-cell">
+
+                    <div class="label">
+                        VIN
+                    </div>
+
+                    <div class="vin">
+                        <?= e($vin) ?>
+                    </div>
+
                 </div>
 
-                <div class="alternate-field">
-                    <span class="alternate-label">License Plate</span>
-                    <span class="alternate-value">
-                        <?= e($card['license_plate']) ?>
-                    </span>
+                <div class="vehicle-cell">
+
+                    <div class="label">
+                        License Plate
+                    </div>
+
+                    <div class="value">
+                        <?= e($licensePlate) ?>
+                    </div>
+
                 </div>
+
             </div>
+
+            <div class="coverage-row">
+
+                <div class="coverage-cell">
+
+                    <div class="label">
+                        Year
+                    </div>
+
+                    <div class="value">
+                        <?= e($vehicleYear) ?>
+                    </div>
+
+                </div>
+
+                <div class="coverage-cell">
+
+                    <div class="label">
+                        Make / Model
+                    </div>
+
+                    <div class="value">
+                        <?= e(trim($vehicleMake . ' ' . $vehicleModel)) ?>
+                    </div>
+
+                </div>
+
+                <div class="coverage-cell">
+
+                    <div class="label">
+                        Property Damage
+                    </div>
+
+                    <div class="value">
+                        <?= e($propertyDamage) ?>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="barcode-row">
+
+                <div class="barcode-information">
+
+                    <strong>LIABILITY COVERAGE</strong><br>
+
+                    Bodily Injury:
+                    <?= e($bodilyInjury) ?><br>
+
+                    Property Damage:
+                    <?= e($propertyDamage) ?><br>
+
+                    Policy:
+                    <?= e($policyNumber) ?>
+
+                </div>
+
+                <div class="barcode-box">
+
+                    <?php if ($barcodeUrl !== ''): ?>
+
+                        <img
+                            src="<?= e($barcodeUrl) ?>"
+                            alt="Insurance information barcode"
+                        >
+
+                    <?php endif; ?>
+
+                </div>
+
+            </div>
+
+            <div class="footer">
+
+                Keep this card with the insured vehicle. The information
+                displayed above represents the insurance information entered
+                into this system. Coverage is subject to the applicable policy
+                terms, conditions, limits and exclusions.
+
+            </div>
+
         </div>
 
-        <div class="alternate-section">
-            <div class="alternate-section-title">
-                Liability Coverage
+        <?php if ($copy === 0): ?>
+
+            <div class="cut-line">
+                <span>CUT HERE</span>
             </div>
 
-            <div class="alternate-coverage-grid">
-                <div class="alternate-coverage">
-                    <span class="alternate-label">
-                        Bodily Injury Liability
-                    </span>
+        <?php endif; ?>
 
-                    <span class="alternate-value">
-                        <?= e($coverageBod) ?>
-                    </span>
-                </div>
+    <?php endfor; ?>
 
-                <div class="alternate-coverage">
-                    <span class="alternate-label">
-                        Property Damage Liability
-                    </span>
-
-                    <span class="alternate-value">
-                        <?= e($coveragePd) ?>
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="alternate-footer">
-            <div class="alternate-company-details">
-                <strong><?= e($card['company_name']) ?></strong><br>
-
-                <?php if ($companyAddress !== ''): ?>
-                    <?= e($companyAddress) ?><br>
-                <?php endif; ?>
-
-                <?php if ($companyCityStateZip !== ''): ?>
-                    <?= e($companyCityStateZip) ?><br>
-                <?php endif; ?>
-
-                <?php if ($companyPhone !== ''): ?>
-                    Phone: <?= e($companyPhone) ?>
-                <?php endif; ?>
-            </div>
-
-            <div class="alternate-notice">
-                This identification card is evidence of insurance.
-                Keep this card in the insured vehicle and present it
-                when requested as permitted by applicable law.
-            </div>
-        </div>
-
-    </div>
 </div>
+
+</body>
+</html>
