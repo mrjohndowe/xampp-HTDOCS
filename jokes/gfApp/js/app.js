@@ -4,6 +4,7 @@
     const form = document.querySelector('form');
     const nameField = document.querySelector('[name="applicant_name"]');
     const ageField = document.querySelector('[name="age"]');
+    const previousApplicantsSelect = document.getElementById('previousApplicants');
 
     const status = document.getElementById('autosaveStatus');
     const statusText = document.getElementById('autosaveText');
@@ -102,6 +103,57 @@
     let loadTimer = null;
     let lastLoadedName = '';
     let isLoading = false;
+
+    async function loadApplicantList() {
+
+        if (!previousApplicantsSelect) {
+            return;
+        }
+
+        try {
+
+            const response = await fetch(
+                '?list_applicants=1',
+                {
+                    method: 'GET',
+                    cache: 'no-store'
+                }
+            );
+
+            const result = await response.json();
+
+            if (result.success && result.applicants) {
+
+                result.applicants.forEach(function (applicant) {
+                    const option = document.createElement('option');
+                    option.value = applicant.applicant_name;
+                    option.textContent = applicant.applicant_name + ' (Age: ' + applicant.age + ')';
+                    previousApplicantsSelect.appendChild(option);
+                });
+            }
+
+        } catch (error) {
+            console.error('Failed to load applicant list:', error);
+        }
+    }
+
+    loadApplicantList();
+
+    if (previousApplicantsSelect) {
+        previousApplicantsSelect.addEventListener(
+            'change',
+            function () {
+
+                const selectedName = previousApplicantsSelect.value;
+
+                if (selectedName) {
+                    nameField.value = selectedName;
+                    loadApplication();
+                    previousApplicantsSelect.value = '';
+                }
+            }
+        );
+    }
 
     function setStatus(type, message) {
 

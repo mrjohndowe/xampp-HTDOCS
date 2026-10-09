@@ -9,14 +9,21 @@ $jsVersion = filemtime(__DIR__ . '/js/app.js');
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app-base.php'; ?>
     <title>Hurt Feelings Report</title>
     <link rel="stylesheet" href="css/styles.css?v=<?= $cssVersion ?>">
     <script src="js/app.js?v=<?= $jsVersion ?>" defer></script>
 </head>
 <body>
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'navbar.php'; ?>
 <main class="page">
     <div class="toolbar">
         <span id="saveStatus" role="status" aria-live="polite">Draft saves in this browser.</span>
+        <select id="savedReports" aria-label="Load saved report">
+            <option value="">-- Load saved report --</option>
+        </select>
+        <button type="button" id="saveReport">Save report</button>
+        <button type="button" id="deleteReport">Delete report</button>
         <button type="button" id="clearDraft">Clear draft</button>
         <button type="button" onclick="window.print()">Print report</button>
     </div>

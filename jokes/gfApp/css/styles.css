@@ -411,6 +411,10 @@
             zoom: 1;
         }
 
+        .page.form {
+            zoom:1.5;
+        }
+
         .submit-area,
         .success {
             display: none;

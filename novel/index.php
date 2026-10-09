@@ -3,7 +3,7 @@
  <div><div class="eyebrow">YOUR PERSONAL STORY COLLECTION</div><h1>A bookshelf that actually feels like books.</h1><p>Browse visible binders on the shelf. Click one and the book slides out into the center of the screen, reveals the front cover, flips to the back description, or opens so you can start reading.</p></div>
 </section>
 <section class="shelf-panel panel">
- <div class="shelf-header"><div><h2>Bookshelf</h2><p>Read, rate, and review your collection.</p></div><button id="refreshBtn" class="secondary">Refresh</button></div>
+ <div class="shelf-header"><div><h2>Bookshelf</h2><p>Browse by category, then read, rate, and review your collection.</p></div><button id="refreshBtn" class="secondary">Refresh</button></div>
  <div id="bookGrid" class="book-grid"><div class="empty-state">Loading bookshelf…</div></div>
 </section>
 
@@ -64,4 +64,6 @@
   <div class="reader-footer"><input id="pageScrubber" type="range" min="1" max="1" value="1"><span class="reader-tip">Tip: use ← → or click the page edges</span></div>
  </div>
 </section>
+<script src="<?= e(app_url('assets/vendor/jszip.min.js')) ?>"></script>
+<script src="<?= e(app_url('assets/vendor/epub.min.js')) ?>"></script>
 <?php page_footer(true); ?>

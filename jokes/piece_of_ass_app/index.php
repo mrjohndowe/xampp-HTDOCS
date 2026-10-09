@@ -58,10 +58,12 @@ require __DIR__ . '/extra/functions.php';
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width,initial-scale=1">
+        <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app-base.php'; ?>
         <title>Application for a Piece of Ass</title>
         <link rel="stylesheet" href="css/style.css?v=<?= filemtime(__DIR__ . '/css/style.css') ?>">
     </head>
     <body>
+        <?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'navbar.php'; ?>
         <div class="toolbar">
             <strong>Saved Applications</strong>
             <input id="search" placeholder="Search name...">

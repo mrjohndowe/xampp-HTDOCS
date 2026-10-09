@@ -49,6 +49,12 @@ body {
     font: inherit;
 }
 
+.toolbar select {
+    padding: 3px 5px;
+    font: inherit;
+    max-width: 200px;
+}
+
 .document-header {
     border: 1.5px solid #111;
 }

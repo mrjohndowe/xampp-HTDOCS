@@ -37,27 +37,6 @@ foreach (new DirectoryIterator(__DIR__) as $entry) {
 }
 
 if ($page !== '' && isset($apps[$page])) {
-    $cssDir = $apps[$page]['directory'] . DIRECTORY_SEPARATOR . 'css';
-    if (!isset($_GET['api']) && !isset($_GET['autosave']) && is_dir($cssDir)) {
-        $cssFiles = scandir($cssDir);
-        if ($cssFiles === false) {
-            throw new RuntimeException('Unable to read the app CSS directory.');
-        }
-
-        $cssUrl = $scriptUrl . '/' . rawurlencode($page) . '/css';
-        foreach ($cssFiles as $file) {
-            if ($file === '.' || $file === '..' ||
-                strtolower(pathinfo($file, PATHINFO_EXTENSION)) !== 'css') {
-                continue;
-            }
-
-            $href = $cssUrl . '/' . rawurlencode($file);
-            $href .= '?v=' . filemtime($cssDir . DIRECTORY_SEPARATOR . $file);
-            echo '<link rel="stylesheet" href="' .
-                htmlspecialchars($href, ENT_QUOTES, 'UTF-8') . '">' . PHP_EOL;
-        }
-    }
-
     include $apps[$page]['index'];
     exit;
 }
@@ -65,8 +44,10 @@ if ($page !== '' && isset($apps[$page])) {
 ?>
 <body>
 
+<?php require __DIR__ . '/navbar.php'; ?>
+
 <div class="container">
-    <h1>Joke Form Links</h1>
+    <h1 id="forms">Joke Form Links</h1>
     <hr>
 <?php
 foreach ($apps as $folder => $app) {
@@ -79,7 +60,7 @@ foreach ($apps as $folder => $app) {
     }
 
     $imageUrl = $scriptUrl . '/' . rawurlencode($folder) . '/' . $referenceFile;
-    $appUrl = $scriptUrl . '/' . rawurlencode($folder) . '/';
+    $appUrl = $scriptUrl . '/index.php?p=' . rawurlencode($folder);
     echo '<a href="' . htmlspecialchars($appUrl, ENT_QUOTES, 'UTF-8') . '">';
     echo '<img style="width:25%;" src="' .
         htmlspecialchars($imageUrl, ENT_QUOTES, 'UTF-8') . '" alt="' .

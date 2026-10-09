@@ -45,6 +45,26 @@ $db->exec("
 |--------------------------------------------------------------------------
 */
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['list_applicants'])) {
+
+    header('Content-Type: application/json; charset=utf-8');
+
+    $stmt = $db->query("
+        SELECT applicant_name, age, updated_at
+        FROM applications
+        ORDER BY updated_at DESC
+    ");
+
+    $applicants = $stmt->fetchAll();
+
+    echo json_encode([
+        'success' => true,
+        'applicants' => $applicants
+    ]);
+
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['autosave'])) {
 
     header('Content-Type: application/json; charset=utf-8');
@@ -199,11 +219,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['autosave'])) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app-base.php'; ?>
 <title>Girlfriend Application Form</title>
 <link rel="stylesheet" href="css/styles.css?v=<?= filemtime(__DIR__ . '/css/styles.css') ?>"/>
 </head>
 
 <body>
+
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'navbar.php'; ?>
 
 <div class="page">
 
@@ -226,6 +249,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['autosave'])) {
 
             <div class="meta-row">
                 <div class="field">
+                    <strong>Load Previous Application:</strong>
+                    <select id="previousApplicants" name="previous_applicant" style="width:100%;">
+                        <option value="">-- Select previous applicant --</option>
+                    </select>
+                </div>
+
+                <div class="field">
                     <strong>Applicant Name:</strong>
                     <input type="text" name="applicant_name" style="width:100%;">
                 </div>
@@ -235,7 +265,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['autosave'])) {
                     <input type="date" name="date_submitted" style="width:100%;">
                 </div>
 
-                <div></div>
                 <div></div>
                 <div></div>
             </div>

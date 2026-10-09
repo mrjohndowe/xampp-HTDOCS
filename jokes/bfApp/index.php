@@ -199,11 +199,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_GET['autosave'])) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'app-base.php'; ?>
 <title>Boyfriend Application Form</title>
 <link rel="stylesheet" href="css/styles.css?v=<?= filemtime(__DIR__ . '/css/styles.css') ?>"/>
 </head>
 
 <body>
+
+<?php require dirname(__DIR__) . DIRECTORY_SEPARATOR . 'navbar.php'; ?>
 
 <div class="page">
 
