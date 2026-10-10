@@ -2,6 +2,10 @@
 declare(strict_types=1);
 require_once __DIR__ . '/functions.php';
 
+// Register the handlers
+set_error_handler('globalErrorHandler');
+set_exception_handler('globalExceptionHandler');
+
 $id = (string) ($_GET['id'] ?? '');
 $video = null;
 foreach (catalog() as $item) {
