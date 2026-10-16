@@ -35,6 +35,7 @@ RewriteRule ^(/)?$ conversation/ [L]
 
 
 
+
 php_flag allow_url_include on
 DirectoryIndex index.php index.htm index.html index.shtml default.php
 
@@ -42,3 +43,11 @@ RewriteEngine On
 RewriteRule ^rankings/?$ /stock_trade/rankings/ [R=302,L,QSA]
 RewriteRule ^index$ index.php [L]
 
+
+#theFixZone
+# Route /fixZone to a specific File
+RewriteRule /fixZone /xampp/htdocs/fixZone/public/index.php [L]
+
+# Redirect fixZone subdomain to folder
+RewriteCond %{HTTP_HOST} ^fixZone\.mrjohndowe\.com$ [NC]
+RewriteRule ^(.*)$ /fixZone/$1 [L]

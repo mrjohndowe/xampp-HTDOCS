@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 const APP_NAME = 'Private Novel Library';
-const MAX_PDF_BYTES = 100 * 1024 * 1024;
+const MAX_BOOK_BYTES = 100 * 1024 * 1024;
 const MAX_COVER_BYTES = 10 * 1024 * 1024;
 const DATA_DIR = __DIR__ . '/data';
 const DB_PATH = DATA_DIR . '/novel_library.sqlite';
@@ -65,8 +65,17 @@ function db(): PDO {
         description TEXT NOT NULL DEFAULT \'\',
         filename TEXT NOT NULL UNIQUE,
         cover_filename TEXT,
+        category TEXT NOT NULL DEFAULT \'Uncategorized\',
+        file_type TEXT NOT NULL DEFAULT \'pdf\',
         created_at INTEGER NOT NULL
     )');
+    // SQLite migrations for libraries created before categories and EPUB support.
+    $columns = array_column($pdo->query('PRAGMA table_info(books)')->fetchAll(), 'name');
+    if (!in_array('category', $columns, true)) $pdo->exec("ALTER TABLE books ADD COLUMN category TEXT NOT NULL DEFAULT 'Uncategorized'");
+    if (!in_array('file_type', $columns, true)) $pdo->exec("ALTER TABLE books ADD COLUMN file_type TEXT NOT NULL DEFAULT 'pdf'");
+    $pdo->exec("UPDATE books SET category = 'Uncategorized' WHERE category IS NULL OR trim(category) = ''");
+    $pdo->exec("UPDATE books SET file_type = 'pdf' WHERE file_type IS NULL OR trim(file_type) = ''");
+    $pdo->exec('CREATE INDEX IF NOT EXISTS idx_books_category_created_at ON books(category, created_at DESC)');
     $pdo->exec('CREATE TABLE IF NOT EXISTS reviews (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         book_id TEXT NOT NULL,
@@ -101,6 +110,8 @@ function normalize_book_row(array $row): array {
         'description' => (string)($row['description'] ?? ''),
         'filename' => (string)$row['filename'],
         'coverFilename' => !empty($row['cover_filename']) ? (string)$row['cover_filename'] : null,
+        'category' => trim((string)($row['category'] ?? '')) ?: 'Uncategorized',
+        'fileType' => (string)($row['file_type'] ?? 'pdf'),
         'createdAt' => (int)$row['created_at'],
     ];
 }
@@ -148,6 +159,8 @@ function book_payload(array $b): array {
         'author' => (string)($b['author'] ?? ''),
         'description' => (string)($b['description'] ?? ''),
         'filename' => $filename,
+        'fileType' => (string)($b['fileType'] ?? 'pdf'),
+        'category' => (string)($b['category'] ?? 'Uncategorized'),
         'fileUrl' => app_url('uploads/' . rawurlencode($filename)),
         'coverFilename' => $cover,
         'coverUrl' => $cover ? app_url('covers/' . rawurlencode($cover)) : null,
@@ -157,9 +170,31 @@ function book_payload(array $b): array {
     ];
 }
 
-function add_book(string $id, string $title, string $author, string $description, string $filename, ?string $coverFilename): void {
-    $stmt = db()->prepare('INSERT INTO books (id, title, author, description, filename, cover_filename, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)');
-    $stmt->execute([$id, $title, $author, $description, $filename, $coverFilename, (int)round(microtime(true) * 1000)]);
+function add_book(string $id, string $title, string $author, string $description, string $category, string $fileType, string $filename, ?string $coverFilename): void {
+    $stmt = db()->prepare('INSERT INTO books (id, title, author, description, category, file_type, filename, cover_filename, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+    $stmt->execute([$id, $title, $author, $description, $category, $fileType, $filename, $coverFilename, (int)round(microtime(true) * 1000)]);
+}
+
+function update_book_details(string $id, string $title, string $author, string $description, string $category, ?string $coverFilename): void {
+    $stmt = db()->prepare('UPDATE books SET title = ?, author = ?, description = ?, category = ?, cover_filename = ? WHERE id = ?');
+    $stmt->execute([$title, $author, $description, $category, $coverFilename, $id]);
+}
+
+function save_data_url_cover(string $dataUrl, string $id): ?string {
+    if (!preg_match('#^data:(image/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$#', $dataUrl, $parts)) return null;
+    $bytes = base64_decode($parts[2], true);
+    if ($bytes === false || $bytes === '' || strlen($bytes) > MAX_COVER_BYTES) return null;
+    $mime = (new finfo(FILEINFO_MIME_TYPE))->buffer($bytes);
+    $ext = match ($mime) {
+        'image/jpeg' => 'jpg',
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        default => null,
+    };
+    if ($ext === null) return null;
+    $filename = $id . '.' . $ext;
+    if (file_put_contents(__DIR__ . '/covers/' . $filename, $bytes, LOCK_EX) === false) throw new RuntimeException('Could not save generated first-page cover.');
+    return $filename;
 }
 
 function add_review(string $bookId, string $name, int $rating, string $text): void {

@@ -1,0 +1,477 @@
+* {
+    box-sizing: border-box;
+}
+
+@page {
+    size: Letter portrait;
+    margin: 0.35in;
+}
+
+body {
+    margin: 0;
+    padding: 18px;
+    background: #eceaf0;
+    color: #111;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+}
+
+.app {
+    max-width: 940px;
+    margin: 0 auto;
+}
+
+.toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0 auto 12px;
+    padding: 12px;
+    border: 1px solid #c9c6cc;
+    border-radius: 5px;
+    background: #fff;
+}
+
+.toolbar > label {
+    font-weight: 700;
+}
+
+.toolbar select {
+    flex: 1 1 270px;
+    min-width: 220px;
+    height: 34px;
+    padding: 4px 8px;
+}
+
+.toolbar button {
+    min-height: 34px;
+    padding: 5px 12px;
+    border: 1px solid #777;
+    border-radius: 4px;
+    background: #fff;
+    font: inherit;
+    cursor: pointer;
+}
+
+#saveStatus {
+    flex-basis: 100%;
+    min-height: 16px;
+    color: #514b5a;
+}
+
+#saveStatus[data-state="saving"] {
+    color: #725814;
+}
+
+#saveStatus[data-state="saved"] {
+    color: #276341;
+}
+
+#saveStatus[data-state="error"] {
+    color: #a22128;
+}
+
+.paper {
+    width: 816px;
+    min-height: 1056px;
+    margin: auto;
+    padding: 34px 32px 28px;
+    background: #fff;
+    box-shadow: 0 5px 20px #241b3226;
+}
+
+.heading {
+    margin: 0 0 45px;
+    text-align: center;
+}
+
+.heading h1 {
+    display: inline-block;
+    margin: 0;
+    padding: 0 3px 2px;
+    border-bottom: 3px solid #111;
+    font-size: 30px;
+    letter-spacing: 3px;
+    line-height: 1.2;
+}
+
+.heading p {
+    margin: 20px 0 0;
+    font: 16px Georgia, "Times New Roman", serif;
+}
+
+.form-table {
+    display: block;
+    border-top: 1px solid #555;
+    border-left: 1px solid #555;
+}
+
+.row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    border-bottom: 1px solid #555;
+}
+
+.row > label,
+.identity-fields > label {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    min-width: 0;
+    padding: 3px 5px;
+}
+
+.row label,
+.identity-fields label {
+    border-right: 1px solid #555;
+}
+
+.row input:not([type="file"]),
+.row textarea,
+.identity-fields input,
+.identity-fields select {
+    min-width: 35px;
+    min-height: 22px;
+    flex: 1 1 auto;
+    margin-left: 5px;
+    border: 0;
+    border-radius: 0;
+    outline: 0;
+    background: transparent;
+    color: #111;
+    font: inherit;
+}
+
+.row textarea {
+    resize: vertical;
+}
+
+.row input:focus,
+.row textarea:focus,
+.identity-fields input:focus,
+.identity-fields select:focus {
+    outline: 1px solid #8a789d;
+    background: #fbf8ff;
+}
+
+.identity-row {
+    grid-template-columns: minmax(0, 1fr) 148px;
+    min-height: 280px;
+}
+
+.identity-fields {
+    display: grid;
+    grid-template-columns: .55fr .8fr 1.1fr 1fr;
+    grid-template-rows: 34px 34px 34px 34px 31px minmax(75px, 1fr);
+    min-width: 0;
+}
+
+.identity-fields > label {
+    font-size: 14px;
+}
+
+.identity-fields .full-name,
+.identity-fields .nickname,
+.identity-fields .orientation,
+.identity-fields .qualities {
+    grid-column: 1 / -1;
+}
+
+.identity-fields .full-name {
+    grid-row: 1;
+}
+
+.identity-fields > label:nth-of-type(2) {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.identity-fields > label:nth-of-type(3) {
+    grid-column: 2;
+    grid-row: 2;
+}
+
+.identity-fields > label:nth-of-type(4) {
+    grid-column: 3;
+    grid-row: 2;
+}
+
+.identity-fields .nickname {
+    grid-row: 3;
+}
+
+.identity-fields > label:nth-of-type(6) {
+    grid-column: 1 / 3;
+    grid-row: 4;
+}
+
+.identity-fields > label:nth-of-type(7) {
+    grid-column: 3 / 5;
+    grid-row: 4;
+}
+
+.identity-fields > label:nth-of-type(8) {
+    grid-column: 1 / 3;
+    grid-row: 5;
+}
+
+.identity-fields > label:nth-of-type(9) {
+    grid-column: 3 / 5;
+    grid-row: 5;
+}
+
+.identity-fields .orientation {
+    grid-row: 6;
+    align-self: start;
+    border-bottom: 1px solid #555;
+}
+
+.identity-fields .qualities {
+    grid-row: 7;
+    display: block;
+    min-height: 89px;
+    border-bottom: 1px solid #555;
+}
+
+.identity-fields .qualities textarea {
+    display: block;
+    width: 100%;
+    height: 64px;
+    margin: 2px 0 0;
+    resize: none;
+}
+
+.photo-cell {
+    position: relative;
+    display: flex;
+    grid-column: 2;
+    grid-row: 1;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-right: 1px solid #555;
+    border-bottom: 1px solid #555;
+    color: #aaa;
+    font-size: 28px;
+    line-height: 1.25;
+    text-align: center;
+    cursor: pointer;
+}
+
+.photo-cell img {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.photo-cell img[hidden],
+.photo-cell span[hidden] {
+    display: none;
+}
+
+.photo-input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.split {
+    grid-template-columns: 1fr 1fr;
+}
+
+.split > label + label {
+    border-left: 1px solid #555;
+}
+
+.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.three > label + label {
+    border-left: 1px solid #555;
+}
+
+.three:not(.compact) {
+    min-height: 82px;
+}
+
+.three:not(.compact) > label {
+    display: flex;
+    align-items: start;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+}
+
+.three:not(.compact) textarea {
+    width: 100%;
+    height: 54px;
+    margin: 0;
+}
+
+.note {
+    display: flex;
+    justify-content: center;
+    padding: 3px;
+    color: #333;
+    text-align: center;
+}
+
+.tall {
+    min-height: 78px;
+}
+
+.tall > label {
+    align-items: flex-start;
+}
+
+.tall textarea {
+    align-self: stretch;
+    min-height: 53px;
+    margin-top: 0;
+}
+
+.wide {
+    min-height: 29px;
+}
+
+.wide textarea {
+    width: 100%;
+    margin: 0;
+}
+
+.compact > label {
+    min-height: 37px;
+}
+
+.explanation {
+    min-height: 67px;
+}
+
+.explanation textarea {
+    min-height: 49px;
+}
+
+.date-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 12px;
+    border: 0;
+}
+
+.date-row label {
+    min-width: 230px;
+    border: 0;
+}
+
+@media (max-width: 860px) {
+    body {
+        padding: 8px;
+    }
+
+    .paper {
+        width: 100%;
+        min-height: 0;
+        padding: 24px 20px;
+    }
+
+    .heading {
+        margin-bottom: 30px;
+    }
+}
+
+@media (max-width: 600px) {
+    .toolbar > * {
+        flex: 1 1 100%;
+    }
+
+    .paper {
+        padding: 18px 10px;
+    }
+
+    .heading h1 {
+        font-size: 21px;
+        letter-spacing: 1px;
+    }
+
+    .heading p {
+        font-size: 14px;
+    }
+
+    .identity-row {
+        grid-template-columns: minmax(0, 1fr) 100px;
+    }
+
+    .identity-fields {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .identity-fields > label {
+        font-size: 11px;
+    }
+
+    .identity-fields input,
+    .identity-fields select,
+    .row input:not([type="file"]),
+    .row select {
+        font-size: 11px;
+    }
+
+    .photo-cell {
+        font-size: 20px;
+    }
+}
+
+@media print {
+    body {
+        padding: 0;
+        background: #fff;
+        font-size: 11px;
+    }
+
+    .app {
+        max-width: none;
+    }
+
+    .paper {
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .heading {
+        margin-bottom: 35px;
+    }
+
+    .no-print {
+        display: none !important;
+    }
+
+    input,
+    select,
+    textarea {
+        color: #111 !important;
+        background: transparent !important;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    select {
+        appearance: none;
+    }
+
+    .photo-input {
+        display: none;
+    }
+}
+app {
+
+    zoom: 1.5;
+}

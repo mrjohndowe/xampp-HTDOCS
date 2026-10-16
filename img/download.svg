@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1350" viewBox="0 0 1080 1350">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#101827"/><stop offset="1" stop-color="#29283b"/></linearGradient><radialGradient id="glow"><stop stop-color="#b87775" stop-opacity=".34"/><stop offset="1" stop-color="#b87775" stop-opacity="0"/></radialGradient></defs>
+<rect width="1080" height="1350" fill="url(#bg)"/><circle cx="840" cy="300" r="430" fill="url(#glow)"/>
+<path d="M116 180h80M116 180v80M964 1170h-80M964 1170v-80" stroke="#d6a9a0" stroke-width="3" opacity=".8"/>
+<text x="140" y="410" fill="#d6a9a0" font-family="Arial,sans-serif" font-size="23" letter-spacing="7">A SMALL THANK YOU</text>
+<text x="140" y="545" fill="#f5f0ea" font-family="Georgia,serif" font-size="68"><tspan x="140" dy="0">Thanks for giving</tspan><tspan x="140" dy="88">my idea a brief</tspan><tspan x="140" dy="88">two minutes.</tspan></text>
+<path d="M140 820h150" stroke="#d6a9a0" stroke-width="3"/>
+<text x="140" y="910" fill="#d8d2d0" font-family="Arial,sans-serif" font-size="34"><tspan x="140" dy="0">I can see your attention is</tspan><tspan x="140" dy="54">somewhere else, and that’s okay.</tspan></text>
+<text x="140" y="1120" fill="#d6a9a0" font-family="Arial,sans-serif" font-size="20" letter-spacing="4">I’LL LEAVE IT HERE.</text>
+</svg>

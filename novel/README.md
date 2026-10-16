@@ -101,3 +101,14 @@ The splash background now uses a three-frame photoreal sequence of real library 
 
 
 The splash background now uses a real animated GIF built frame by frame from photoreal shelving scenes. The fake overlaid books have been removed.
+# Private Novel Library
+
+## Book categories and formats
+
+- Existing books are automatically placed in **Uncategorized** when this update first runs.
+- In **Admin → Upload Book**, enter a category (for example, `Fantasy` or `Mystery`). The public bookshelf displays one shelf section per category.
+- The upload form accepts **PDF** and **EPUB** files up to 100 MB, plus an optional JPG, PNG, or WEBP cover.
+- When a PDF is uploaded without a cover image, the upload page automatically renders **page 1** into the book cover. A supplied image always takes priority.
+- In **Admin → Dashboard**, use **Edit** beside any title to update its title, author, description, category, or cover later. PDF entries also include a **Use PDF page 1 as cover** action.
+- PDFs retain the existing two-page flipbook reader. EPUBs open in the bundled offline EPUB reader, with Previous and Next controls.
+- EPUB support is packaged in `assets/vendor/`; no external CDN is needed after installation.

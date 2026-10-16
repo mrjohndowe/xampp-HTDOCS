@@ -49,7 +49,7 @@ const previewMetaRating=document.getElementById('previewMetaRating');
 const previewMetaCount=document.getElementById('previewMetaCount');
 const previewReviewsBtn=document.getElementById('previewReviewsBtn');
 
-let books=[]; let pdf=null; let zoom=1; let anchor=1; let busy=false; let currentBook=null; let previewBook=null;
+let books=[]; let pdf=null; let epubBook=null; let epubRendition=null; let zoom=1; let anchor=1; let busy=false; let currentBook=null; let previewBook=null;
 const mobile=()=>window.matchMedia('(max-width: 850px)').matches;
 
 refreshBtn?.addEventListener('click',loadBooks);
@@ -89,9 +89,15 @@ async function loadBooks(){
     const r=await fetch(`${BASE}/api/books.php`,{cache:'no-store'});
     books=await r.json();
     if(!Array.isArray(books)||!books.length){grid.innerHTML='<div class="empty-state">No books yet. Use the Upload page to add one.</div>';return;}
-    grid.innerHTML=books.map(card).join('');
+    grid.innerHTML=groupedBooks(books);
     grid.querySelectorAll('[data-preview]').forEach(btn=>btn.addEventListener('click',()=>{const b=books.find(x=>String(x.id)===btn.dataset.preview);if(b)openPreview(b);}));
   }catch(e){console.error(e);grid.innerHTML='<div class="empty-state">Could not load bookshelf.</div>';}
+}
+
+function groupedBooks(items){
+  const groups=new Map();
+  items.forEach(book=>{const category=(book.category||'Uncategorized').trim()||'Uncategorized';if(!groups.has(category))groups.set(category,[]);groups.get(category).push(book);});
+  return [...groups].map(([category,group])=>`<section class="category-shelf"><div class="category-heading"><h3>${esc(category)}</h3><span>${group.length} book${group.length===1?'':'s'}</span></div><div class="category-book-row">${group.map(card).join('')}</div></section>`).join('');
 }
 
 function card(b){
@@ -110,7 +116,7 @@ function openPreview(book){
   previewDescription.textContent=book.description||'No description yet.';
   previewMetaTitle.textContent=book.title;
   previewMetaAuthor.textContent=book.author||'Unknown author';
-  previewBadge.textContent=`★ ${rating.toFixed(1)}`;
+  previewBadge.textContent=`${book.fileType==='epub'?'EPUB · ':'PDF · '}★ ${rating.toFixed(1)}`;
   previewStars.textContent=stars(rating);
   previewRatingValue.textContent=rating.toFixed(1);
   previewReviewCount.textContent=`${reviewCount} review${reviewCount===1?'':'s'}`;
@@ -165,24 +171,40 @@ async function openReader(book){
   busy=true;
   currentBook=book;
   readerTitle.textContent=book.title;
-  pageIndicator.textContent='Loading PDF…';
+  pageIndicator.textContent=`Loading ${book.fileType==='epub'?'EPUB':'PDF'}…`;
   readerModal.classList.remove('hidden');
   readerModal.setAttribute('aria-hidden','false');
   document.body.classList.add('reader-open');
   reader.classList.remove('book-open'); void reader.offsetWidth; reader.classList.add('book-open');
-  try{pdf=await pdfjsLib.getDocument(book.fileUrl).promise;anchor=1;zoom=1;scrubber.min=1;scrubber.max=pdf.numPages;scrubber.value=1;await renderSpread();}
-  catch(e){console.error(e);pageIndicator.textContent='Failed to load PDF';alert('Could not load PDF: '+e.message);}
+  try{
+    if(book.fileType==='epub') await openEpub(book);
+    else {pdf=await pdfjsLib.getDocument(book.fileUrl).promise;anchor=1;zoom=1;scrubber.min=1;scrubber.max=pdf.numPages;scrubber.value=1;await renderSpread();}
+  }
+  catch(e){console.error(e);pageIndicator.textContent=`Failed to load ${book.fileType==='epub'?'EPUB':'PDF'}`;alert(`Could not load ${book.fileType==='epub'?'EPUB':'PDF'}: `+e.message);}
   finally{busy=false;}
+}
+
+async function openEpub(book){
+  if(typeof window.ePub!=='function') throw new Error('The bundled EPUB reader could not be loaded.');
+  reader.classList.add('epub-mode');
+  epubBook=window.ePub(book.fileUrl);
+  await epubBook.ready;
+  const stage=document.getElementById('readerStage');
+  document.querySelector('.book-scene').classList.add('hidden');
+  const viewer=document.createElement('div');viewer.id='epubViewer';viewer.className='epub-viewer';viewer.setAttribute('aria-label','EPUB reader');stage.appendChild(viewer);
+  epubRendition=epubBook.renderTo('epubViewer',{width:'100%',height:'100%',spread:mobile()?'none':'auto',flow:'paginated'});
+  epubRendition.on('relocated',location=>{const current=location.start.displayed.page||1;const total=location.start.displayed.total||1;pageIndicator.textContent=`Page ${current} / ${total}`;scrubber.min=1;scrubber.max=total;scrubber.value=current;});
+  await epubRendition.display();
 }
 
 function closeReader(){
   readerModal.classList.add('closing');
-  setTimeout(()=>{readerModal.classList.add('hidden');readerModal.classList.remove('closing');readerModal.setAttribute('aria-hidden','true');document.body.classList.remove('reader-open');pdf=null;anchor=1;currentBook=null;clearCanvas(leftCanvas);clearCanvas(rightCanvas);},320);
+  setTimeout(()=>{readerModal.classList.add('hidden');readerModal.classList.remove('closing');readerModal.setAttribute('aria-hidden','true');document.body.classList.remove('reader-open');pdf=null;epubRendition?.destroy();epubBook?.destroy();epubRendition=null;epubBook=null;document.getElementById('epubViewer')?.remove();document.querySelector('.book-scene')?.classList.remove('hidden');reader.classList.remove('epub-mode');anchor=1;currentBook=null;clearCanvas(leftCanvas);clearCanvas(rightCanvas);},320);
 }
 
 function spreadPages(){if(mobile())return {left:0,right:anchor};if(anchor<=1)return {left:0,right:1};return {left:anchor,right:anchor+1<=pdf.numPages?anchor+1:0};}
 async function renderSpread(){if(!pdf)return;const {left,right}=spreadPages();reader.classList.toggle('single-mode',mobile());await Promise.all([renderBase(left,leftCanvas,leftBlank),renderBase(right,rightCanvas,rightBlank)]);const shown=mobile()?right:(left||right);scrubber.value=Math.max(1,shown);pageIndicator.textContent=mobile()?`Page ${right} / ${pdf.numPages}`:(left?`Pages ${left}${right?`–${right}`:''} / ${pdf.numPages}`:`Page ${right} / ${pdf.numPages}`);prevBtn.disabled=anchor<=1;nextBtn.disabled=mobile()?anchor>=pdf.numPages:(anchor===1?pdf.numPages<=1:anchor+1>=pdf.numPages);}
-async function turn(dir){if(!pdf||busy)return;let target;if(mobile())target=anchor+dir;else if(dir>0)target=anchor===1?2:anchor+2;else target=anchor<=2?1:anchor-2;target=Math.max(1,Math.min(target,pdf.numPages));if(!mobile()&&target>1&&target%2===1)target-=1;if(target===anchor)return;busy=true;try{await animateTurn(dir,target);anchor=target;await renderSpread();}finally{busy=false;}}
+async function turn(dir){if(epubRendition){return dir>0?epubRendition.next():epubRendition.prev();}if(!pdf||busy)return;let target;if(mobile())target=anchor+dir;else if(dir>0)target=anchor===1?2:anchor+2;else target=anchor<=2?1:anchor-2;target=Math.max(1,Math.min(target,pdf.numPages));if(!mobile()&&target>1&&target%2===1)target-=1;if(target===anchor)return;busy=true;try{await animateTurn(dir,target);anchor=target;await renderSpread();}finally{busy=false;}}
 async function animateTurn(dir,target){flip.className='flip-sheet';const current=spreadPages();let frontPage,backPage;if(mobile()){frontPage=anchor;backPage=target;}else if(dir>0){frontPage=current.right||current.left;backPage=target;}else{frontPage=current.left||current.right;backPage=target===1?1:target+1;}await Promise.all([renderToCanvas(frontPage,flipFront),renderToCanvas(backPage,flipBack)]);flip.classList.add(dir>0?'flip-forward':'flip-backward','active');await waitAnimation(flip,650);flip.className='flip-sheet';}
 async function renderBase(pageNum,canvas,blank){if(!pageNum){canvas.style.display='none';blank.style.display='grid';blank.textContent='';return;}blank.style.display='none';canvas.style.display='block';await renderToCanvas(pageNum,canvas);}
 async function renderToCanvas(pageNum,canvas){if(!pdf||!pageNum){clearCanvas(canvas);return;}const page=await pdf.getPage(pageNum);const vp1=page.getViewport({scale:1});const stage=document.getElementById('readerStage');const one=mobile();const availableW=Math.max(260,(stage.clientWidth-(one?48:110))/(one?1:2));const availableH=Math.max(340,stage.clientHeight-80);const fit=Math.min(availableW/vp1.width,availableH/vp1.height,1.8)*zoom;const vp=page.getViewport({scale:fit});const dpr=Math.min(window.devicePixelRatio||1,2);canvas.width=Math.floor(vp.width*dpr);canvas.height=Math.floor(vp.height*dpr);canvas.style.width=Math.floor(vp.width)+'px';canvas.style.height=Math.floor(vp.height)+'px';const ctx=canvas.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#fbf7ed';ctx.fillRect(0,0,vp.width,vp.height);await page.render({canvasContext:ctx,viewport:vp}).promise;}

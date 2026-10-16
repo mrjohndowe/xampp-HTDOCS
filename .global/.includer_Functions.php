@@ -1,5 +1,5 @@
 <?php
-include '.global/.includer_Functions.php';
+
 
 function getHeader(string $need = ''): string
 {
@@ -101,3 +101,13 @@ register_shutdown_function(function () {
         globalErrorHandler($error['type'], $error['message'], $error['file'], $error['line']);
     }
 });
+
+
+
+if (function_exists('opcache_reset')) {
+    opcache_reset(); // Resets the entire in-memory opcode cache
+    echo "OPcache has been reset successfully.";
+} else {
+    echo "OPcache is not enabled or supported.";
+}
+
