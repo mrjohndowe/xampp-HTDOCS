@@ -91,22 +91,21 @@
 <g id="m2" class="screen">
   <rect x="205" y="310" width="670" height="600" rx="65" fill="#303034"></rect>
 
-  <text x="540" y="410" text-anchor="middle" fill="#f472b6" font-family="Arial" font-size="65" font-weight="900">WAIT...</text>
+  <text x="540" y="410" text-anchor="middle" fill="#f472b6" font-family="Arial" font-size="65" font-weight="900"> WE GOTS...</text>
 
-  <text x="540" y="515" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">you used to not like</text>
+  <text x="540" y="515" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">to hurry up</text>
 
-  <text x="540" y="575" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">being touched in an</text>
+  <text x="540" y="575" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">we got shit to </text>
 
-  <text x="540" y="635" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">intimate way...</text>
+  <text x="540" y="635" text-anchor="middle" fill="#fff" font-family="Arial" font-size="39">take care of...</text>
 
-  <text x="540" y="735" text-anchor="middle" fill="#c4b5fd" font-family="Arial" font-size="42" font-weight="700">but I guess now you do...</text>
+  <text x="540" y="735" text-anchor="middle" fill="#c4b5fd" font-family="Arial" font-size="42" font-weight="700">Things in the back</text>
 
-  <text x="540" y="815" text-anchor="middle" fill="#fda4af" font-family="Arial" font-size="47" font-weight="900">just not with me, right?</text>
-
-  <text x="540" y="1010" text-anchor="middle" fill="#aaa" font-family="Arial" font-size="34" font-style="italic">oh... okay. noted 💔</text>
+  <text x="540" y="815" text-anchor="middle" fill="#fda4af" font-family="Arial" font-size="47" font-weight="900"> of my mind?</text>
+  <text x="540" y="1010" text-anchor="middle" fill="#aaa" font-family="Arial" font-size="34" font-style="italic">cant focus on fun time anymore💔</text>
 </g>
 
-<!-- MESSAGE 3 -->
+<!-- MESSAGE 3
 <g id="m3" class="screen">
   <rect x="225" y="375" width="630" height="420" rx="65" fill="#0a84ff"></rect>
 
@@ -117,7 +116,7 @@
   <text x="540" y="685" text-anchor="middle" fill="#fff" font-family="Arial" font-size="47" font-weight="900">I’ll act accordingly 💅</text>
 
   <text x="540" y="915" text-anchor="middle" fill="#fbcfe8" font-family="Arial" font-size="35" font-style="italic">no mixed signals over here ✨</text>
-</g>
+</g> -->
 
 <!-- MESSAGE 4 -->
 <g id="m4" class="screen">
@@ -132,7 +131,7 @@
   <text x="540" y="930" text-anchor="middle" fill="#c4b5fd" font-family="Arial" font-size="36" font-style="italic">we love clarity around here ✨</text>
 </g>
 
-<!-- MESSAGE 1 -->
+<!-- MESSAGE 1
 <g id="m1" class="screen">
   <rect x="225" y="340" width="630" height="500" rx="65" fill="#0a84ff"></rect>
 
@@ -145,7 +144,7 @@
   <text x="540" y="745" text-anchor="middle" fill="#fff" font-family="Arial" font-size="55" font-weight="900">WITH ME 😌</text>
 
   <text x="540" y="940" text-anchor="middle" fill="#f9a8d4" font-family="Arial" font-size="35" font-style="italic">respectfully... never mind 😂</text>
-</g>
+</g>-->
 
 <!-- home indicator -->
 <rect x="430" y="1160" width="220" height="9" rx="5" fill="#eee"></rect>
