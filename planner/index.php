@@ -1,4 +1,52 @@
-<!-- Created by Maria -->
+<?php
+// Server-side JSON storage for the task list. Keep this file in the same folder as index.php.
+$tasksFile = __DIR__ . DIRECTORY_SEPARATOR . 'tasks.json';
+
+if (isset($_GET['action'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    header('Cache-Control: no-store');
+
+    if ($_GET['action'] === 'load') {
+        if (!file_exists($tasksFile)) {
+            echo json_encode(['todos' => []]);
+            exit;
+        }
+        $contents = file_get_contents($tasksFile);
+        $data = json_decode($contents ?: '', true);
+        echo json_encode(['todos' => is_array($data) && isset($data['todos']) && is_array($data['todos']) ? $data['todos'] : []]);
+        exit;
+    }
+
+    if ($_GET['action'] === 'save') {
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            http_response_code(405);
+            echo json_encode(['error' => 'POST required']);
+            exit;
+        }
+
+        $raw = file_get_contents('php://input');
+        $data = json_decode($raw ?: '', true);
+        if (!is_array($data) || !isset($data['todos']) || !is_array($data['todos'])) {
+            http_response_code(400);
+            echo json_encode(['error' => 'Invalid task data']);
+            exit;
+        }
+
+        $json = json_encode(['updatedAt' => date(DATE_ATOM), 'todos' => $data['todos']], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if ($json === false || file_put_contents($tasksFile, $json, LOCK_EX) === false) {
+            http_response_code(500);
+            echo json_encode(['error' => 'Could not write tasks.json. Check folder permissions.']);
+            exit;
+        }
+        echo json_encode(['success' => true]);
+        exit;
+    }
+
+    http_response_code(400);
+    echo json_encode(['error' => 'Unknown action']);
+    exit;
+}
+?>
 
 <!DOCTYPE html>
 <html>
@@ -371,11 +419,11 @@
     </div>
 
     <script>
-        // State Management
-        let todos = JSON.parse(localStorage.getItem('todos')) || [];
+        // Tasks are stored on the server in tasks.json via this PHP page.
+        let todos = [];
         let currentFilter = 'all';
+        let saveQueue = Promise.resolve();
 
-        // DOM Elements
         const todoForm = document.getElementById('todoForm');
         const todoInput = document.getElementById('todoInput');
         const todoList = document.getElementById('todoList');
@@ -385,7 +433,6 @@
         const themeToggleBtn = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
 
-        // Theme management
         const savedTheme = localStorage.getItem('theme') || 'light';
         document.documentElement.setAttribute('data-theme', savedTheme);
         updateThemeIcon(savedTheme);
@@ -406,15 +453,34 @@
             }
         }
 
-        // Save to Local Storage
-        function saveToLocalStorage() {
-            localStorage.setItem('todos', JSON.stringify(todos));
+        async function loadTodos() {
+            const response = await fetch('?action=load', { cache: 'no-store' });
+            if (!response.ok) throw new Error('Could not load saved tasks.');
+            const data = await response.json();
+            todos = Array.isArray(data.todos) ? data.todos : [];
+            render();
         }
 
-        // Render To-Do List
+        async function saveTodos() {
+            // Queue saves so rapid clicks cannot overwrite newer data with older data.
+            saveQueue = saveQueue.catch(() => {}).then(async () => {
+                const response = await fetch('?action=save', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ todos })
+                });
+                if (!response.ok) throw new Error('Could not save tasks to the server.');
+            });
+            try {
+                await saveQueue;
+            } catch (error) {
+                console.error(error);
+                alert('Your tasks could not be saved. Check that this folder is writable by PHP.');
+            }
+        }
+
         function render() {
             todoList.innerHTML = '';
-
             const filteredTodos = todos.filter(todo => {
                 if (currentFilter === 'active') return !todo.completed;
                 if (currentFilter === 'completed') return todo.completed;
@@ -431,7 +497,6 @@
                 const li = document.createElement('li');
                 li.className = `todo-item ${todo.completed ? 'completed' : ''}`;
                 li.setAttribute('data-id', todo.id);
-
                 li.innerHTML = `
                     <div class="todo-item-content">
                         <div class="custom-checkbox"></div>
@@ -439,23 +504,14 @@
                     </div>
                     <button class="delete-btn" aria-label="Delete Task">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
-                    </button>
-                `;
-
-                // Toggle Event
-                li.querySelector('.todo-item-content').addEventListener('click', () => {
-                    toggleTodo(todo.id);
-                });
-
-                // Delete Event
+                    </button>`;
+                li.querySelector('.todo-item-content').addEventListener('click', () => toggleTodo(todo.id));
                 li.querySelector('.delete-btn').addEventListener('click', (e) => {
                     e.stopPropagation();
                     deleteTodo(todo.id);
                 });
-
                 todoList.appendChild(li);
             });
-
             updateFooterCounters();
         }
 
@@ -463,111 +519,77 @@
             let message = "No tasks yet! Add one above.";
             if (currentFilter === 'active') message = "No active tasks.";
             if (currentFilter === 'completed') message = "No completed tasks.";
-
-            todoList.innerHTML = `
-                <div class="empty-state">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                    </svg>
-                    <p>${message}</p>
-                </div>
-            `;
+            todoList.innerHTML = `<div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2m-6 9l2 2 4-4" />
+                </svg><p>${message}</p></div>`;
         }
 
-        // Helper: Prevent XSS
         function escapeHTML(str) {
-            return str.replace(/[&<>'"]/g,
-                tag => ({
-                    '&': '&amp;',
-                    '<': '&lt;',
-                    '>': '&gt;',
-                    "'": '&#39;',
-                    '"': '&quot;'
-                } [tag] || tag)
-            );
+            return String(str).replace(/[&<>'"]/g, tag => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;'
+            }[tag] || tag));
         }
 
-        // Add Todo
-        todoForm.addEventListener('submit', (e) => {
+        todoForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const text = todoInput.value.trim();
-            if (text === '') return;
-
-            const newTodo = {
-                id: Date.now(),
-                text: text,
-                completed: false
-            };
-
-            todos.push(newTodo);
-            saveToLocalStorage();
+            if (!text) return;
+            todos.push({ id: Date.now(), text, completed: false, createdAt: new Date().toISOString() });
             render();
             todoInput.value = '';
             todoInput.focus();
+            await saveTodos();
         });
 
-        // Toggle Todo
-        function toggleTodo(id) {
-            todos = todos.map(todo => {
-                if (todo.id === id) {
-                    return {
-                        ...todo,
-                        completed: !todo.completed
-                    };
-                }
-                return todo;
-            });
-            saveToLocalStorage();
+        async function toggleTodo(id) {
+            todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo);
             render();
+            await saveTodos();
         }
 
-        // Delete Todo
-        function deleteTodo(id) {
+        async function deleteTodo(id) {
             const element = document.querySelector(`[data-id="${id}"]`);
             if (element) {
                 element.style.transform = 'translateX(30px)';
                 element.style.opacity = '0';
-                setTimeout(() => {
+                setTimeout(async () => {
                     todos = todos.filter(todo => todo.id !== id);
-                    saveToLocalStorage();
                     render();
+                    await saveTodos();
                 }, 250);
             } else {
                 todos = todos.filter(todo => todo.id !== id);
-                saveToLocalStorage();
                 render();
+                await saveTodos();
             }
         }
 
-        // Filter Logic
         filterBtns.forEach(btn => {
             btn.addEventListener('click', (e) => {
                 filterBtns.forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                currentFilter = e.target.getAttribute('data-filter');
+                e.currentTarget.classList.add('active');
+                currentFilter = e.currentTarget.getAttribute('data-filter');
                 render();
             });
         });
 
-        // Clear Completed
-        clearCompletedBtn.addEventListener('click', () => {
+        clearCompletedBtn.addEventListener('click', async () => {
             todos = todos.filter(todo => !todo.completed);
-            saveToLocalStorage();
             render();
+            await saveTodos();
         });
 
-        // Update Counters
         function updateFooterCounters() {
             const activeCount = todos.filter(todo => !todo.completed).length;
             itemsLeftSpan.textContent = `${activeCount} item${activeCount === 1 ? '' : 's'} left`;
-
-            // Show/Hide Clear Completed button
-            const hasCompleted = todos.some(todo => todo.completed);
-            clearCompletedBtn.style.display = hasCompleted ? 'block' : 'none';
+            clearCompletedBtn.style.display = todos.some(todo => todo.completed) ? 'block' : 'none';
         }
 
-        // Initial Render
-        render();
+        loadTodos().catch(error => {
+            console.error(error);
+            todoList.innerHTML = '<div class="empty-state"><p>Could not load tasks. Open this page through your PHP server, not directly as a file.</p></div>';
+        });
     </script>
 </body>
 

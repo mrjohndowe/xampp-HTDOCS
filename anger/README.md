@@ -1,0 +1,37 @@
+# Anger Management Fillable PHP App
+
+This app displays all pages of the seven supplied PDFs as their original page images. Use the On-page tool selector to place either text boxes or checkmark boxes directly over a worksheet page. Click a page to place an item, drag it to reposition it, type into text boxes, toggle checkmarks, and use × to remove an item. Overlay items autosave to the database and print over the original page. A conventional response area under each page is also available.
+
+## Requirements
+- PHP 8.1+ with PDO and PDO_SQLITE enabled (SQLite is the default)
+- A web server with write permission to this directory so it can create `data/anger_records.sqlite`
+
+## Run locally
+From this directory:
+```bash
+php -S 127.0.0.1:8080
+```
+Open http://127.0.0.1:8080
+
+## Features
+- On-page overlay tools for all 48 pages across the seven supplied PDFs: choose text box or checkmark box
+- Click to place overlay items, drag to move, and remove with ×
+- Optional response area under each original page
+- Automatic save after a short pause and a Save now button
+- History dropdown and clickable history list showing name, date and worksheet
+- Reload and edit saved records
+- Print original pages with saved text boxes and checkmarks overlaid, plus page-level responses
+- Auto-calculated Anger Styles total/average (10 ratings, 1–5) and Dirty Fighting total (5 ratings, 0–3)
+- Reload and edit saved page-level responses from earlier records
+
+## MySQL option
+Create a database and table permissions for the app's database user, then set environment variables:
+```bash
+DB_DSN='mysql:host=127.0.0.1;dbname=anger_records;charset=utf8mb4' DB_USER='your_user' DB_PASS='your_password' php -S 127.0.0.1:8080
+```
+The app detects the PDO driver and creates a compatible schema for SQLite or MySQL automatically.
+
+## Deployment/security notes
+- Put the app behind HTTPS and restrict access to authorized staff. It currently has no login/roles, CSRF protection or audit log; add these before using it with confidential client records.
+- Back up `data/anger_records.sqlite` regularly.
+- On-page text boxes and checkmarks are saved with percentage-based coordinates relative to each page image, so their positions scale with the page. They are not pre-mapped to each original blank line; use the on-page tool to place them where needed.

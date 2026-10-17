@@ -1,0 +1,131 @@
+{
+    "updatedAt": "2026-10-17T03:03:02-06:00",
+    "todos": [
+        {
+            "id": 1792227402712,
+            "text": "Shower",
+            "completed": false,
+            "createdAt": "2026-10-17T08:56:42.712Z"
+        },
+        {
+            "id": 1792227415176,
+            "text": "Rinse carpet",
+            "completed": false,
+            "createdAt": "2026-10-17T08:56:55.176Z"
+        },
+        {
+            "id": 1792227420110,
+            "text": "Shampoo Carpet",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:00.110Z"
+        },
+        {
+            "id": 1792227430960,
+            "text": "Rinse Carpet",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:10.960Z"
+        },
+        {
+            "id": 1792227444146,
+            "text": "Clean Trash",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:24.146Z"
+        },
+        {
+            "id": 1792227459634,
+            "text": "Dishes",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:39.634Z"
+        },
+        {
+            "id": 1792227472943,
+            "text": "Wipe Everything Down",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:52.943Z"
+        },
+        {
+            "id": 1792227478994,
+            "text": "Crack Windows",
+            "completed": false,
+            "createdAt": "2026-10-17T08:57:58.994Z"
+        },
+        {
+            "id": 1792227491515,
+            "text": "Food Put Away",
+            "completed": false,
+            "createdAt": "2026-10-17T08:58:11.515Z"
+        },
+        {
+            "id": 1792227522394,
+            "text": "10\/15 Work 4-10:50",
+            "completed": false,
+            "createdAt": "2026-10-17T08:58:42.394Z"
+        },
+        {
+            "id": 1792227541512,
+            "text": "10\/16 16 4-10:50",
+            "completed": false,
+            "createdAt": "2026-10-17T08:59:01.512Z"
+        },
+        {
+            "id": 1792227566052,
+            "text": "10\/17 Work 12-7",
+            "completed": false,
+            "createdAt": "2026-10-17T08:59:26.052Z"
+        },
+        {
+            "id": 1792227587089,
+            "text": "10\/18 Work 3-11",
+            "completed": false,
+            "createdAt": "2026-10-17T08:59:47.089Z"
+        },
+        {
+            "id": 1792227617513,
+            "text": "10\/19 Court 10 AM",
+            "completed": false,
+            "createdAt": "2026-10-17T09:00:17.513Z"
+        },
+        {
+            "id": 1792227636197,
+            "text": "10\/19 Vision Appointment 4pm",
+            "completed": false,
+            "createdAt": "2026-10-17T09:00:36.197Z"
+        },
+        {
+            "id": 1792227681255,
+            "text": "Pack For the Work Week",
+            "completed": false,
+            "createdAt": "2026-10-17T09:01:21.255Z"
+        },
+        {
+            "id": 1792227687315,
+            "text": "Registration",
+            "completed": false,
+            "createdAt": "2026-10-17T09:01:27.315Z"
+        },
+        {
+            "id": 1792227707364,
+            "text": "Fill Gas Tank",
+            "completed": false,
+            "createdAt": "2026-10-17T09:01:47.364Z"
+        },
+        {
+            "id": 1792227734268,
+            "text": "Pack Snacks for trip",
+            "completed": false,
+            "createdAt": "2026-10-17T09:02:14.268Z"
+        },
+        {
+            "id": 1792227759880,
+            "text": "Fill Out PSI Paperwork",
+            "completed": false,
+            "createdAt": "2026-10-17T09:02:39.881Z"
+        },
+        {
+            "id": 1792227784461,
+            "text": "10\/20 1:30 PM PSi",
+            "completed": false,
+            "createdAt": "2026-10-17T09:03:04.461Z"
+        }
+    ]
+}
