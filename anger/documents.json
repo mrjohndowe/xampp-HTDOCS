@@ -239,5 +239,1090 @@
         "image": "assets/pages/ways-express/page-01.jpg"
       }
     ]
+  },
+  {
+    "id": "anger-coping-strategies",
+    "title": "Anger Coping Strategies",
+    "file": "assets/documents/anger-coping-strategies.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/anger-coping-strategies/page-01.jpg"
+      }
+    ]
+  },
+  {
+    "id": "what-is-anger",
+    "title": "What Is Anger",
+    "file": "assets/documents/what-is-anger.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/what-is-anger/page-01.jpg"
+      }
+    ]
+  },
+  {
+    "id": "getting-along-keeping-cool",
+    "title": "Getting Along and Keeping Cool — Therapist Manual",
+    "file": "assets/documents/getting-along-keeping-cool.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/getting-along-keeping-cool/page-01.jpg"
+      },
+      {
+        "number": 2,
+        "image": "assets/pages/getting-along-keeping-cool/page-02.jpg"
+      },
+      {
+        "number": 3,
+        "image": "assets/pages/getting-along-keeping-cool/page-03.jpg"
+      },
+      {
+        "number": 4,
+        "image": "assets/pages/getting-along-keeping-cool/page-04.jpg"
+      },
+      {
+        "number": 5,
+        "image": "assets/pages/getting-along-keeping-cool/page-05.jpg"
+      },
+      {
+        "number": 6,
+        "image": "assets/pages/getting-along-keeping-cool/page-06.jpg"
+      },
+      {
+        "number": 7,
+        "image": "assets/pages/getting-along-keeping-cool/page-07.jpg"
+      },
+      {
+        "number": 8,
+        "image": "assets/pages/getting-along-keeping-cool/page-08.jpg"
+      },
+      {
+        "number": 9,
+        "image": "assets/pages/getting-along-keeping-cool/page-09.jpg"
+      },
+      {
+        "number": 10,
+        "image": "assets/pages/getting-along-keeping-cool/page-10.jpg"
+      },
+      {
+        "number": 11,
+        "image": "assets/pages/getting-along-keeping-cool/page-11.jpg"
+      },
+      {
+        "number": 12,
+        "image": "assets/pages/getting-along-keeping-cool/page-12.jpg"
+      },
+      {
+        "number": 13,
+        "image": "assets/pages/getting-along-keeping-cool/page-13.jpg"
+      },
+      {
+        "number": 14,
+        "image": "assets/pages/getting-along-keeping-cool/page-14.jpg"
+      },
+      {
+        "number": 15,
+        "image": "assets/pages/getting-along-keeping-cool/page-15.jpg"
+      },
+      {
+        "number": 16,
+        "image": "assets/pages/getting-along-keeping-cool/page-16.jpg"
+      },
+      {
+        "number": 17,
+        "image": "assets/pages/getting-along-keeping-cool/page-17.jpg"
+      },
+      {
+        "number": 18,
+        "image": "assets/pages/getting-along-keeping-cool/page-18.jpg"
+      },
+      {
+        "number": 19,
+        "image": "assets/pages/getting-along-keeping-cool/page-19.jpg"
+      },
+      {
+        "number": 20,
+        "image": "assets/pages/getting-along-keeping-cool/page-20.jpg"
+      },
+      {
+        "number": 21,
+        "image": "assets/pages/getting-along-keeping-cool/page-21.jpg"
+      },
+      {
+        "number": 22,
+        "image": "assets/pages/getting-along-keeping-cool/page-22.jpg"
+      },
+      {
+        "number": 23,
+        "image": "assets/pages/getting-along-keeping-cool/page-23.jpg"
+      },
+      {
+        "number": 24,
+        "image": "assets/pages/getting-along-keeping-cool/page-24.jpg"
+      },
+      {
+        "number": 25,
+        "image": "assets/pages/getting-along-keeping-cool/page-25.jpg"
+      },
+      {
+        "number": 26,
+        "image": "assets/pages/getting-along-keeping-cool/page-26.jpg"
+      },
+      {
+        "number": 27,
+        "image": "assets/pages/getting-along-keeping-cool/page-27.jpg"
+      },
+      {
+        "number": 28,
+        "image": "assets/pages/getting-along-keeping-cool/page-28.jpg"
+      },
+      {
+        "number": 29,
+        "image": "assets/pages/getting-along-keeping-cool/page-29.jpg"
+      },
+      {
+        "number": 30,
+        "image": "assets/pages/getting-along-keeping-cool/page-30.jpg"
+      },
+      {
+        "number": 31,
+        "image": "assets/pages/getting-along-keeping-cool/page-31.jpg"
+      },
+      {
+        "number": 32,
+        "image": "assets/pages/getting-along-keeping-cool/page-32.jpg"
+      },
+      {
+        "number": 33,
+        "image": "assets/pages/getting-along-keeping-cool/page-33.jpg"
+      },
+      {
+        "number": 34,
+        "image": "assets/pages/getting-along-keeping-cool/page-34.jpg"
+      },
+      {
+        "number": 35,
+        "image": "assets/pages/getting-along-keeping-cool/page-35.jpg"
+      },
+      {
+        "number": 36,
+        "image": "assets/pages/getting-along-keeping-cool/page-36.jpg"
+      },
+      {
+        "number": 37,
+        "image": "assets/pages/getting-along-keeping-cool/page-37.jpg"
+      },
+      {
+        "number": 38,
+        "image": "assets/pages/getting-along-keeping-cool/page-38.jpg"
+      },
+      {
+        "number": 39,
+        "image": "assets/pages/getting-along-keeping-cool/page-39.jpg"
+      },
+      {
+        "number": 40,
+        "image": "assets/pages/getting-along-keeping-cool/page-40.jpg"
+      },
+      {
+        "number": 41,
+        "image": "assets/pages/getting-along-keeping-cool/page-41.jpg"
+      },
+      {
+        "number": 42,
+        "image": "assets/pages/getting-along-keeping-cool/page-42.jpg"
+      },
+      {
+        "number": 43,
+        "image": "assets/pages/getting-along-keeping-cool/page-43.jpg"
+      },
+      {
+        "number": 44,
+        "image": "assets/pages/getting-along-keeping-cool/page-44.jpg"
+      },
+      {
+        "number": 45,
+        "image": "assets/pages/getting-along-keeping-cool/page-45.jpg"
+      },
+      {
+        "number": 46,
+        "image": "assets/pages/getting-along-keeping-cool/page-46.jpg"
+      },
+      {
+        "number": 47,
+        "image": "assets/pages/getting-along-keeping-cool/page-47.jpg"
+      },
+      {
+        "number": 48,
+        "image": "assets/pages/getting-along-keeping-cool/page-48.jpg"
+      },
+      {
+        "number": 49,
+        "image": "assets/pages/getting-along-keeping-cool/page-49.jpg"
+      },
+      {
+        "number": 50,
+        "image": "assets/pages/getting-along-keeping-cool/page-50.jpg"
+      },
+      {
+        "number": 51,
+        "image": "assets/pages/getting-along-keeping-cool/page-51.jpg"
+      },
+      {
+        "number": 52,
+        "image": "assets/pages/getting-along-keeping-cool/page-52.jpg"
+      },
+      {
+        "number": 53,
+        "image": "assets/pages/getting-along-keeping-cool/page-53.jpg"
+      },
+      {
+        "number": 54,
+        "image": "assets/pages/getting-along-keeping-cool/page-54.jpg"
+      },
+      {
+        "number": 55,
+        "image": "assets/pages/getting-along-keeping-cool/page-55.jpg"
+      },
+      {
+        "number": 56,
+        "image": "assets/pages/getting-along-keeping-cool/page-56.jpg"
+      },
+      {
+        "number": 57,
+        "image": "assets/pages/getting-along-keeping-cool/page-57.jpg"
+      },
+      {
+        "number": 58,
+        "image": "assets/pages/getting-along-keeping-cool/page-58.jpg"
+      },
+      {
+        "number": 59,
+        "image": "assets/pages/getting-along-keeping-cool/page-59.jpg"
+      },
+      {
+        "number": 60,
+        "image": "assets/pages/getting-along-keeping-cool/page-60.jpg"
+      },
+      {
+        "number": 61,
+        "image": "assets/pages/getting-along-keeping-cool/page-61.jpg"
+      },
+      {
+        "number": 62,
+        "image": "assets/pages/getting-along-keeping-cool/page-62.jpg"
+      },
+      {
+        "number": 63,
+        "image": "assets/pages/getting-along-keeping-cool/page-63.jpg"
+      },
+      {
+        "number": 64,
+        "image": "assets/pages/getting-along-keeping-cool/page-64.jpg"
+      },
+      {
+        "number": 65,
+        "image": "assets/pages/getting-along-keeping-cool/page-65.jpg"
+      },
+      {
+        "number": 66,
+        "image": "assets/pages/getting-along-keeping-cool/page-66.jpg"
+      },
+      {
+        "number": 67,
+        "image": "assets/pages/getting-along-keeping-cool/page-67.jpg"
+      },
+      {
+        "number": 68,
+        "image": "assets/pages/getting-along-keeping-cool/page-68.jpg"
+      },
+      {
+        "number": 69,
+        "image": "assets/pages/getting-along-keeping-cool/page-69.jpg"
+      },
+      {
+        "number": 70,
+        "image": "assets/pages/getting-along-keeping-cool/page-70.jpg"
+      },
+      {
+        "number": 71,
+        "image": "assets/pages/getting-along-keeping-cool/page-71.jpg"
+      },
+      {
+        "number": 72,
+        "image": "assets/pages/getting-along-keeping-cool/page-72.jpg"
+      },
+      {
+        "number": 73,
+        "image": "assets/pages/getting-along-keeping-cool/page-73.jpg"
+      },
+      {
+        "number": 74,
+        "image": "assets/pages/getting-along-keeping-cool/page-74.jpg"
+      },
+      {
+        "number": 75,
+        "image": "assets/pages/getting-along-keeping-cool/page-75.jpg"
+      },
+      {
+        "number": 76,
+        "image": "assets/pages/getting-along-keeping-cool/page-76.jpg"
+      },
+      {
+        "number": 77,
+        "image": "assets/pages/getting-along-keeping-cool/page-77.jpg"
+      },
+      {
+        "number": 78,
+        "image": "assets/pages/getting-along-keeping-cool/page-78.jpg"
+      },
+      {
+        "number": 79,
+        "image": "assets/pages/getting-along-keeping-cool/page-79.jpg"
+      }
+    ]
+  },
+  {
+    "id": "self-help-for-anger",
+    "title": "Self Help for Anger",
+    "file": "assets/documents/self-help-for-anger.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/self-help-for-anger/page-01.jpg"
+      },
+      {
+        "number": 2,
+        "image": "assets/pages/self-help-for-anger/page-02.jpg"
+      },
+      {
+        "number": 3,
+        "image": "assets/pages/self-help-for-anger/page-03.jpg"
+      },
+      {
+        "number": 4,
+        "image": "assets/pages/self-help-for-anger/page-04.jpg"
+      },
+      {
+        "number": 5,
+        "image": "assets/pages/self-help-for-anger/page-05.jpg"
+      },
+      {
+        "number": 6,
+        "image": "assets/pages/self-help-for-anger/page-06.jpg"
+      },
+      {
+        "number": 7,
+        "image": "assets/pages/self-help-for-anger/page-07.jpg"
+      },
+      {
+        "number": 8,
+        "image": "assets/pages/self-help-for-anger/page-08.jpg"
+      },
+      {
+        "number": 9,
+        "image": "assets/pages/self-help-for-anger/page-09.jpg"
+      },
+      {
+        "number": 10,
+        "image": "assets/pages/self-help-for-anger/page-10.jpg"
+      },
+      {
+        "number": 11,
+        "image": "assets/pages/self-help-for-anger/page-11.jpg"
+      },
+      {
+        "number": 12,
+        "image": "assets/pages/self-help-for-anger/page-12.jpg"
+      },
+      {
+        "number": 13,
+        "image": "assets/pages/self-help-for-anger/page-13.jpg"
+      },
+      {
+        "number": 14,
+        "image": "assets/pages/self-help-for-anger/page-14.jpg"
+      },
+      {
+        "number": 15,
+        "image": "assets/pages/self-help-for-anger/page-15.jpg"
+      },
+      {
+        "number": 16,
+        "image": "assets/pages/self-help-for-anger/page-16.jpg"
+      },
+      {
+        "number": 17,
+        "image": "assets/pages/self-help-for-anger/page-17.jpg"
+      },
+      {
+        "number": 18,
+        "image": "assets/pages/self-help-for-anger/page-18.jpg"
+      },
+      {
+        "number": 19,
+        "image": "assets/pages/self-help-for-anger/page-19.jpg"
+      },
+      {
+        "number": 20,
+        "image": "assets/pages/self-help-for-anger/page-20.jpg"
+      },
+      {
+        "number": 21,
+        "image": "assets/pages/self-help-for-anger/page-21.jpg"
+      },
+      {
+        "number": 22,
+        "image": "assets/pages/self-help-for-anger/page-22.jpg"
+      },
+      {
+        "number": 23,
+        "image": "assets/pages/self-help-for-anger/page-23.jpg"
+      },
+      {
+        "number": 24,
+        "image": "assets/pages/self-help-for-anger/page-24.jpg"
+      },
+      {
+        "number": 25,
+        "image": "assets/pages/self-help-for-anger/page-25.jpg"
+      },
+      {
+        "number": 26,
+        "image": "assets/pages/self-help-for-anger/page-26.jpg"
+      },
+      {
+        "number": 27,
+        "image": "assets/pages/self-help-for-anger/page-27.jpg"
+      },
+      {
+        "number": 28,
+        "image": "assets/pages/self-help-for-anger/page-28.jpg"
+      }
+    ]
+  },
+  {
+    "id": "anger-conflict-resolution-workbook",
+    "title": "Anger Management & Conflict Resolution Workbook (IMH)",
+    "file": "assets/documents/anger-conflict-resolution-workbook.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-01.jpg"
+      },
+      {
+        "number": 2,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-02.jpg"
+      },
+      {
+        "number": 3,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-03.jpg"
+      },
+      {
+        "number": 4,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-04.jpg"
+      },
+      {
+        "number": 5,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-05.jpg"
+      },
+      {
+        "number": 6,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-06.jpg"
+      },
+      {
+        "number": 7,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-07.jpg"
+      },
+      {
+        "number": 8,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-08.jpg"
+      },
+      {
+        "number": 9,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-09.jpg"
+      },
+      {
+        "number": 10,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-10.jpg"
+      },
+      {
+        "number": 11,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-11.jpg"
+      },
+      {
+        "number": 12,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-12.jpg"
+      },
+      {
+        "number": 13,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-13.jpg"
+      },
+      {
+        "number": 14,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-14.jpg"
+      },
+      {
+        "number": 15,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-15.jpg"
+      },
+      {
+        "number": 16,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-16.jpg"
+      },
+      {
+        "number": 17,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-17.jpg"
+      },
+      {
+        "number": 18,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-18.jpg"
+      },
+      {
+        "number": 19,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-19.jpg"
+      },
+      {
+        "number": 20,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-20.jpg"
+      },
+      {
+        "number": 21,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-21.jpg"
+      },
+      {
+        "number": 22,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-22.jpg"
+      },
+      {
+        "number": 23,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-23.jpg"
+      },
+      {
+        "number": 24,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-24.jpg"
+      },
+      {
+        "number": 25,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-25.jpg"
+      },
+      {
+        "number": 26,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-26.jpg"
+      },
+      {
+        "number": 27,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-27.jpg"
+      },
+      {
+        "number": 28,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-28.jpg"
+      },
+      {
+        "number": 29,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-29.jpg"
+      },
+      {
+        "number": 30,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-30.jpg"
+      },
+      {
+        "number": 31,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-31.jpg"
+      },
+      {
+        "number": 32,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-32.jpg"
+      },
+      {
+        "number": 33,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-33.jpg"
+      },
+      {
+        "number": 34,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-34.jpg"
+      },
+      {
+        "number": 35,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-35.jpg"
+      },
+      {
+        "number": 36,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-36.jpg"
+      },
+      {
+        "number": 37,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-37.jpg"
+      },
+      {
+        "number": 38,
+        "image": "assets/pages/anger-conflict-resolution-workbook/page-38.jpg"
+      }
+    ]
+  },
+  {
+    "id": "swmpt-anger-workbook",
+    "title": "Anger Management Workbook (SWMPT)",
+    "file": "assets/documents/swmpt-anger-workbook.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/swmpt-anger-workbook/page-01.jpg"
+      },
+      {
+        "number": 2,
+        "image": "assets/pages/swmpt-anger-workbook/page-02.jpg"
+      },
+      {
+        "number": 3,
+        "image": "assets/pages/swmpt-anger-workbook/page-03.jpg"
+      },
+      {
+        "number": 4,
+        "image": "assets/pages/swmpt-anger-workbook/page-04.jpg"
+      },
+      {
+        "number": 5,
+        "image": "assets/pages/swmpt-anger-workbook/page-05.jpg"
+      },
+      {
+        "number": 6,
+        "image": "assets/pages/swmpt-anger-workbook/page-06.jpg"
+      },
+      {
+        "number": 7,
+        "image": "assets/pages/swmpt-anger-workbook/page-07.jpg"
+      },
+      {
+        "number": 8,
+        "image": "assets/pages/swmpt-anger-workbook/page-08.jpg"
+      },
+      {
+        "number": 9,
+        "image": "assets/pages/swmpt-anger-workbook/page-09.jpg"
+      },
+      {
+        "number": 10,
+        "image": "assets/pages/swmpt-anger-workbook/page-10.jpg"
+      },
+      {
+        "number": 11,
+        "image": "assets/pages/swmpt-anger-workbook/page-11.jpg"
+      },
+      {
+        "number": 12,
+        "image": "assets/pages/swmpt-anger-workbook/page-12.jpg"
+      },
+      {
+        "number": 13,
+        "image": "assets/pages/swmpt-anger-workbook/page-13.jpg"
+      },
+      {
+        "number": 14,
+        "image": "assets/pages/swmpt-anger-workbook/page-14.jpg"
+      },
+      {
+        "number": 15,
+        "image": "assets/pages/swmpt-anger-workbook/page-15.jpg"
+      },
+      {
+        "number": 16,
+        "image": "assets/pages/swmpt-anger-workbook/page-16.jpg"
+      },
+      {
+        "number": 17,
+        "image": "assets/pages/swmpt-anger-workbook/page-17.jpg"
+      },
+      {
+        "number": 18,
+        "image": "assets/pages/swmpt-anger-workbook/page-18.jpg"
+      },
+      {
+        "number": 19,
+        "image": "assets/pages/swmpt-anger-workbook/page-19.jpg"
+      },
+      {
+        "number": 20,
+        "image": "assets/pages/swmpt-anger-workbook/page-20.jpg"
+      },
+      {
+        "number": 21,
+        "image": "assets/pages/swmpt-anger-workbook/page-21.jpg"
+      },
+      {
+        "number": 22,
+        "image": "assets/pages/swmpt-anger-workbook/page-22.jpg"
+      },
+      {
+        "number": 23,
+        "image": "assets/pages/swmpt-anger-workbook/page-23.jpg"
+      },
+      {
+        "number": 24,
+        "image": "assets/pages/swmpt-anger-workbook/page-24.jpg"
+      },
+      {
+        "number": 25,
+        "image": "assets/pages/swmpt-anger-workbook/page-25.jpg"
+      },
+      {
+        "number": 26,
+        "image": "assets/pages/swmpt-anger-workbook/page-26.jpg"
+      },
+      {
+        "number": 27,
+        "image": "assets/pages/swmpt-anger-workbook/page-27.jpg"
+      },
+      {
+        "number": 28,
+        "image": "assets/pages/swmpt-anger-workbook/page-28.jpg"
+      },
+      {
+        "number": 29,
+        "image": "assets/pages/swmpt-anger-workbook/page-29.jpg"
+      },
+      {
+        "number": 30,
+        "image": "assets/pages/swmpt-anger-workbook/page-30.jpg"
+      },
+      {
+        "number": 31,
+        "image": "assets/pages/swmpt-anger-workbook/page-31.jpg"
+      },
+      {
+        "number": 32,
+        "image": "assets/pages/swmpt-anger-workbook/page-32.jpg"
+      },
+      {
+        "number": 33,
+        "image": "assets/pages/swmpt-anger-workbook/page-33.jpg"
+      },
+      {
+        "number": 34,
+        "image": "assets/pages/swmpt-anger-workbook/page-34.jpg"
+      },
+      {
+        "number": 35,
+        "image": "assets/pages/swmpt-anger-workbook/page-35.jpg"
+      },
+      {
+        "number": 36,
+        "image": "assets/pages/swmpt-anger-workbook/page-36.jpg"
+      },
+      {
+        "number": 37,
+        "image": "assets/pages/swmpt-anger-workbook/page-37.jpg"
+      },
+      {
+        "number": 38,
+        "image": "assets/pages/swmpt-anger-workbook/page-38.jpg"
+      },
+      {
+        "number": 39,
+        "image": "assets/pages/swmpt-anger-workbook/page-39.jpg"
+      },
+      {
+        "number": 40,
+        "image": "assets/pages/swmpt-anger-workbook/page-40.jpg"
+      },
+      {
+        "number": 41,
+        "image": "assets/pages/swmpt-anger-workbook/page-41.jpg"
+      },
+      {
+        "number": 42,
+        "image": "assets/pages/swmpt-anger-workbook/page-42.jpg"
+      },
+      {
+        "number": 43,
+        "image": "assets/pages/swmpt-anger-workbook/page-43.jpg"
+      },
+      {
+        "number": 44,
+        "image": "assets/pages/swmpt-anger-workbook/page-44.jpg"
+      },
+      {
+        "number": 45,
+        "image": "assets/pages/swmpt-anger-workbook/page-45.jpg"
+      },
+      {
+        "number": 46,
+        "image": "assets/pages/swmpt-anger-workbook/page-46.jpg"
+      },
+      {
+        "number": 47,
+        "image": "assets/pages/swmpt-anger-workbook/page-47.jpg"
+      },
+      {
+        "number": 48,
+        "image": "assets/pages/swmpt-anger-workbook/page-48.jpg"
+      }
+    ]
+  },
+  {
+    "id": "samhsa-anger-management-workbook",
+    "title": "Anger Management for Substance Use and Mental Health Clients (SAMHSA)",
+    "file": "assets/documents/samhsa-anger-management-workbook.pdf",
+    "pages": [
+      {
+        "number": 1,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-01.jpg"
+      },
+      {
+        "number": 2,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-02.jpg"
+      },
+      {
+        "number": 3,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-03.jpg"
+      },
+      {
+        "number": 4,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-04.jpg"
+      },
+      {
+        "number": 5,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-05.jpg"
+      },
+      {
+        "number": 6,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-06.jpg"
+      },
+      {
+        "number": 7,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-07.jpg"
+      },
+      {
+        "number": 8,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-08.jpg"
+      },
+      {
+        "number": 9,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-09.jpg"
+      },
+      {
+        "number": 10,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-10.jpg"
+      },
+      {
+        "number": 11,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-11.jpg"
+      },
+      {
+        "number": 12,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-12.jpg"
+      },
+      {
+        "number": 13,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-13.jpg"
+      },
+      {
+        "number": 14,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-14.jpg"
+      },
+      {
+        "number": 15,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-15.jpg"
+      },
+      {
+        "number": 16,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-16.jpg"
+      },
+      {
+        "number": 17,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-17.jpg"
+      },
+      {
+        "number": 18,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-18.jpg"
+      },
+      {
+        "number": 19,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-19.jpg"
+      },
+      {
+        "number": 20,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-20.jpg"
+      },
+      {
+        "number": 21,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-21.jpg"
+      },
+      {
+        "number": 22,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-22.jpg"
+      },
+      {
+        "number": 23,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-23.jpg"
+      },
+      {
+        "number": 24,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-24.jpg"
+      },
+      {
+        "number": 25,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-25.jpg"
+      },
+      {
+        "number": 26,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-26.jpg"
+      },
+      {
+        "number": 27,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-27.jpg"
+      },
+      {
+        "number": 28,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-28.jpg"
+      },
+      {
+        "number": 29,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-29.jpg"
+      },
+      {
+        "number": 30,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-30.jpg"
+      },
+      {
+        "number": 31,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-31.jpg"
+      },
+      {
+        "number": 32,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-32.jpg"
+      },
+      {
+        "number": 33,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-33.jpg"
+      },
+      {
+        "number": 34,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-34.jpg"
+      },
+      {
+        "number": 35,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-35.jpg"
+      },
+      {
+        "number": 36,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-36.jpg"
+      },
+      {
+        "number": 37,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-37.jpg"
+      },
+      {
+        "number": 38,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-38.jpg"
+      },
+      {
+        "number": 39,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-39.jpg"
+      },
+      {
+        "number": 40,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-40.jpg"
+      },
+      {
+        "number": 41,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-41.jpg"
+      },
+      {
+        "number": 42,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-42.jpg"
+      },
+      {
+        "number": 43,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-43.jpg"
+      },
+      {
+        "number": 44,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-44.jpg"
+      },
+      {
+        "number": 45,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-45.jpg"
+      },
+      {
+        "number": 46,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-46.jpg"
+      },
+      {
+        "number": 47,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-47.jpg"
+      },
+      {
+        "number": 48,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-48.jpg"
+      },
+      {
+        "number": 49,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-49.jpg"
+      },
+      {
+        "number": 50,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-50.jpg"
+      },
+      {
+        "number": 51,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-51.jpg"
+      },
+      {
+        "number": 52,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-52.jpg"
+      },
+      {
+        "number": 53,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-53.jpg"
+      },
+      {
+        "number": 54,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-54.jpg"
+      },
+      {
+        "number": 55,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-55.jpg"
+      },
+      {
+        "number": 56,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-56.jpg"
+      },
+      {
+        "number": 57,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-57.jpg"
+      },
+      {
+        "number": 58,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-58.jpg"
+      },
+      {
+        "number": 59,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-59.jpg"
+      },
+      {
+        "number": 60,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-60.jpg"
+      },
+      {
+        "number": 61,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-61.jpg"
+      },
+      {
+        "number": 62,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-62.jpg"
+      },
+      {
+        "number": 63,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-63.jpg"
+      },
+      {
+        "number": 64,
+        "image": "assets/pages/samhsa-anger-management-workbook/page-64.jpg"
+      }
+    ]
   }
 ]

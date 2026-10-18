@@ -1,6 +1,17 @@
 # Anger Management Fillable PHP App
 
-This app displays all pages of the seven supplied PDFs as their original page images. Use the On-page tool selector to place either text boxes or checkmark boxes directly over a worksheet page. Click a page to place an item, drag it to reposition it, type into text boxes, toggle checkmarks, and use × to remove an item. Overlay items autosave to the database and print over the original page. A conventional response area under each page is also available.
+This app displays all pages of the original worksheets plus seven newly added PDFs as their original page images. Use the On-page tool selector to place either text boxes or checkmark boxes directly over a worksheet page. Click a page to place an item, drag it to reposition it, type into text boxes, toggle checkmarks, and use × to remove an item. Overlay items autosave to the database and print over the original page. A conventional response area under each page is also available.
+
+## Included new sections
+- Anger Coping Strategies (1 page)
+- What Is Anger (1 page)
+- Getting Along and Keeping Cool — Therapist Manual (79 pages)
+- Self Help for Anger (28 pages)
+- Anger Management & Conflict Resolution Workbook (IMH) (38 pages)
+- Anger Management Workbook (SWMPT) (48 pages)
+- Anger Management for Substance Use and Mental Health Clients (SAMHSA) (64 pages)
+
+The original PDFs are preserved in `assets/`, and their page images are stored in `assets/pages/` for on-page annotation and printing.
 
 ## Requirements
 - PHP 8.1+ with PDO and PDO_SQLITE enabled (SQLite is the default)
@@ -14,7 +25,7 @@ php -S 127.0.0.1:8080
 Open http://127.0.0.1:8080
 
 ## Features
-- On-page overlay tools for all 48 pages across the seven supplied PDFs: choose text box or checkmark box
+- On-page overlay tools for all 307 pages across the original worksheets and seven added PDFs: choose text box or checkmark box
 - Click to place overlay items, drag to move, and remove with ×
 - Optional response area under each original page
 - Automatic save after a short pause and a Save now button
