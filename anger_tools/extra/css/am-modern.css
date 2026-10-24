@@ -562,3 +562,107 @@ html[data-theme="dark"] hr { border-color: #493538; }
 html[data-theme="dark"] .card[style*="background"],
 html[data-theme="dark"] div[style*="background-color: white"],
 html[data-theme="dark"] div[style*="background: white"] { background-color: #211719 !important; color: #f3eeee !important; }
+
+/* ---------- Forms and modal dark-mode completion ---------- */
+html[data-theme="dark"] .modal,
+html[data-theme="dark"] .modal-dialog,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .modal-body,
+html[data-theme="dark"] .modal-title,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer,
+html[data-theme="dark"] .dialog,
+html[data-theme="dark"] dialog,
+html[data-theme="dark"] .swal2-popup,
+html[data-theme="dark"] .bootbox .modal-content,
+html[data-theme="dark"] .ui-dialog,
+html[data-theme="dark"] .ui-dialog-content,
+html[data-theme="dark"] .popover,
+html[data-theme="dark"] .tooltip-inner {
+  color: #f5eeee !important;
+  background: #211719 !important;
+  border-color: #493538 !important;
+}
+html[data-theme="dark"] .modal-backdrop,
+html[data-theme="dark"] .ui-widget-overlay { background-color: #000 !important; }
+html[data-theme="dark"] .modal-backdrop.show { opacity: .78 !important; }
+html[data-theme="dark"] form,
+html[data-theme="dark"] .form-group,
+html[data-theme="dark"] .form-check,
+html[data-theme="dark"] .input-group,
+html[data-theme="dark"] .input-group-text,
+html[data-theme="dark"] .custom-file,
+html[data-theme="dark"] .custom-select,
+html[data-theme="dark"] .form-floating {
+  color: #f5eeee;
+}
+html[data-theme="dark"] .input-group-text,
+html[data-theme="dark"] .custom-file-label,
+html[data-theme="dark"] .custom-select,
+html[data-theme="dark"] .form-select,
+html[data-theme="dark"] .form-control,
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] .custom-control-label::before {
+  color: #f7eeee !important;
+  background-color: #171012 !important;
+  border-color: #60464a !important;
+}
+html[data-theme="dark"] .form-control:focus,
+html[data-theme="dark"] input:focus,
+html[data-theme="dark"] select:focus,
+html[data-theme="dark"] textarea:focus {
+  box-shadow: 0 0 0 .2rem rgba(255, 91, 100, .2) !important;
+  outline-color: #ff5b64;
+}
+html[data-theme="dark"] input[type="checkbox"],
+html[data-theme="dark"] input[type="radio"],
+html[data-theme="dark"] .form-check-input,
+html[data-theme="dark"] .custom-control-input { accent-color: #ff5b64; }
+html[data-theme="dark"] .form-check-label,
+html[data-theme="dark"] .custom-control-label,
+html[data-theme="dark"] .form-label,
+html[data-theme="dark"] .control-label { color: #e8dfe0 !important; }
+html[data-theme="dark"] .invalid-feedback,
+html[data-theme="dark"] .validation-error,
+html[data-theme="dark"] .error,
+html[data-theme="dark"] .help-block { color: #ff9b9f !important; }
+html[data-theme="dark"] .valid-feedback { color: #83d6a2 !important; }
+html[data-theme="dark"] .btn-close { filter: invert(1) grayscale(100%) brightness(200%); }
+html[data-theme="dark"] .close { color: #fff !important; text-shadow: none !important; opacity: .85; }
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .dropdown-item,
+html[data-theme="dark"] .list-group,
+html[data-theme="dark"] .list-group-item,
+html[data-theme="dark"] .nav-tabs,
+html[data-theme="dark"] .tab-content { background-color: #211719 !important; color: #f3eeee !important; border-color: #493538 !important; }
+html[data-theme="dark"] .dropdown-item:hover,
+html[data-theme="dark"] .dropdown-item:focus,
+html[data-theme="dark"] .list-group-item-action:hover { background-color: #352326 !important; color: #fff !important; }
+html[data-theme="dark"] .select2-container--default .select2-selection--single,
+html[data-theme="dark"] .select2-dropdown,
+html[data-theme="dark"] .select2-results__option,
+html[data-theme="dark"] .daterangepicker,
+html[data-theme="dark"] .daterangepicker .calendar-table,
+html[data-theme="dark"] .datepicker,
+html[data-theme="dark"] .datepicker-dropdown,
+html[data-theme="dark"] .flatpickr-calendar,
+html[data-theme="dark"] .flatpickr-day {
+  color: #f5eeee !important; background: #211719 !important; border-color: #493538 !important;
+}
+html[data-theme="dark"] .select2-results__option--highlighted,
+html[data-theme="dark"] .flatpickr-day:hover { background: #493538 !important; color: #fff !important; }
+html[data-theme="dark"] .modal .btn-secondary,
+html[data-theme="dark"] .modal .btn-default { color: #f5eeee !important; background: #493538 !important; border-color: #60464a !important; }
+html[data-theme="dark"] .modal hr,
+html[data-theme="dark"] .modal fieldset { border-color: #493538 !important; }
+html[data-theme="dark"] [style*="background-color:#fff"],
+html[data-theme="dark"] [style*="background-color: #fff"],
+html[data-theme="dark"] [style*="background-color:white"],
+html[data-theme="dark"] [style*="background-color: white"],
+html[data-theme="dark"] [style*="background:#fff"],
+html[data-theme="dark"] [style*="background: #fff"],
+html[data-theme="dark"] [style*="background:white"],
+html[data-theme="dark"] [style*="background: white"] {
+  background-color: #211719 !important; color: #f3eeee !important; border-color: #493538 !important;
+}
+html[data-theme="dark"] ::selection { color: #fff; background: #8f3038; }
