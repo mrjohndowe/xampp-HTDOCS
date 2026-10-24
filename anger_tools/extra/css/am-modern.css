@@ -404,3 +404,161 @@ body.am-menu-open::before {
     animation: none !important;
   }
 }
+
+/* ---------- Theme switching ---------- */
+:root, html[data-theme="dark"] {
+  color-scheme: dark;
+}
+html[data-theme="light"] {
+  color-scheme: light;
+  --am-bg: #f4f6f9;
+  --am-surface: rgba(15, 23, 42, 0.045);
+  --am-surface-strong: rgba(15, 23, 42, 0.08);
+  --am-border: rgba(15, 23, 42, 0.13);
+  --am-text: #202532;
+  --am-text-muted: #5d6678;
+  --am-shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.13);
+}
+html[data-theme="light"] body {
+  background: radial-gradient(1100px 520px at 50% -10%, rgba(229,72,77,.09), transparent 60%), #f4f6f9;
+  color: #202532;
+}
+html[data-theme="light"] .am-nav {
+  background: rgba(255,255,255,.9);
+  border-bottom-color: #e0e4eb;
+}
+html[data-theme="light"] .am-nav-menu { background: #fff; }
+html[data-theme="light"] .am-nav-time { color: #596273; }
+html[data-theme="light"] .am-toggle-bar { background: #202532; }
+html[data-theme="light"] body.am-menu-open::before { background: rgba(20,25,35,.28); }
+html[data-theme="light"] .am-footer { color: #687184; }
+html[data-theme="light"] .am-input {
+  color: #202532;
+  background: #fff;
+  border-color: #d5dbe5;
+}
+html[data-theme="light"] .am-input::placeholder { color: #7b8494; }
+html[data-theme="light"] .am-input:focus { background: #fff; }
+html[data-theme="light"] .am-login-alt { color: #5d6678; }
+html[data-theme="light"] .container,
+html[data-theme="light"] .card,
+html[data-theme="light"] .panel,
+html[data-theme="light"] .well,
+html[data-theme="light"] .modal-content,
+html[data-theme="light"] .table,
+html[data-theme="light"] table,
+html[data-theme="light"] fieldset {
+  color: #202532;
+}
+html[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+html[data-theme="light"] select,
+html[data-theme="light"] textarea {
+  color: #202532;
+  background-color: #fff;
+  border-color: #cbd2de;
+}
+html[data-theme="light"] input::placeholder,
+html[data-theme="light"] textarea::placeholder { color: #7b8494; }
+html[data-theme="light"] th { background-color: #edf0f5; }
+html[data-theme="light"] td, html[data-theme="light"] th { border-color: #dce1e9; }
+
+.am-theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 8px 12px;
+  margin-left: 4px;
+  border: 1px solid var(--am-border);
+  border-radius: var(--am-radius-full);
+  background: var(--am-surface);
+  color: var(--am-text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.am-theme-toggle:hover { background: var(--am-surface-strong); }
+.am-theme-toggle:focus-visible { outline: 2px solid var(--am-red); outline-offset: 3px; }
+@media (max-width: 880px) {
+  .am-theme-toggle { justify-content: center; width: 100%; margin: 4px 0 0; }
+}
+
+/* ---------- Complete dark theme for legacy dashboard components ---------- */
+html[data-theme="dark"] body,
+html[data-theme="dark"] .container,
+html[data-theme="dark"] .container-fluid,
+html[data-theme="dark"] .main-panel,
+html[data-theme="dark"] .content-wrapper { color: #f3eeee; }
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .card-body,
+html[data-theme="dark"] .panel,
+html[data-theme="dark"] .panel-body,
+html[data-theme="dark"] .well,
+html[data-theme="dark"] .modal-content,
+html[data-theme="dark"] .dropdown-menu,
+html[data-theme="dark"] .table-responsive,
+html[data-theme="dark"] .chart-container,
+html[data-theme="dark"] .chart-area,
+html[data-theme="dark"] .chart-pie,
+html[data-theme="dark"] .chart-bar,
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .jumbotron,
+html[data-theme="dark"] fieldset {
+  color: #f3eeee !important;
+  background-color: #211719 !important;
+  border-color: #493538 !important;
+}
+html[data-theme="dark"] .card-header,
+html[data-theme="dark"] .panel-heading,
+html[data-theme="dark"] .modal-header,
+html[data-theme="dark"] .modal-footer {
+  color: #fff !important;
+  border-color: #493538 !important;
+}
+html[data-theme="dark"] p,
+html[data-theme="dark"] label,
+html[data-theme="dark"] small,
+html[data-theme="dark"] .text-muted,
+html[data-theme="dark"] .card-text,
+html[data-theme="dark"] .form-text,
+html[data-theme="dark"] legend { color: #d5c7c8; }
+html[data-theme="dark"] h1,
+html[data-theme="dark"] h2,
+html[data-theme="dark"] h3,
+html[data-theme="dark"] h4,
+html[data-theme="dark"] h5,
+html[data-theme="dark"] h6 { color: #fff; }
+html[data-theme="dark"] table,
+html[data-theme="dark"] .table { color: #f3eeee !important; background-color: #211719 !important; }
+html[data-theme="dark"] th,
+html[data-theme="dark"] .table th { color: #fff !important; background-color: #352326 !important; border-color: #493538 !important; }
+html[data-theme="dark"] td,
+html[data-theme="dark"] .table td,
+html[data-theme="dark"] tr { border-color: #493538 !important; }
+html[data-theme="dark"] .table-striped tbody tr:nth-of-type(odd) { background-color: #2a1e20 !important; }
+html[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]),
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea,
+html[data-theme="dark"] .form-control {
+  color: #f7eeee !important;
+  background-color: #171012 !important;
+  border-color: #60464a !important;
+}
+html[data-theme="dark"] input::placeholder,
+html[data-theme="dark"] textarea::placeholder { color: #b9a6a6 !important; }
+html[data-theme="dark"] .alert,
+html[data-theme="dark"] .list-group-item { color: #f3eeee; background-color: #2a1e20; border-color: #493538; }
+html[data-theme="dark"] .shadow,
+html[data-theme="dark"] .shadow-sm,
+html[data-theme="dark"] .shadow-lg { box-shadow: 0 8px 24px rgba(0,0,0,.25) !important; }
+html[data-theme="dark"] canvas { background-color: #211719; border-radius: 10px; }
+html[data-theme="dark"] a:not(.am-nav-link):not(.am-brand) { color: #ff8589; }
+html[data-theme="dark"] .breadcrumb { background-color: #211719; }
+html[data-theme="dark"] hr { border-color: #493538; }
+
+/* Keep the original dashboard's white chart cards dark in dark mode. */
+html[data-theme="dark"] .card[style*="background"],
+html[data-theme="dark"] div[style*="background-color: white"],
+html[data-theme="dark"] div[style*="background: white"] { background-color: #211719 !important; color: #f3eeee !important; }

@@ -96,3 +96,33 @@
     });
   }
 })();
+
+/* ---------- Persistent light/dark theme ---------- */
+(function () {
+  'use strict';
+  var root = document.documentElement;
+  var button = document.querySelector('.am-theme-toggle');
+  if (!button) return;
+  var label = button.querySelector('.am-theme-label');
+  var icon = button.querySelector('.am-theme-icon');
+  var saved = null;
+  try { saved = window.localStorage.getItem('anger-tools-theme'); } catch (err) {}
+  var systemDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = saved === 'light' || saved === 'dark' ? saved : (systemDark ? 'dark' : 'light');
+
+  function applyTheme(nextTheme) {
+    theme = nextTheme;
+    root.setAttribute('data-theme', theme);
+    var isDark = theme === 'dark';
+    button.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+    button.setAttribute('aria-label', isDark ? 'Switch to light mode' : 'Switch to dark mode');
+    if (label) label.textContent = isDark ? 'Light mode' : 'Dark mode';
+    if (icon) icon.textContent = isDark ? '☀' : '☾';
+  }
+  applyTheme(theme);
+  button.addEventListener('click', function () {
+    var nextTheme = theme === 'dark' ? 'light' : 'dark';
+    applyTheme(nextTheme);
+    try { window.localStorage.setItem('anger-tools-theme', nextTheme); } catch (err) {}
+  });
+})();

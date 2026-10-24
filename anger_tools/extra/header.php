@@ -52,7 +52,7 @@ $time = date('F jS, Y');
 ?>
 <!DOCTYPE HTML>
 
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
@@ -94,6 +94,7 @@ $time = date('F jS, Y');
         <li><a class="am-nav-link" href="?p=anger">Anger Log</a></li>
         <li><a class="am-nav-link" href="?p=publicanger">Public Anger Log</a></li>
         <li><a class="am-nav-link" href="?p=allLogs">All Anger Logs</a></li>
+        <li><button class="am-theme-toggle" type="button" aria-pressed="true" aria-label="Switch to light mode"><span class="am-theme-icon" aria-hidden="true">☀</span><span class="am-theme-label">Light mode</span></button></li>
         <li class="am-nav-time" title="Timezone: America/Denver"><?= htmlspecialchars($time, ENT_QUOTES, 'UTF-8') ?></li>
         <?php if (isset($_SESSION['user'])): ?><li><a class="am-nav-link" href="?p=logout">Logout</a></li><?php endif; ?>
       </ul>

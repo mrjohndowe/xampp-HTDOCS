@@ -176,6 +176,17 @@
 				$('#avgAngerLevel').text('Error');
 			});
 
+			// Match Chart.js labels, axes, gridlines and tooltips to the active theme.
+			if (window.Chart && Chart.defaults) {
+				const darkCharts = document.documentElement.getAttribute('data-theme') !== 'light';
+				const chartText = darkCharts ? '#e8dfe0' : '#666666';
+				const chartGrid = darkCharts ? 'rgba(235,220,222,0.16)' : 'rgba(0,0,0,0.1)';
+				Chart.defaults.color = chartText;
+				if (Chart.defaults.plugins && Chart.defaults.plugins.legend) Chart.defaults.plugins.legend.labels = Object.assign({}, Chart.defaults.plugins.legend.labels, { color: chartText });
+				if (Chart.defaults.plugins && Chart.defaults.plugins.tooltip) Chart.defaults.plugins.tooltip.backgroundColor = darkCharts ? '#352326' : '#222222';
+				if (Chart.defaults.scale) { Chart.defaults.scale.ticks = Object.assign({}, Chart.defaults.scale.ticks, { color: chartText }); Chart.defaults.scale.grid = Object.assign({}, Chart.defaults.scale.grid, { color: chartGrid }); }
+			}
+
 			// Get anger trend chart data
 			$.get('api/anger_data.php?action=get_anger_trend', function(data) {
 				console.log('Trend data:', data);
