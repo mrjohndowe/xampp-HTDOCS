@@ -1,0 +1,104 @@
+<?php // page/login.php
+// display login form
+?>
+<?php // data/login.php
+// verify login information
+if(!empty($_POST)){
+	// grab variables
+	$user = (isset($user))? $user :((isset($_POST['username']))? $_POST['username'] : null);
+	$pass = (isset($pass))? $pass :((isset($_POST['password']))? $_POST['password'] : null);
+	$stay = (isset($_POST['stay']))? 1 : 0;
+	
+	// check if user or pass is empty
+	if ($user == null || $pass == null)
+	{
+		redirect('index.php?p=login',false);
+	}
+	else
+	{
+		// get user data from database
+		$sql = "SELECT *, count(id) FROM users WHERE `username`=:user";
+		$params = array(
+			':user' => $user
+		);
+		$stmt = $db->prepare($sql);
+		$result = $stmt->execute($params);
+		$row = $stmt->Fetch();
+		
+		// verify user exists and matches password in database
+		if ($row['count(id)'] == 1 &&
+			md5(md5($row['username'].$pass).$row['salt']) == $row['password'])
+		{
+			// create session variables here
+			$_SESSION['user']['id'] = $row['id'];
+			$_SESSION['user']['name'] = $row['username'];
+			$_SESSION['user']['game'] = $row['useGame'];
+			
+			// if user selected to stay logged in
+			if ($stay)
+			{
+				$salt = $row['salt'];
+				$sessionCookie = md5($row['id'].':'.session_id());
+				$sessionHash = md5($row['id'].$row['salt'].$sessionCookie);
+				
+				// add session hash into database to verify cookie
+				$sql = "UPDATE users SET session = :session WHERE id = :id";
+				$params = array(
+					':session' => $sessionHash,
+					':id' => $row['id']
+				);
+				$stmt = $db->prepare($sql);
+				$result = $stmt->execute($params);
+			
+				// + secs * mins * hours * days
+				// expires in 30 days
+				$expire=time()+60*60*24*30;
+				setcookie('id', $row['id'], $expire);
+				setcookie('session', $sessionCookie, $expire);
+			} else {
+				// clear session data from database
+				$sql = "UPDATE users SET session = '' WHERE id = :id";
+				$params = array (':id' => $_SESSION['user']['id']);
+				$stmt = $db->prepare($sql);
+				$result = $stmt->execute($params);
+				
+				// clear cookie data
+				setcookie('id', '', time()-3600);
+				setcookie('session', '', time()-3600);
+			}
+			
+			redirect();
+		} else {
+			// alert system still needs refactoring
+			$_SESSION['alert']['login'] = 'something';
+			redirect('index.php?p=login',false);
+		}
+		exit();
+	}
+}
+?>
+
+
+<div class="container">
+	<div class="row">
+		<div class="col-lg-4">
+			<form role="form" action="?p=login" method="post">
+				<div class="form-group">
+					<input class="form-control" placeholder="Username" name="username" tabindex="1" autofocus required>
+				</div>
+				<div class="form-group">
+					<input type="password" class="form-control" placeholder="Password" name="password" tabindex="2" required>
+					<a href="?p=lost_pw" tabindex="5">Forgot your password?</a>
+				</div>
+				<div class="form-group">
+					<label class="checkbox-inline">
+						<input type="checkbox" name="stay" value="1" tabindex="3"> Stay logged in
+					</label>
+				</div>
+				<div class="form-group">
+				<button type="submit" class="col-lg-6 btn btn-danger" tabindex="4">LOGIN</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

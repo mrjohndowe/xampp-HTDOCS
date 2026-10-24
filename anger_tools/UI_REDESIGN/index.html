@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Anger Tools — Modern Nav Preview</title>
+
+  <!-- Production stylesheets, same load order as the live site -->
+  <link href="https://mrjohndowe.com/anger_tools/extra/css/admin.css" rel="stylesheet">
+  <link href="https://mrjohndowe.com/anger_tools/extra/css/custom.css" rel="stylesheet">
+  <link href="https://mrjohndowe.com/anger_tools/extra/css/modern.css" rel="stylesheet">
+
+  <!-- NEW: modern UI layer (loads last) -->
+  <link href="extra/css/am-modern.css" rel="stylesheet">
+
+  <!-- Optional in production too: Nunito (admin.css expects it) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- === New navigation (from snippets/nav.html) === -->
+  <header class="am-nav">
+    <div class="am-nav-inner">
+
+      <a class="am-brand" href="." aria-label="Anger Tools — Home">
+        <svg class="am-brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 20l7.7-6.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>
+          <path d="M4 12h3.5l1.5-3 3 6 1.5-3H16"/>
+        </svg>
+        <span class="am-brand-name">Anger<span class="am-brand-accent">Tools</span></span>
+      </a>
+
+      <button class="am-nav-toggle" type="button" aria-expanded="false" aria-controls="am-nav-menu" aria-label="Toggle menu">
+        <span class="am-toggle-bar" aria-hidden="true"></span>
+        <span class="am-toggle-bar" aria-hidden="true"></span>
+        <span class="am-toggle-bar" aria-hidden="true"></span>
+      </button>
+
+      <nav aria-label="Main navigation">
+      <ul class="am-nav-menu" id="am-nav-menu">
+        <li><a class="am-nav-link am-nav-link--home" href=".">Home</a></li>
+        <li><a class="am-nav-link" href="?p=treatment">Treatment Tool</a></li>
+        <li><a class="am-nav-link" href="?p=anger">Anger Log</a></li>
+        <li><a class="am-nav-link" href="?p=publicanger">Public Anger Log</a></li>
+        <li><a class="am-nav-link" href="?p=allLogs">All Anger Logs</a></li>
+        <li class="am-nav-time" title="Timezone: America/Denver"></li>
+      </ul>
+      </nav>
+
+    </div>
+  </header>
+
+  <!-- === Modernized login section (from snippets/login-main.html) === -->
+  <main class="am-main">
+    <div class="am-login-page">
+      <div class="am-login-hero">
+
+        <section class="am-login-card" aria-label="Login">
+          <div class="am-login-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="4" y="11" width="16" height="10" rx="2"/>
+              <path d="M8 11V7a4 4 0 0 1 8 0v4"/>
+            </svg>
+          </div>
+
+          <h1 class="am-login-title">Login to Anger Management System</h1>
+          <p class="am-login-sub">Track, understand, and manage your anger</p>
+
+          <!-- Preview only: form does not submit. Production keeps action="?p=login" method="post" -->
+          <form onsubmit="return false">
+            <div class="am-field">
+              <label class="am-label" for="username">Username</label>
+              <input class="am-input" id="username" name="username" type="text"
+                     placeholder="Enter username" autocomplete="off">
+            </div>
+
+            <div class="am-field">
+              <label class="am-label" for="pass">Password</label>
+              <input class="am-input" id="pass" name="pass" type="password"
+                     placeholder="Enter password" autocomplete="off">
+            </div>
+
+            <button class="am-btn am-btn-primary" type="submit">Login</button>
+            <p style="margin:14px 0 0;text-align:center;font-size:12px;color:rgba(246,240,239,0.55);">
+              Preview only — this form is disabled. Your live site keeps the real login.
+            </p>
+          </form>
+
+          <p class="am-login-alt">
+            Need an account? <a href="?p=register">Register</a>
+          </p>
+        </section>
+
+      </div>
+
+      <footer class="am-footer">
+        Mr John Dowe &copy;2019 - 2026
+      </footer>
+    </div>
+  </main>
+
+  <script src="extra/js/am-nav.js" defer></script>
+</body>
+</html>

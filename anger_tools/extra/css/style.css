@@ -1,0 +1,29 @@
+@charset "utf-8";
+/* CSS Document */
+
+/* do not need copy this*/
+body { margin:0; padding:25px; font-family:Arial, Helvetica, sans-serif;}
+
+/* Do nedd Copy this */
+
+/* ----- clear fix for floats ----- */
+.clearfix:after { content: "."; display:block; height:0; clear:both; visibility:hidden; }
+.clearfix { display:inline-block; }		
+/* hides clearfix from IE-mac \*/
+* html .clearfix { height:1%; }
+.clearfix { display:block; }
+/* end hide from IE-mac */
+
+/* Images */
+.onlycssmenu, .onlycssmenu ul, .onlycssmenu ul li a, .onlycssmenu ul li span { background-image:url(../images/menu_stip.png); background-repeat:no-repeat; font-family:Arial, Helvetica, sans-serif; font-size:12px; }
+.onlycssmenu { height:41px; line-height:41px;  background-position:-1005px 0px; padding-left:10px }
+.onlycssmenu ul { background-position: right -45px; height:41px; line-height:41px; margin:0; padding:0; list-style:none;  }
+.onlycssmenu ul li { display:inline; float:left; padding:6px 6px 0 5px; background:url(../images/onlycssmenu.png) no-repeat right 11px;}
+.onlycssmenu ul li.nopipe { background:none;}
+.onlycssmenu ul li a { float:left; padding-left:15px;  color:#FFFFFF; text-decoration:none;}
+.onlycssmenu ul li a span{ float:left; padding-right:15px; height:30px; line-height:30px;}
+.onlycssmenu ul li a:hover, .onlycssmenu ul li a.active {background-position: -1005px -90px; color:#530316;}
+.onlycssmenu ul li a:hover span, .onlycssmenu ul li a.active span { background-position:right bottom;}
+
+/* You will Need change */
+.onlycssmenu  {}

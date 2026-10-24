@@ -1,0 +1,47 @@
+<!-- ============================================================
+     Anger Tools — modern navigation (replaces the old .onlycssmenu block)
+
+     Replace everything from <div class="container onlycssmenu clearfix">
+     down to its closing </div> with this header, on every page template.
+
+     NOTES
+     - All five destinations are unchanged: ?p=treatment, ?p=anger,
+       ?p=publicanger, ?p=allLogs, and "." (home)
+     - The active link is set automatically by extra/js/am-nav.js
+       based on the ?p= parameter — no PHP changes needed
+     - Keep your existing PHP date echo inside .am-nav-time if you
+       have one; otherwise the JS fills in today's date (Denver time)
+     ============================================================ -->
+
+<header class="am-nav">
+  <div class="am-nav-inner">
+
+    <a class="am-brand" href="." aria-label="Anger Tools — Home">
+      <svg class="am-brand-mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1.1 1L12 20l7.7-6.6 1.1-1a5.5 5.5 0 0 0 0-7.8z"/>
+        <path d="M4 12h3.5l1.5-3 3 6 1.5-3H16"/>
+      </svg>
+      <span class="am-brand-name">Anger<span class="am-brand-accent">Tools</span></span>
+    </a>
+
+    <button class="am-nav-toggle" type="button" aria-expanded="false" aria-controls="am-nav-menu" aria-label="Toggle menu">
+      <span class="am-toggle-bar" aria-hidden="true"></span>
+      <span class="am-toggle-bar" aria-hidden="true"></span>
+      <span class="am-toggle-bar" aria-hidden="true"></span>
+    </button>
+
+    <nav aria-label="Main navigation">
+      <ul class="am-nav-menu" id="am-nav-menu">
+        <li><a class="am-nav-link am-nav-link--home" href=".">Home</a></li>
+        <li><a class="am-nav-link" href="?p=treatment">Treatment Tool</a></li>
+        <li><a class="am-nav-link" href="?p=anger">Anger Log</a></li>
+        <li><a class="am-nav-link" href="?p=publicanger">Public Anger Log</a></li>
+        <li><a class="am-nav-link" href="?p=allLogs">All Anger Logs</a></li>
+        <li class="am-nav-time" title="Timezone: America/Denver">
+          <!-- Optional: keep your PHP date echo here, e.g. <?php echo date('F jS, Y'); ?> -->
+        </li>
+      </ul>
+    </nav>
+
+  </div>
+</header>
