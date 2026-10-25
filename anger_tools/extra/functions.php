@@ -201,43 +201,43 @@ function getAngerLevel($numb)
 	switch ($numb) {
 		case 'option1':
 			$level = 'rgb(21, 234, 0)';
-			$levelScale = 'Not At All';
+
 			break;
 		case 'option2':
 			$level = 'rgb(45, 209, 0)';
-			$levelScale = '';
+
 			break;
 		case 'option3':
 			$level = 'rgb(69, 185, 0)';
-			$levelScale = '';
+
 			break;
 		case 'option4':
 			$level = 'rgb(93, 163, 0)';
-			$levelScale = '';
+
 			break;
 		case 'option5':
 			$level = 'rgb(116, 139, 0)';
-			$levelScale = 'Medium Anger';
+
 			break;
 		case 'option6':
 			$level = 'rgb(141, 115, 0)';
-			$levelScale = '';
+
 			break;
 		case 'option7':
 			$level = 'rgb(164, 91, 0)';
-			$levelScale = '';
+
 			break;
 		case 'option8':
 			$level = 'rgb(187, 67, 0)';
-			$levelScale = 'angry';
+
 			break;
 		case 'option9':
 			$level = 'rgb(211, 45, 0)';
-			$levelScale = 'very angry';
+
 			break;
 		case 'option10':
 			$level = 'rgb(241, 14, 0)';
-			$levelScale = 'very, very angry';
+
 			break;
 		default:
 			$level = 'white';
@@ -250,34 +250,34 @@ function getAngerLevelScale($numb)
 {
 	switch ($numb) {
 		case 'option1':
-			$levelScale = 'Not At All';
+			$levelScale = 'Calm';
 			break;
 		case 'option2':
-			$levelScale = '';
+			$levelScale = 'Slightly Annoyed';
 			break;
 		case 'option3':
-			$levelScale = '';
+			$levelScale = 'Mildly Irritated';
 			break;
 		case 'option4':
-			$levelScale = '';
+			$levelScale = 'Frustrated';
 			break;
 		case 'option5':
-			$levelScale = 'Medium Anger';
+			$levelScale = 'Visibly Upset';
 			break;
 		case 'option6':
-			$levelScale = '';
-			break;
-		case 'option7':
-			$levelScale = '';
-			break;
-		case 'option8':
 			$levelScale = 'Angry';
 			break;
-		case 'option9':
+		case 'option7':
 			$levelScale = 'Very Angry';
 			break;
+		case 'option8':
+			$levelScale = 'Furious';
+			break;
+		case 'option9':
+			$levelScale = 'Enraged';
+			break;
 		case 'option10':
-			$levelScale = 'Very, Very Angry';
+			$levelScale = 'Consumed by Rage';
 			break;
 		default:
 			$levelScale = '';
