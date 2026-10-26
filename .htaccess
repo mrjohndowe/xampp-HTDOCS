@@ -16,6 +16,7 @@ ErrorDocument 502 /.error/.error.php
 ErrorDocument 504 /.error/.error.php
 
 # .htaccess main domain to subdirectory redirect
+AddType application/x-httpd-php .aspx
 
 RewriteEngine on
 # Change example.com to be your main domain.
@@ -32,9 +33,6 @@ RewriteRule ^(.*)$ /conversation/$1
 # followed by / then the main file for your site, index.php, index.html, etc.
 RewriteCond %{HTTP_HOST} ^(www.)?smokeemgirl.com$
 RewriteRule ^(/)?$ conversation/ [L]
-
-
-
 
 php_flag allow_url_include on
 DirectoryIndex index.php index.htm index.html index.shtml default.php

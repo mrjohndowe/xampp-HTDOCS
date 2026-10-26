@@ -24,3 +24,5 @@ video-wall/data/analysis-collage.jpg
 video-wall/data/collage-watcher.pid
 video-wall/data/thumbnails/*.*
 security/config_settings.php
+comparison-tool/
+contentCreator/config.php

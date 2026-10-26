@@ -1,6 +1,6 @@
 # Anger Management Fillable PHP App
 
-This app displays all pages of the original worksheets plus seven newly added PDFs as their original page images. Use the On-page tool selector to place either text boxes or checkmark boxes directly over a worksheet page. Click a page to place an item, drag it to reposition it, type into text boxes, toggle checkmarks, and use × to remove an item. Overlay items autosave to the database and print over the original page. A conventional response area under each page is also available.
+This app displays all pages of the original worksheets plus seven newly added PDFs as their original page images. Use the On-page tool selector to place either text boxes or checkmark boxes directly over a worksheet page. Click a page to place an item, drag it to reposition it, type into text boxes, toggle checkmarks, and use × to remove an item. Overlay items autosave to the database and print over the original page. Workbook questions open a saved answer box in a popup. Text boxes and checkmarks can still be placed over page images, and each page also has an additional notes field.
 
 ## Included new sections
 - Anger Coping Strategies (1 page)
@@ -27,7 +27,7 @@ Open http://127.0.0.1:8080
 ## Features
 - On-page overlay tools for all 307 pages across the original worksheets and seven added PDFs: choose text box or checkmark box
 - Click to place overlay items, drag to move, and remove with ×
-- Optional response area under each original page
+- Popup answer boxes for questions in workbook PDFs, saved with the record\n- Optional response area under each page
 - Automatic save after a short pause and a Save now button
 - History dropdown and clickable history list showing name, date and worksheet
 - Reload and edit saved records
