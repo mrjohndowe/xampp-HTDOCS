@@ -1,4 +1,6 @@
-# Anger Tools — Full Website Revamp
+# Mood Tools — Full Website Revamp
+
+Mood Tools is a private space for everyday emotional check-ins. The guided reflection can be used for anger, stress, sadness, anxiety, or any other mood; it is not a diagnosis or substitute for professional care.
 
 ## What this is
 A replacement website entry point with one shared layout, stylesheet, and interaction layer. It replaces the routed legacy templates rather than trying to hide their conflicting styles. Includes dashboard, sign-in, registration, guided reflection, monthly logs, full log history, public monthly logs, authorized detail view, POST sign-out, and the old budget route's intensity demo. That old route was a slider demo, not an actual budgeting tool; no budgeting functionality is invented.
@@ -9,12 +11,12 @@ A replacement website entry point with one shared layout, stylesheet, and intera
 3. Copy the included index.php to the application root, replacing the old index.php. Add assets/site.css, assets/site.js, templates/log-table.php, and the included api/anger_data.php compatibility endpoint.
 4. The old pages and styles are no longer included by the new router. Do not include extra/header.php or extra/footer.php from this new index: the new entry point renders its own complete document.
 5. Check ?p=login, ?p=register, ?p=home, ?p=treatment, ?p=anger, ?p=allLogs, ?p=publicanger, ?p=viewLog&id=VALID_ID, and ?p=budget. Old ?p=logout links are replaced with POST sign-out.
-6. Test against the actual schema, deployed PHP version, and connection session behavior. The original users and anger table columns are retained; the anger timestamp default is still required, as in the original application. PHP 7.4+ is needed (a supported PHP release is recommended). No migration or dependencies are included.
+6. Test against the actual schema, deployed PHP version, and connection session behavior. The original users and `anger` table columns are retained; existing records and route names continue to work without a migration. The `angerScale` database field is now presented as general mood intensity in the interface. The anger timestamp default is still required, as in the original application. PHP 7.4+ is needed (a supported PHP release is recommended). No migration or dependencies are included.
 
 ## One design system
-Every route uses the same header, sidebar, page headings, content width, spacing, buttons, panels, table styles, form fields, alerts, empty states, footer, and dark/light tokens. The palette retains #140a0c, #211719, #e5484d and #b3383e. Narrow screens use a collapsible menu. Focus rings, reduced-motion styling, table overflow, and print styling are included. Theme preference alone is stored in localStorage; reflection answers are not.
+Every route uses the same header, sidebar, page headings, content width, spacing, buttons, panels, table styles, form fields, alerts, empty states, footer, and dark/light tokens. The palette uses calm slate and sea-glass accents in both dark and light themes. Narrow screens use a collapsible menu. Focus rings, reduced-motion styling, table overflow, and print styling are included. Theme preference alone is stored in localStorage; reflection answers are not.
 
-## Reflection behavior
+## Mood check-in behavior
 Six written answers, intensity, and visibility are required. The final question requires an explicit Private/Public choice; neither choice defaults on. Review/Edit, Back navigation, and server validation are included. New entries preserve UTF-8 text with a plain:v1 keycode marker. Both private and public historical entries with a matching legacy salt are decoded in the replacement detail reader and API. Binary encoding was not encryption; new private entries are not encrypted either. Private means owner-only at the supplied page/API authorization layer, not inaccessible to administrators.
 
 ## Security-related improvements and boundaries
