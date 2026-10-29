@@ -1,0 +1,5 @@
+Options -Indexes
+
+<FilesMatch "^(config\.local\.php|install\.lock)$">
+    Require all denied
+</FilesMatch>
