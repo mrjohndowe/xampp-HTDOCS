@@ -276,7 +276,7 @@ function haven_handle_api(): void {
                     $data['contact_id'] ?? $row['contact_id'],
                     array_key_exists('body', $data) ? $enc($data['body']) : $row['body_enc'],
                     array_key_exists('private_notes', $data) ? $enc($data['private_notes']) : $row['private_notes_enc'],
-                    $data['mood'] ?? $row['mood'],
+                    array_key_exists('mood', $data) ? ($data['mood'] === '' ? null : (int)$data['mood']) : $row['mood'],
                     json_encode($data['tags'] ?? json_decode($row['tags'] ?: '[]', true)),
                     haven_now(), $id, $owner,
                 ]);
