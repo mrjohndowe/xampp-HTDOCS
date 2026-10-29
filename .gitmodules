@@ -1,3 +1,12 @@
 [submodule "SpecialLinks"]
 	path = .specialLinks
 	url = https://github.com/mrjohndowe/SpecialLinks.git
+[submodule "EmberFans"]
+	path = emberfans
+	url = https://github.com/mrjohndowe/emberfans.git
+[submodule "PHP ini editor"]
+	path = phpINI
+	url = https://github.com/mrjohndowe/php-ini-editor.git
+[submodule "Resumes Creator"]
+	path = resumes
+	url = https://github.com/mrjohndowe/resumes2026.git
