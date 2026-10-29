@@ -268,11 +268,12 @@ function haven_handle_api(): void {
         if ($op === 'update') {
             $row = haven_owner_row($pdo, 'journal_entries', $id, $owner);
             if (!$row) haven_json(['ok' => false, 'error' => 'Not found'], 404);
-            $pdo->prepare('UPDATE journal_entries SET title=?, entry_at=?, category=?, body_enc=?, private_notes_enc=?, mood=?, tags=?, updated_at=? WHERE id=? AND owner_id=?')
+            $pdo->prepare('UPDATE journal_entries SET title=?, entry_at=?, category=?, contact_id=?, body_enc=?, private_notes_enc=?, mood=?, tags=?, updated_at=? WHERE id=? AND owner_id=?')
                 ->execute([
                     $data['title'] ?? $row['title'],
                     $data['entry_at'] ?? $row['entry_at'],
                     $data['category'] ?? $row['category'],
+                    $data['contact_id'] ?? $row['contact_id'],
                     array_key_exists('body', $data) ? $enc($data['body']) : $row['body_enc'],
                     array_key_exists('private_notes', $data) ? $enc($data['private_notes']) : $row['private_notes_enc'],
                     $data['mood'] ?? $row['mood'],
