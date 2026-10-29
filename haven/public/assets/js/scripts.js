@@ -309,6 +309,19 @@ function renderApp(root){
       const relationshipOptions = ['Mother','Father','Brother','Sister','Son','Daughter','Friend','Best-Friend','Family','Work','Girl-Friend','Boy-Friend','Partner','Ex','Fling','Friends with Benefits','One Night Stand','Other'];
       const eventOptions = ['Date','Romantic encounter','Affectionate activity','Intimate encounter','Sexual activity','Other'];
       const intimacyDropdowns = {event_type:eventOptions,privacy_level:['Private','Personal','Shared']};
+      const questionnaireQuestions = [
+        {key:'comfort',label:'Did everyone feel comfortable?',options:['Yes','Mostly','No','Not applicable']},
+        {key:'respect',label:'Did everyone feel respected and able to express boundaries?',options:['Yes','Mostly','No','Not applicable']},
+        {key:'communication',label:'How was the communication?',options:['Clear and open','Mostly clear','Could improve','Not applicable']},
+        {key:'after_feelings',label:'How are you feeling afterward?',options:['Positive','Neutral','Unsure','Need support','Prefer not to say']},
+        {key:'follow_up',label:'Would you like a follow-up conversation?',options:['Yes','No','Maybe']},
+      ];
+      if (resource === 'intimacy') {
+        if (typeof item.questionnaire === 'string') {
+          try { item.questionnaire = JSON.parse(item.questionnaire); } catch { item.questionnaire = { reflection:item.questionnaire }; }
+        }
+        if (!item.questionnaire || typeof item.questionnaire !== 'object' || Array.isArray(item.questionnaire)) item.questionnaire = {};
+      }
       const linkedContacts = Array.isArray(item.contact_ids) ? item.contact_ids.map(String) : [];
       const contactPicker = resource === 'intimacy' ? `<div class="contact-picker"><span class="rating-label">Contact Ids</span><details><summary><span class="contact-selection-summary">${linkedContacts.length ? `${linkedContacts.length} contact${linkedContacts.length === 1 ? '' : 's'} selected` : 'Choose contacts'}</span>　⌄</summary><div class="contact-picker-list">${contactItems.length ? contactItems.map(contact => `<label class="contact-picker-option"><input type="checkbox" data-contact-id="${escapeHtml(contact.id)}"${linkedContacts.includes(String(contact.id)) ? ' checked' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</label>`).join('') : '<span class="muted">Add contacts first to link people to this moment.</span>'}</div></details></div>` : '';
       const journalContact = resource === 'journal' ? `<div class="journal-contact-picker wide">${field('Contact Ids', `<select data-k="contact_id"><option value=""${item.contact_id ? '' : ' selected'}>No linked contact</option>${contactItems.map(contact => `<option value="${escapeHtml(contact.id)}"${String(item.contact_id || '') === String(contact.id) ? ' selected' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</option>`).join('')}</select>`)}</div>` : '';
@@ -325,6 +338,15 @@ function renderApp(root){
         if (k === 'relationship') {
           const options = relationshipOptions.includes(String(val)) ? relationshipOptions : [String(val), ...relationshipOptions];
           return field('Relationship', `<select data-k="relationship">${options.map(option => `<option value="${escapeHtml(option)}"${option === String(val) ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select>`);
+        }
+        if (resource === 'journal' && k === 'mood') {
+          const moodOptions = [[1,'Very low'],[2,'Low'],[3,'Okay'],[4,'Good'],[5,'Great']];
+          return field('Mood', `<select data-k="mood"><option value="">Not set</option>${moodOptions.map(([score,label]) => `<option value="${score}"${Number(val) === score ? ' selected' : ''}>${score} · ${label}</option>`).join('')}</select>`);
+        }
+        if (resource === 'intimacy' && k === 'questionnaire') {
+          const questions = questionnaireQuestions.map(question => field(question.label, `<select data-question="${question.key}"><option value="">Choose an answer</option>${question.options.map(option => `<option value="${escapeHtml(option)}"${item.questionnaire[question.key] === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select>`)).join('');
+          const reflection = field('Anything else you would like to remember?', `<textarea class="wide" rows="4" data-question="reflection">${escapeHtml(item.questionnaire.reflection || '')}</textarea>`);
+          return `<section class="questionnaire wide"><h2>Reflection Questionnaire</h2><p class="muted">A private check-in for comfort, communication, and how you feel afterward.</p><div class="questionnaire-fields">${questions}${reflection}</div></section>`;
         }
         if (resource === 'intimacy' && intimacyDropdowns[k]) {
           const options = intimacyDropdowns[k].includes(String(val)) ? intimacyDropdowns[k] : [String(val), ...intimacyDropdowns[k]];
@@ -360,13 +382,22 @@ function renderApp(root){
         duration.value = minutes === null ? '' : String(minutes);
       };
       recalculateDuration();
-      editor.querySelectorAll('input,select,textarea').forEach(inp => {
+      editor.querySelectorAll('input[data-k],select[data-k],textarea[data-k]').forEach(inp => {
         const onChange = () => {
           if (inp.dataset.k === 'start_time' || inp.dataset.k === 'end_time') recalculateDuration();
           queueSave(inp);
         };
         inp.addEventListener(inp.matches('select') ? 'change' : 'input', onChange);
         if (inp.type === 'time') inp.addEventListener('change', onChange);
+      });
+      editor.querySelectorAll('[data-question]').forEach(input => {
+        const saveAnswer = () => {
+          item.questionnaire[input.dataset.question] = input.value;
+          clearTimeout(window.__havenT);
+          const status = main.querySelector('.save'); if (status) status.textContent = 'Saving changes…';
+          window.__havenT = setTimeout(() => api({ resource, op:'update', id:item.id, data:{ questionnaire:item.questionnaire } }).then(() => { const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'All changes saved'; }).catch(() => { const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'Could not save changes'; }), 600);
+        };
+        input.addEventListener(input.matches('select') ? 'change' : 'input', saveAnswer);
       });
       editor.querySelectorAll('[data-rating-key]').forEach(starButton => {
         starButton.addEventListener('click', () => {
