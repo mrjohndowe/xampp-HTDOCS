@@ -38,8 +38,8 @@
     .rating-star { padding:3px 5px;background:transparent;color:var(--line);font-size:26px;line-height:1; }
     .rating-star:hover,.rating-star:focus-visible,.rating-star.selected { color:#f5a623; }
     .rating-value { margin-left:7px;font-size:13px;color:var(--muted); }
-    .contact-picker { grid-column:1/-1; }
-    .contact-picker summary { cursor:pointer;list-style:none;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg); }
+    .contact-picker { grid-column:1/-1;order:-1; }
+    .contact-picker summary { display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--bg); }
     .contact-picker summary::-webkit-details-marker { display:none; }
     .contact-picker-list { display:grid;gap:7px;max-height:220px;overflow:auto;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:12px;background:var(--surface); }
     .contact-picker-option { display:flex;align-items:center;gap:9px;padding:5px;color:var(--ink);font-size:14px; }
