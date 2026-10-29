@@ -305,17 +305,11 @@ function renderApp(root){
         return;
       }
       const displayOnly = ['owner_id','id','name','age','hasPassword','passwordMasked','created_at','updated_at','deleted_at'];
-      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && k === 'contact_ids') && !(resource === 'journal' && k === 'contact_id'));
+      const questionnaireRatingKeys = ['rating_overall','rating_emotional','rating_communication','rating_comfort','rating_trust','rating_satisfaction'];
+      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && (k === 'contact_ids' || questionnaireRatingKeys.includes(k))) && !(resource === 'journal' && k === 'contact_id'));
       const relationshipOptions = ['Mother','Father','Brother','Sister','Son','Daughter','Friend','Best-Friend','Family','Work','Girl-Friend','Boy-Friend','Partner','Ex','Fling','Friends with Benefits','One Night Stand','Other'];
       const eventOptions = ['Date','Romantic encounter','Affectionate activity','Intimate encounter','Sexual activity','Other'];
       const intimacyDropdowns = {event_type:eventOptions,privacy_level:['Private','Personal','Shared']};
-      const questionnaireQuestions = [
-        {key:'comfort',label:'Did everyone feel comfortable?',options:['Yes','Mostly','No','Not applicable']},
-        {key:'respect',label:'Did everyone feel respected and able to express boundaries?',options:['Yes','Mostly','No','Not applicable']},
-        {key:'communication',label:'How was the communication?',options:['Clear and open','Mostly clear','Could improve','Not applicable']},
-        {key:'after_feelings',label:'How are you feeling afterward?',options:['Positive','Neutral','Unsure','Need support','Prefer not to say']},
-        {key:'follow_up',label:'Would you like a follow-up conversation?',options:['Yes','No','Maybe']},
-      ];
       if (resource === 'intimacy') {
         if (typeof item.questionnaire === 'string') {
           try { item.questionnaire = JSON.parse(item.questionnaire); } catch { item.questionnaire = { reflection:item.questionnaire }; }
@@ -344,9 +338,36 @@ function renderApp(root){
           return field('Mood', `<select data-k="mood"><option value="">Not set</option>${moodOptions.map(([score,label]) => `<option value="${score}"${Number(val) === score ? ' selected' : ''}>${score} · ${label}</option>`).join('')}</select>`);
         }
         if (resource === 'intimacy' && k === 'questionnaire') {
-          const questions = questionnaireQuestions.map(question => field(question.label, `<select data-question="${question.key}"><option value="">Choose an answer</option>${question.options.map(option => `<option value="${escapeHtml(option)}"${item.questionnaire[question.key] === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select>`)).join('');
-          const reflection = field('Anything else you would like to remember?', `<textarea class="wide" rows="4" data-question="reflection">${escapeHtml(item.questionnaire.reflection || '')}</textarea>`);
-          return `<section class="questionnaire wide"><h2>Reflection Questionnaire</h2><p class="muted">A private check-in for comfort, communication, and how you feel afterward.</p><div class="questionnaire-fields">${questions}${reflection}</div></section>`;
+          const qValue = key => {
+            const value = item.questionnaire[key];
+            return value && typeof value === 'object' ? (value.answer ?? '') : (value ?? '');
+          };
+          const qSkipped = key => Boolean(item.questionnaire[key] && typeof item.questionnaire[key] === 'object' && item.questionnaire[key].skipped);
+          const questionSelect = (number,label,key,options) => `<div class="questionnaire-item"><label><span class="question-number">${number}</span>${label}</label><select data-question="${key}"><option value=""${qValue(key) === '' ? ' selected' : ''}>Skip / not recorded</option>${options.map(option => `<option value="${escapeHtml(option)}"${qValue(key) === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></div>`;
+          const questionText = (number,label,key) => `<div class="questionnaire-item"><label for="question-${key}"><span class="question-number">${number}</span>${label}</label><textarea id="question-${key}" rows="3" data-question="${key}"${qSkipped(key) ? ' disabled' : ''}>${escapeHtml(qValue(key))}</textarea><label class="question-skip"><input type="checkbox" data-question-skip="${key}"${qSkipped(key) ? ' checked' : ''}> Skip this question</label></div>`;
+          const questionRating = (number,label,key) => {
+            const rating = Math.max(0, Math.min(5, Number(item[key]) || 0));
+            return `<div class="questionnaire-item"><span class="question-label">${number ? `<span class="question-number">${number}</span>` : ''}${label}</span><div class="questionnaire-rating" role="radiogroup" aria-label="${escapeHtml(label)}">${[1,2,3,4,5].map(star => `<button type="button" role="radio" aria-checked="${rating === star}" aria-label="${star} of 5" class="rating-star${star <= rating ? ' selected' : ''}" data-question-rating="${key}" value="${star}">${star <= rating ? '★' : '☆'}</button>`).join('')}<button type="button" class="question-rating-skip" data-question-rating-skip="${key}">Skip</button><span class="rating-value">${rating ? `${rating} / 5` : 'Not recorded'}</span></div></div>`;
+          };
+          const moodOptions = ['Very low','Low','Okay','Good','Great','Unknown','Not recorded'];
+          return `<section class="questionnaire wide"><h2>Event Questionnaire</h2><p class="muted">Each answer belongs to this event. You may skip any question. A blank or skipped consent answer means consent was not recorded; it must never be taken as proof of consent.</p><div class="questionnaire-fields">
+            ${questionSelect(1,'What type of encounter or activity occurred?','activity_type',eventOptions)}
+            ${questionSelect(2,'Was the encounter consensual and mutually agreed upon?','consent',['Yes','No','Unknown','Not recorded'])}
+            ${questionSelect(3,'Did everyone involved feel comfortable participating?','comfortable',['Yes','No','Unknown','Not recorded'])}
+            ${questionRating(4,'How would you rate the overall experience?','rating_overall')}
+            ${questionRating(5,'How would you rate your emotional connection?','rating_emotional')}
+            ${questionRating(6,'How would you rate the communication?','rating_communication')}
+            <div class="questionnaire-combined"><span class="question-label"><span class="question-number">7</span>How would you rate the level of comfort and trust?</span>${questionRating('','Comfort','rating_comfort')}${questionRating('','Trust','rating_trust')}</div>
+            ${questionRating(8,'How satisfied were you with the experience?','rating_satisfaction')}
+            ${questionSelect(9,'How would you describe your mood before the event?','mood_before',moodOptions)}
+            ${questionSelect(10,'How would you describe your mood afterward?','mood_after',moodOptions)}
+            ${questionText(11,'What did you particularly enjoy?','enjoyed')}
+            ${questionText(12,'Was there anything you disliked or would change?','disliked_or_change')}
+            ${questionSelect(13,'Were any boundaries discussed or respected?','boundaries',['Yes','No','Unknown','Not recorded'])}
+            ${questionText(14,'Was there anything new you learned about your preferences?','preferences_learned')}
+            ${questionText(15,'Is there anything you would like to remember for next time?','remember_next_time')}
+            ${questionText(16,'Are there any additional notes you want to record?','additional_notes')}
+          </div></section>`;
         }
         if (resource === 'intimacy' && intimacyDropdowns[k]) {
           const options = intimacyDropdowns[k].includes(String(val)) ? intimacyDropdowns[k] : [String(val), ...intimacyDropdowns[k]];
@@ -390,15 +411,49 @@ function renderApp(root){
         inp.addEventListener(inp.matches('select') ? 'change' : 'input', onChange);
         if (inp.type === 'time') inp.addEventListener('change', onChange);
       });
+      let pendingQuestionnaireChanges = {};
+      const scheduleQuestionnaireSave = changes => {
+        Object.assign(pendingQuestionnaireChanges, changes);
+        clearTimeout(window.__havenT);
+        const status = main.querySelector('.save'); if (status) status.textContent = 'Saving changes…';
+        window.__havenT = setTimeout(() => {
+          const payload = pendingQuestionnaireChanges;
+          pendingQuestionnaireChanges = {};
+          api({ resource, op:'update', id:item.id, data:payload }).then(() => { const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'All changes saved'; }).catch(() => { Object.assign(pendingQuestionnaireChanges, payload); const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'Could not save changes'; });
+        }, 600);
+      };
       editor.querySelectorAll('[data-question]').forEach(input => {
         const saveAnswer = () => {
-          item.questionnaire[input.dataset.question] = input.value;
-          clearTimeout(window.__havenT);
-          const status = main.querySelector('.save'); if (status) status.textContent = 'Saving changes…';
-          window.__havenT = setTimeout(() => api({ resource, op:'update', id:item.id, data:{ questionnaire:item.questionnaire } }).then(() => { const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'All changes saved'; }).catch(() => { const liveStatus = main.querySelector('.save'); if (liveStatus) liveStatus.textContent = 'Could not save changes'; }), 600);
+          const key = input.dataset.question;
+          if (input.matches('select')) item.questionnaire[key] = input.value === '' ? {answer:'',skipped:true} : input.value;
+          else {
+            const skipped = editor.querySelector(`[data-question-skip="${key}"]`)?.checked || false;
+            item.questionnaire[key] = {answer:input.value,skipped};
+          }
+          scheduleQuestionnaireSave({ questionnaire:item.questionnaire });
         };
         input.addEventListener(input.matches('select') ? 'change' : 'input', saveAnswer);
       });
+      editor.querySelectorAll('[data-question-skip]').forEach(skip => skip.addEventListener('change', () => {
+        const key = skip.dataset.questionSkip;
+        const answer = editor.querySelector(`[data-question="${key}"]`);
+        answer.disabled = skip.checked;
+        item.questionnaire[key] = {answer:answer.value,skipped:skip.checked};
+        scheduleQuestionnaireSave({ questionnaire:item.questionnaire });
+      }));
+      const updateQuestionRating = (key, value, group) => {
+        item[key] = value;
+        group.querySelectorAll('[data-question-rating]').forEach(button => {
+          const selected = value !== null && Number(button.value) <= value;
+          button.classList.toggle('selected', selected);
+          button.textContent = selected ? '★' : '☆';
+          button.setAttribute('aria-checked', String(value !== null && Number(button.value) === value));
+        });
+        group.querySelector('.rating-value').textContent = value === null ? 'Not recorded' : `${value} / 5`;
+        scheduleQuestionnaireSave({ [key]:value });
+      };
+      editor.querySelectorAll('[data-question-rating]').forEach(button => button.addEventListener('click', () => updateQuestionRating(button.dataset.questionRating, Number(button.value), button.parentElement)));
+      editor.querySelectorAll('[data-question-rating-skip]').forEach(button => button.addEventListener('click', () => updateQuestionRating(button.dataset.questionRatingSkip, null, button.parentElement)));
       editor.querySelectorAll('[data-rating-key]').forEach(starButton => {
         starButton.addEventListener('click', () => {
           const key = starButton.dataset.ratingKey;
