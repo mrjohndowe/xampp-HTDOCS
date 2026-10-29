@@ -116,7 +116,7 @@ function renderApp(root){
   const modules = [
     {id:'dashboard',label:'Overview',icon:'⌂'}, {id:'contacts',label:'People',icon:'♡'},
     {id:'accounts',label:'Accounts',icon:'▣'}, {id:'journal',label:'Journal',icon:'✎'},
-    {id:'intimacy',label:'Shared moments',icon:'◷'}, {id:'backup',label:'Backup',icon:'↓'}, {id:'settings',label:'Settings',icon:'⚙'}
+    {id:'intimacy',label:'Intimate Moments',icon:'◷'}, {id:'backup',label:'Backup',icon:'↓'}, {id:'settings',label:'Settings',icon:'⚙'}
   ];
   const nav = root.querySelector('#nav');
   modules.forEach(m => {
@@ -178,7 +178,7 @@ function renderApp(root){
     const data = await api({ resource, op:'list' });
     const items = data.items || [];
     const contactItems = ['intimacy','journal'].includes(resource) ? ((await api({ resource:'contacts', op:'list' })).items || []) : [];
-    const labels = {contacts:['People','The people who matter to you.','Add person'],accounts:['Accounts','Keep your sign-ins and important account details together.','Add account'],journal:['Journal','A private place for your thoughts.','New entry'],intimacy:['Shared moments','Keep meaningful moments in your own private record.','Add moment']};
+    const labels = {contacts:['People','The people who matter to you.','Add person'],accounts:['Accounts','Keep your sign-ins and important account details together.','Add account'],journal:['Journal','A private place for your thoughts.','New entry'],intimacy:['Intimate Moments','Keep meaningful moments in your own private record.','Add moment']};
     const [title,subtitle,addLabel] = labels[resource] || [resource,'Your saved records.','New'];
     main.innerHTML = `<div class="page-heading"><div><h1>${title}</h1><p class="muted">${subtitle}</p></div><div><span class="save" aria-live="polite">Autosave is on</span> <button id="new">${addLabel}</button></div></div>
       <div class="workspace-layout">
@@ -186,9 +186,18 @@ function renderApp(root){
       </div>`;
     main.querySelector('#new').onclick = async () => { const r = await api({ resource, op:'create' }); state.itemId = r.id; state.item = null; paint(); };
     const list = main.querySelector('#list');
+    const contactsById = new Map(contactItems.map(contact => [String(contact.id), contact.name || 'Unnamed contact']));
     items.forEach(item => {
       const b = document.createElement('button');
-      b.textContent = item.name || item.title || (item.event_type ? item.event_type + ' · ' + item.event_date : item.id);
+      if (resource === 'intimacy') {
+        const dateParts = String(item.event_date || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        const formattedDate = dateParts ? `${dateParts[2]}/${dateParts[3]}/${dateParts[1]}` : 'Date not set';
+        const contactNames = (Array.isArray(item.contact_ids) ? item.contact_ids : []).map(id => contactsById.get(String(id))).filter(Boolean);
+        const name = contactNames.join(', ') || item.event_type || 'Untitled';
+        b.textContent = `${formattedDate} - ${name}`;
+      } else {
+        b.textContent = item.name || item.title || (item.event_type ? item.event_type + ' · ' + item.event_date : item.id);
+      }
       if (item.id === state.itemId) state.item = item;
       b.classList.toggle('selected', item === state.item);
       b.onclick = () => { state.item = item; state.itemId = item.id; [...list.children].forEach(row => row.classList.toggle('selected', row === b)); drawEditor(); };
@@ -343,22 +352,23 @@ function renderApp(root){
             return value && typeof value === 'object' ? (value.answer ?? '') : (value ?? '');
           };
           const qSkipped = key => Boolean(item.questionnaire[key] && typeof item.questionnaire[key] === 'object' && item.questionnaire[key].skipped);
-          const questionSelect = (number,label,key,options) => `<div class="questionnaire-item"><label><span class="question-number">${number}</span>${label}</label><select data-question="${key}"><option value=""${qValue(key) === '' ? ' selected' : ''}>Skip / not recorded</option>${options.map(option => `<option value="${escapeHtml(option)}"${qValue(key) === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></div>`;
-          const questionText = (number,label,key) => `<div class="questionnaire-item"><label for="question-${key}"><span class="question-number">${number}</span>${label}</label><textarea id="question-${key}" rows="3" data-question="${key}"${qSkipped(key) ? ' disabled' : ''}>${escapeHtml(qValue(key))}</textarea><label class="question-skip"><input type="checkbox" data-question-skip="${key}"${qSkipped(key) ? ' checked' : ''}> Skip this question</label></div>`;
-          const questionRating = (number,label,key) => {
+          const questionSelect = (_number,label,key,options) => `<div class="questionnaire-item"><label>${label}</label><select data-question="${key}"><option value=""${qValue(key) === '' ? ' selected' : ''}>Skip / not recorded</option>${options.map(option => `<option value="${escapeHtml(option)}"${qValue(key) === option ? ' selected' : ''}>${escapeHtml(option)}</option>`).join('')}</select></div>`;
+          const questionText = (_number,label,key) => `<div class="questionnaire-item"><label for="question-${key}">${label}</label><textarea id="question-${key}" rows="3" data-question="${key}"${qSkipped(key) ? ' disabled' : ''}>${escapeHtml(qValue(key))}</textarea><label class="question-skip"><input type="checkbox" data-question-skip="${key}"${qSkipped(key) ? ' checked' : ''}> Skip this question</label></div>`;
+          const questionRating = (label,key) => {
             const rating = Math.max(0, Math.min(5, Number(item[key]) || 0));
-            return `<div class="questionnaire-item"><span class="question-label">${number ? `<span class="question-number">${number}</span>` : ''}${label}</span><div class="questionnaire-rating" role="radiogroup" aria-label="${escapeHtml(label)}">${[1,2,3,4,5].map(star => `<button type="button" role="radio" aria-checked="${rating === star}" aria-label="${star} of 5" class="rating-star${star <= rating ? ' selected' : ''}" data-question-rating="${key}" value="${star}">${star <= rating ? '★' : '☆'}</button>`).join('')}<button type="button" class="question-rating-skip" data-question-rating-skip="${key}">Skip</button><span class="rating-value">${rating ? `${rating} / 5` : 'Not recorded'}</span></div></div>`;
+            return `<div class="questionnaire-item"><span class="question-label">${label}</span><div class="questionnaire-rating" role="radiogroup" aria-label="${escapeHtml(label)}">${[1,2,3,4,5].map(star => `<button type="button" role="radio" aria-checked="${rating === star}" aria-label="${star} of 5" class="rating-star${star <= rating ? ' selected' : ''}" data-question-rating="${key}" value="${star}">${star <= rating ? '★' : '☆'}</button>`).join('')}<button type="button" class="question-rating-skip" data-question-rating-skip="${key}">Skip</button><span class="rating-value">${rating ? `${rating} / 5` : 'Not recorded'}</span></div></div>`;
           };
           const moodOptions = ['Very low','Low','Okay','Good','Great','Unknown','Not recorded'];
-          return `<section class="questionnaire wide"><h2>Event Questionnaire</h2><p class="muted">Each answer belongs to this event. You may skip any question. A blank or skipped consent answer means consent was not recorded; it must never be taken as proof of consent.</p><div class="questionnaire-fields">
+          return `<section class="questionnaire wide"><h2>Event Questionnaire</h2><p class="muted">Each answer belongs to this event. You may skip any question. A blank or skipped consent answer means consent was not recorded; it must never be taken as proof of consent.</p><div class="questionnaire-ratings"><h3>Experience Ratings</h3>
+            ${questionRating('How would you rate the overall experience?','rating_overall')}
+            ${questionRating('How would you rate your emotional connection?','rating_emotional')}
+            ${questionRating('How would you rate the communication?','rating_communication')}
+            <div class="questionnaire-combined"><span class="question-label">How would you rate the level of comfort and trust?</span>${questionRating('Comfort','rating_comfort')}${questionRating('Trust','rating_trust')}</div>
+            ${questionRating('How satisfied were you with the experience?','rating_satisfaction')}
+          </div><h3 class="questionnaire-prompts-heading">Event Questions</h3><div class="questionnaire-fields">
             ${questionSelect(1,'What type of encounter or activity occurred?','activity_type',eventOptions)}
             ${questionSelect(2,'Was the encounter consensual and mutually agreed upon?','consent',['Yes','No','Unknown','Not recorded'])}
             ${questionSelect(3,'Did everyone involved feel comfortable participating?','comfortable',['Yes','No','Unknown','Not recorded'])}
-            ${questionRating(4,'How would you rate the overall experience?','rating_overall')}
-            ${questionRating(5,'How would you rate your emotional connection?','rating_emotional')}
-            ${questionRating(6,'How would you rate the communication?','rating_communication')}
-            <div class="questionnaire-combined"><span class="question-label"><span class="question-number">7</span>How would you rate the level of comfort and trust?</span>${questionRating('','Comfort','rating_comfort')}${questionRating('','Trust','rating_trust')}</div>
-            ${questionRating(8,'How satisfied were you with the experience?','rating_satisfaction')}
             ${questionSelect(9,'How would you describe your mood before the event?','mood_before',moodOptions)}
             ${questionSelect(10,'How would you describe your mood afterward?','mood_after',moodOptions)}
             ${questionText(11,'What did you particularly enjoy?','enjoyed')}
