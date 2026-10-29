@@ -1,4 +1,7 @@
-Options -Indexes
+
+<FilesMatch "^(Sharing\.mov\.mp4)$">
+    Require all granted
+</FilesMatch>
 <FilesMatch "^(config\.local\.php|README\.md)$">
     Require all denied
 </FilesMatch>
