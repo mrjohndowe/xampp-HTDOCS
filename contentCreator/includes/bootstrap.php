@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 if (PHP_VERSION_ID < 80500) {
@@ -32,13 +33,9 @@ function store_catalog(): array
         ['deepthroat', 'Deepthroat Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
         ['missionary', 'Missionary Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
         ['doggy-style', 'Doggy Style Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
-        ['anal', 'Anal Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
-        ['girls-on-girls', 'Girls-on-Girls Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
         ['fingering-dildo', 'Fingering & Dildo Play Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
-        ['squirting', 'Squirting Collection', 'Video collection', '10 videos', 10500, 'A curated collection of 10 videos.'],
         ['blowjob', 'Blowjob Collection', 'Video collection', '10 videos', 10500, 'A curated collection of 10 videos.'],
         ['cream-pie', 'Cream Pie Collection', 'Video collection', '15 videos', 10000, 'A curated collection of 15 videos.'],
-        ['fisting', 'Fisting Collection', 'Video collection', '15 videos', 10000, 'A curated collection of 15 videos.'],
         ['full-body', 'Full-Body Nude Collection', 'Photo & video bundle', '10 videos + 20 photos', 10000, 'A bundle of 10 videos and 20 photos.'],
         ['telegram-premium', 'Telegram Premium', 'Membership', 'Lifetime, as specified in the offer', 15000, 'Access terms and included content are confirmed before purchase.'],
         ['snapchat-premium', 'Snapchat Premium', 'Membership', 'Lifetime, as specified in the offer', 15000, 'Access terms and included content are confirmed before purchase.'],
@@ -47,6 +44,10 @@ function store_catalog(): array
         ['sweetheart', 'Sweetheart Package', 'Girlfriend experience', 'Customized duration', 15000, 'Personalized conversation, affectionate messages, and attention within agreed limits.', true],
         ['premium-gfe', 'Premium Girlfriend Experience', 'Girlfriend experience', 'Customized duration', 30000, 'More conversation, shared activities, virtual dates, and personalized interaction.', true],
         ['vip-gfe', 'VIP Girlfriend Experience', 'Girlfriend experience', 'Custom package', 50000, 'Priority scheduling, personalized virtual dates, and agreed interactive experiences.', true],
+        // ['fisting', 'Fisting Collection', 'Video collection', '15 videos', 10000, 'A curated collection of 15 videos.'],
+        // ['squirting', 'Squirting Collection', 'Video collection', '10 videos', 10500, 'A curated collection of 10 videos.'],
+        // ['girls-on-girls', 'Girls-on-Girls Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
+        // ['anal', 'Anal Collection', 'Video collection', '10 videos', 10000, 'A curated collection of 10 videos.'],
     ];
 
     $catalog = [];
@@ -182,9 +183,10 @@ function store_cart_total(array $items): int
 function store_page_start(string $title): void
 {
     $cartCount = array_sum(store_cart());
-    ?>
+?>
     <!doctype html>
     <html lang="en">
+
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -192,32 +194,34 @@ function store_page_start(string $title): void
         <title><?= store_h($title) ?> · Private & Personal</title>
         <link rel="stylesheet" href="assets/store.css">
     </head>
-    <body>
-    <header class="site-header">
-        <a class="wordmark" href="index.php" aria-label="Private and Personal home">
-            <span class="wordmark-mark">P</span><span>PRIVATE <i>&</i> PERSONAL</span>
-        </a>
-        <nav aria-label="Main navigation">
-            <a href="index.php#collections">The menu</a>
-            <a href="index.php#how-it-works">How it works</a>
-            <a class="cart-link" href="index.php?view=cart">Your selection <span><?= (int)$cartCount ?></span></a>
-        </nav>
-    </header>
-    <main>
-    <?php
-}
 
-function store_page_end(): void
-{
-    ?>
-    </main>
-    <footer class="site-footer">
-        <span>Private & Personal · All prices in USD</span>
-        <span>Adults only · 18+ · All interactions consensual</span>
-        <a href="admin.php">Order inbox</a>
-    </footer>
-    <script src="assets/store.js" defer></script>
+    <body>
+        <header class="site-header">
+            <a class="wordmark" href="index.php" aria-label="Private and Personal home">
+                <span class="wordmark-mark">P</span><span>PRIVATE <i>&</i> PERSONAL</span>
+            </a>
+            <nav aria-label="Main navigation">
+                <a href="index.php#collections">The menu</a>
+                <a href="index.php#how-it-works">How it works</a>
+                <a class="cart-link" href="index.php?view=cart">Your selection <span><?= (int)$cartCount ?></span></a>
+            </nav>
+        </header>
+        <main>
+        <?php
+    }
+
+    function store_page_end(): void
+    {
+        ?>
+        </main>
+        <footer class="site-footer">
+            <span>Private & Personal · All prices in USD</span>
+            <span>Adults only · 18+ · All interactions consensual</span>
+            <a href="admin.php">Order inbox</a>
+        </footer>
+        <script src="assets/store.js" defer></script>
     </body>
+
     </html>
-    <?php
-}
+<?php
+    }
