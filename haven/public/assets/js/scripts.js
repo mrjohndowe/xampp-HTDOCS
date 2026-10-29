@@ -177,7 +177,7 @@ function renderApp(root){
     const resource = state.module;
     const data = await api({ resource, op:'list' });
     const items = data.items || [];
-    const contactItems = resource === 'intimacy' ? ((await api({ resource:'contacts', op:'list' })).items || []) : [];
+    const contactItems = ['intimacy','journal'].includes(resource) ? ((await api({ resource:'contacts', op:'list' })).items || []) : [];
     const labels = {contacts:['People','The people who matter to you.','Add person'],accounts:['Accounts','Keep your sign-ins and important account details together.','Add account'],journal:['Journal','A private place for your thoughts.','New entry'],intimacy:['Shared moments','Keep meaningful moments in your own private record.','Add moment']};
     const [title,subtitle,addLabel] = labels[resource] || [resource,'Your saved records.','New'];
     main.innerHTML = `<div class="page-heading"><div><h1>${title}</h1><p class="muted">${subtitle}</p></div><div><span class="save" aria-live="polite">Autosave is on</span> <button id="new">${addLabel}</button></div></div>
@@ -305,13 +305,14 @@ function renderApp(root){
         return;
       }
       const displayOnly = ['owner_id','id','name','age','hasPassword','passwordMasked','created_at','updated_at','deleted_at'];
-      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && k === 'contact_ids'));
+      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && k === 'contact_ids') && !(resource === 'journal' && k === 'contact_id'));
       const relationshipOptions = ['Mother','Father','Brother','Sister','Son','Daughter','Friend','Best-Friend','Family','Work','Girl-Friend','Boy-Friend','Partner','Ex','Fling','Friends with Benefits','One Night Stand','Other'];
       const eventOptions = ['Date','Romantic encounter','Affectionate activity','Intimate encounter','Sexual activity','Other'];
       const intimacyDropdowns = {event_type:eventOptions,privacy_level:['Private','Personal','Shared']};
       const linkedContacts = Array.isArray(item.contact_ids) ? item.contact_ids.map(String) : [];
       const contactPicker = resource === 'intimacy' ? `<div class="contact-picker"><span class="rating-label">Contact Ids</span><details><summary><span class="contact-selection-summary">${linkedContacts.length ? `${linkedContacts.length} contact${linkedContacts.length === 1 ? '' : 's'} selected` : 'Choose contacts'}</span>　⌄</summary><div class="contact-picker-list">${contactItems.length ? contactItems.map(contact => `<label class="contact-picker-option"><input type="checkbox" data-contact-id="${escapeHtml(contact.id)}"${linkedContacts.includes(String(contact.id)) ? ' checked' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</label>`).join('') : '<span class="muted">Add contacts first to link people to this moment.</span>'}</div></details></div>` : '';
-      editor.innerHTML = `<div class="record-editor">${contactPicker}${keys.map(k => {
+      const journalContact = resource === 'journal' ? `<div class="journal-contact-picker wide">${field('Contact Ids', `<select data-k="contact_id"><option value=""${item.contact_id ? '' : ' selected'}>No linked contact</option>${contactItems.map(contact => `<option value="${escapeHtml(contact.id)}"${String(item.contact_id || '') === String(contact.id) ? ' selected' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</option>`).join('')}</select>`)}</div>` : '';
+      editor.innerHTML = `<div class="record-editor">${contactPicker}${journalContact}${keys.map(k => {
         const val = typeof item[k] === 'object' ? JSON.stringify(item[k]) : (item[k] ?? '');
         const type = String(k).includes('date') ? 'date' : (String(k).includes('time') ? 'time' : (String(k).includes('password') ? 'password' : 'text'));
         const longField = ['description','notes','body','private_notes','questionnaire','optional_details','banking_notes','recovery_codes'].includes(k);
