@@ -294,7 +294,7 @@ function haven_handle_api(): void {
             $st->execute([$owner]);
             $items = [];
             foreach ($st->fetchAll(PDO::FETCH_ASSOC) as $row) {
-                $items[] = $row + [
+                $items[] = array_replace($row, [
                     'description' => $dec($row['description_enc']),
                     'notes' => $dec($row['notes_enc']),
                     'location' => $dec($row['location_enc']),
@@ -302,7 +302,7 @@ function haven_handle_api(): void {
                     'optional_details' => json_decode($dec($row['optional_details_enc']) ?: '{}', true),
                     'contact_ids' => json_decode($row['contact_ids'] ?: '[]', true),
                     'tags' => json_decode($row['tags'] ?: '[]', true),
-                ];
+                ]);
             }
             haven_json(['ok' => true, 'items' => $items]);
         }
