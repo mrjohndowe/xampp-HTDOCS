@@ -1,0 +1,6 @@
+/var/install.lock
+/vendor/
+*.sqlite
+*.sqlite-*
+*.zip
+.phpunit.cache/
