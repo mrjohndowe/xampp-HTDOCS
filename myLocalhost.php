@@ -565,11 +565,33 @@ if (isset($_POST['ajax']) && !FM_READONLY) {
         $fileinfo = new stdClass();
         $fileinfo->name = trim(basename($url), ".\x00..\x20");
 
-        $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : false;
+        // Blocklist of dangerous executable extensions that must never be uploaded
+        $blocked_extensions = array('php', 'php3', 'php4', 'php5', 'php7', 'phtml', 'phar', 
+                                     'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'com', 'bat', 
+                                     'cmd', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'msi',
+                                     'jar', 'jsp', 'asp', 'aspx', 'cer', 'csr', 'htaccess', 'htpasswd');
+        
+        // Safe default allowlist when configuration is empty - only common document/media types
+        $default_safe_extensions = array('txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+                                          'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'ico',
+                                          'mp3', 'mp4', 'avi', 'mov', 'wmv', 'flv',
+                                          'zip', 'rar', 'tar', 'gz', '7z',
+                                          'csv', 'xml', 'json');
+        
+        $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : $default_safe_extensions;
         $ext = strtolower(pathinfo($fileinfo->name, PATHINFO_EXTENSION));
-        $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+        
+        // Check against blocklist first - always deny dangerous extensions
+        $isBlocked = in_array($ext, $blocked_extensions);
+        $isFileAllowed = !$isBlocked && in_array($ext, $allowed);
 
         $err = false;
+
+        if($isBlocked) {
+            $err = array("message" => "File extension is blocked for security reasons");
+            event_callback(array("fail" => $err));
+            exit();
+        }
 
         if(!$isFileAllowed) {
             $err = array("message" => "File extension is not allowed");
@@ -866,7 +888,21 @@ if (!empty($_FILES) && !FM_READONLY) {
 
     $errors = 0;
     $uploads = 0;
-    $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : false;
+    
+    // Blocklist of dangerous executable extensions that must never be uploaded
+    $blocked_extensions = array('php', 'php3', 'php4', 'php5', 'php7', 'phtml', 'phar', 
+                                 'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'com', 'bat', 
+                                 'cmd', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'msi',
+                                 'jar', 'jsp', 'asp', 'aspx', 'cer', 'csr', 'htaccess', 'htpasswd');
+    
+    // Safe default allowlist when configuration is empty - only common document/media types
+    $default_safe_extensions = array('txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+                                      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'ico',
+                                      'mp3', 'mp4', 'avi', 'mov', 'wmv', 'flv',
+                                      'zip', 'rar', 'tar', 'gz', '7z',
+                                      'csv', 'xml', 'json');
+    
+    $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : $default_safe_extensions;
     $response = array (
         'status' => 'error',
         'info'   => 'Oops! Try again'
@@ -875,7 +911,18 @@ if (!empty($_FILES) && !FM_READONLY) {
     $filename = $f['file']['name'];
     $tmp_name = $f['file']['tmp_name'];
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+    
+    // Check against blocklist first - always deny dangerous extensions
+    $isBlocked = in_array($ext, $blocked_extensions);
+    $isFileAllowed = !$isBlocked && in_array($ext, $allowed);
+
+    if($isBlocked) {
+        $response = array(
+            'status' => 'error',
+            'info'   => 'File extension is blocked for security reasons',
+        );
+        echo json_encode($response); exit();
+    }
 
     if(!fm_isvalid_filename($filename) && !fm_isvalid_filename($_REQUEST['fullpath'])) {
         $response = array (
@@ -2211,10 +2258,26 @@ function fm_rchmod($path, $filemode, $dirmode)
  */
 function fm_is_valid_ext($filename)
 {
-    $allowed = (FM_FILE_EXTENSION) ? explode(',', FM_FILE_EXTENSION) : false;
+    // Blocklist of dangerous executable extensions that must never be created/renamed
+    $blocked_extensions = array('php', 'php3', 'php4', 'php5', 'php7', 'phtml', 'phar', 
+                                 'cgi', 'pl', 'py', 'sh', 'bash', 'exe', 'com', 'bat', 
+                                 'cmd', 'vbs', 'vbe', 'js', 'jse', 'wsf', 'wsh', 'msi',
+                                 'jar', 'jsp', 'asp', 'aspx', 'cer', 'csr', 'htaccess', 'htpasswd');
+    
+    // Safe default allowlist when configuration is empty - only common document/media types
+    $default_safe_extensions = array('txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx',
+                                      'jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'ico',
+                                      'mp3', 'mp4', 'avi', 'mov', 'wmv', 'flv',
+                                      'zip', 'rar', 'tar', 'gz', '7z',
+                                      'csv', 'xml', 'json', 'html', 'htm', 'css');
+    
+    $allowed = (FM_FILE_EXTENSION) ? explode(',', FM_FILE_EXTENSION) : $default_safe_extensions;
 
-    $ext = pathinfo($filename, PATHINFO_EXTENSION);
-    $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    
+    // Check against blocklist first - always deny dangerous extensions
+    $isBlocked = in_array($ext, $blocked_extensions);
+    $isFileAllowed = !$isBlocked && in_array($ext, $allowed);
 
     return ($isFileAllowed) ? true : false;
 }
