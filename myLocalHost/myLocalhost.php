@@ -39,6 +39,10 @@ $auth_users = array(
 	'mrjohndowe' => '$2y$10$aXwWRwq2MVFgQlziffgdUOdmF4kn6UmhkINboje2kAoMwmINfsEou',
 );
 
+// Readonly users
+// e.g. array('users', 'guest', ...)
+$readonly_users = array();
+
 // Enable highlight.js (https://highlightjs.org/) on view's page
 $use_highlightjs = true;
 
@@ -86,7 +90,13 @@ $allowed_file_extensions = '';
 
 // Allowed file extensions for upload files
 // e.g. 'gif,png,jpg,html,txt'
-$allowed_upload_extensions = '';
+// SECURITY: Set to a whitelist of safe extensions. Empty value is insecure.
+// Default whitelist excludes executable server-side code
+$allowed_upload_extensions = 'jpg,jpeg,png,gif,bmp,svg,webp,ico,pdf,doc,docx,xls,xlsx,ppt,pptx,txt,csv,rtf,md,zip,tar,gz,rar,7z,mp3,mp4,avi,mov,wmv,flv,webm,ogg,wav,json,xml,css,js,html,htm';
+
+// Blocked file extensions for upload (takes precedence over allowed list)
+// Extensions that can execute server-side code must always be blocked
+$blocked_upload_extensions = 'php,php3,php4,php5,php7,phtml,phar,phps,cgi,pl,py,jsp,asp,aspx,shtml,sh,bash,bat,exe,dll,com,cmd,vbs,ps1,rb,jar';
 
 // Favicon path. This can be either a full url to an .PNG image, or a path based on the document root.
 // full path, e.g http://example.com/favicon.png
@@ -376,6 +386,7 @@ defined('FM_ROOT_PATH') || define('FM_ROOT_PATH', $root_path);
 defined('FM_LANG') || define('FM_LANG', $lang);
 defined('FM_FILE_EXTENSION') || define('FM_FILE_EXTENSION', $allowed_file_extensions);
 defined('FM_UPLOAD_EXTENSION') || define('FM_UPLOAD_EXTENSION', $allowed_upload_extensions);
+defined('FM_BLOCKED_EXTENSION') || define('FM_BLOCKED_EXTENSION', $blocked_upload_extensions);
 defined('FM_EXCLUDE_ITEMS') || define('FM_EXCLUDE_ITEMS', (version_compare(PHP_VERSION, '7.0.0', '<') ? serialize($exclude_items) : $exclude_items));
 defined('FM_DOC_VIEWER') || define('FM_DOC_VIEWER', $online_viewer);
 define('FM_READONLY', $use_auth && !empty($readonly_users) && isset($_SESSION[FM_SESSION_ID]['logged']) && in_array($_SESSION[FM_SESSION_ID]['logged'], $readonly_users));
@@ -565,9 +576,7 @@ if (isset($_POST['ajax']) && !FM_READONLY) {
         $fileinfo = new stdClass();
         $fileinfo->name = trim(basename($url), ".\x00..\x20");
 
-        $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : false;
-        $ext = strtolower(pathinfo($fileinfo->name, PATHINFO_EXTENSION));
-        $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+        $isFileAllowed = fm_is_valid_upload_ext($fileinfo->name);
 
         $err = false;
 
@@ -866,7 +875,6 @@ if (!empty($_FILES) && !FM_READONLY) {
 
     $errors = 0;
     $uploads = 0;
-    $allowed = (FM_UPLOAD_EXTENSION) ? explode(',', FM_UPLOAD_EXTENSION) : false;
     $response = array (
         'status' => 'error',
         'info'   => 'Oops! Try again'
@@ -875,7 +883,7 @@ if (!empty($_FILES) && !FM_READONLY) {
     $filename = $f['file']['name'];
     $tmp_name = $f['file']['tmp_name'];
     $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
+    $isFileAllowed = fm_is_valid_upload_ext($filename);
 
     if(!fm_isvalid_filename($filename) && !fm_isvalid_filename($_REQUEST['fullpath'])) {
         $response = array (
@@ -921,6 +929,11 @@ if (!empty($_FILES) && !FM_READONLY) {
                     'info'      => "Error while uploading files. Uploaded files $uploads",
                 );
             }
+        } else if (!$isFileAllowed) {
+            $response = array (
+                'status' => 'error',
+                'info'   => 'File extension is not allowed. Only safe file types can be uploaded.'
+            );
         }
     } else {
         $response = array (
@@ -2217,6 +2230,36 @@ function fm_is_valid_ext($filename)
     $isFileAllowed = ($allowed) ? in_array($ext, $allowed) : true;
 
     return ($isFileAllowed) ? true : false;
+}
+
+/**
+ * Check if file extension is allowed for upload
+ * Validates against both whitelist (FM_UPLOAD_EXTENSION) and blacklist (FM_BLOCKED_EXTENSION)
+ * Blacklist takes precedence over whitelist for security
+ * @param string $filename
+ * @return bool
+ */
+function fm_is_valid_upload_ext($filename)
+{
+    $ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
+    
+    // Check blacklist first - blocked extensions are never allowed
+    $blocked = (FM_BLOCKED_EXTENSION) ? array_map('strtolower', explode(',', FM_BLOCKED_EXTENSION)) : array();
+    if (!empty($blocked) && in_array($ext, $blocked)) {
+        return false;
+    }
+    
+    // Check whitelist - if defined, only listed extensions are allowed
+    $allowed = (FM_UPLOAD_EXTENSION) ? array_map('strtolower', explode(',', FM_UPLOAD_EXTENSION)) : false;
+    
+    // If whitelist is defined and not empty, extension must be in the list
+    // If whitelist is empty or false, default to deny for security
+    if ($allowed !== false && !empty($allowed)) {
+        return in_array($ext, $allowed);
+    }
+    
+    // Default deny if no whitelist is configured
+    return false;
 }
 
 /**
