@@ -116,7 +116,8 @@ function renderApp(root){
   const modules = [
     {id:'dashboard',label:'Overview',icon:'⌂'}, {id:'contacts',label:'People',icon:'♡'},
     {id:'accounts',label:'Accounts',icon:'▣'}, {id:'journal',label:'Journal',icon:'✎'},
-    {id:'intimacy',label:'Intimate Moments',icon:'◷'}, {id:'backup',label:'Backup',icon:'↓'}, {id:'settings',label:'Settings',icon:'⚙'}
+    {id:'intimacy',label:'Intimate Moments',icon:'◷'}, {id:'backup',label:'Backup',icon:'↓'}, {id:'settings',label:'Settings',icon:'⚙'},
+    ...(state.user.role === 'admin' ? [{id:'users',label:'Users',icon:'♙'}] : [])
   ];
   const nav = root.querySelector('#nav');
   modules.forEach(m => {
@@ -132,10 +133,21 @@ function renderApp(root){
     const main = root.querySelector('#main');
     main.innerHTML = '<p class="muted">Loading…</p>';
     if (state.module === 'dashboard') {
-      const results = await Promise.all(['contacts','accounts','journal'].map(resource => api({ resource, op:'list' })));
-      const [contacts, accounts, journal] = results.map(result => result.items || []);
+      const results = await Promise.all(['contacts','accounts','journal','intimacy'].map(resource => api({ resource, op:'list' })));
+      const [contacts, accounts, journal, moments] = results.map(result => result.items || []);
       const recentContacts = contacts.slice(0,3);
       const journalDates = journal.slice(0,3).map(entry => entry.entry_at ? new Date(entry.entry_at).toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'}) : 'Date not set');
+      const today = new Date();
+      const todayKey = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+      const scheduledMoments = moments.filter(moment => moment.event_date && moment.event_date >= todayKey).sort((a,b) => a.event_date.localeCompare(b.event_date));
+      const moment = scheduledMoments[0] || [...moments].sort((a,b) => String(b.event_date || '').localeCompare(String(a.event_date || '')))[0];
+      const contactNamesById = new Map(contacts.map(contact => [String(contact.id), contact.name || 'Unnamed contact']));
+      const momentNames = moment ? (Array.isArray(moment.contact_ids) ? moment.contact_ids : []).map(id => contactNamesById.get(String(id))).filter(Boolean) : [];
+      const momentDateParts = moment?.event_date?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      const momentDate = momentDateParts ? `${momentDateParts[2]}/${momentDateParts[3]}/${momentDateParts[1]}` : 'Date not set';
+      const momentTime = moment?.start_time ? ` · ${moment.start_time}` : '';
+      const momentDuration = Number(moment?.duration_minutes) > 0 ? ` · ${moment.duration_minutes} minutes` : '';
+      const momentLabel = moment && moment.event_date >= todayKey ? 'Next scheduled moment' : 'Most recent moment';
       main.innerHTML = `<section class="dashboard-hero">
           <div class="eyebrow">Your private space</div><h1>Good to see you, ${escapeHtml(state.user.displayName)}</h1>
           <p>A calm overview of the people and records you’ve saved. Your vault stays private, and account passwords remain encrypted.</p>
@@ -144,6 +156,7 @@ function renderApp(root){
           <div class="dash-stat"><span>People</span><strong>${contacts.length}</strong><span>contacts in your circle</span></div>
           <div class="dash-stat"><span>Accounts</span><strong>${accounts.length}</strong><span>saved sign-ins and records</span></div>
           <div class="dash-stat"><span>Journal</span><strong>${journal.length}</strong><span>private entries</span></div>
+          <div class="dash-stat"><span>Shared moments</span><strong>${moments.length}</strong><span>private event records</span></div>
           <div class="dash-stat"><span>Vault</span><strong>✓</strong><span>autosave is ready</span></div>
         </section>
         <section class="dash-columns">
@@ -151,6 +164,7 @@ function renderApp(root){
             ${recentContacts.length ? recentContacts.map(person => `<div class="dash-row"><div><strong>${escapeHtml(person.name || 'Unnamed contact')}</strong><small>${escapeHtml(person.relationship || 'Contact')}</small></div><span class="muted">${person.updated_at ? new Date(person.updated_at).toLocaleDateString(undefined,{month:'short',day:'numeric'}) : ''}</span></div>`).join('') : '<p class="muted">Your contact list is ready when you are.</p>'}
           </div>
           <div class="dash-section"><h2>Quick access</h2><p class="muted">Jump into a section or create your first record.</p><div class="dash-actions"><button data-go="contacts">People</button><button data-go="accounts">Accounts</button><button data-go="journal">Journal</button></div><div style="margin-top:18px;padding-top:14px;border-top:1px solid var(--line)"><strong>Journal activity</strong><p class="muted" style="margin:6px 0 0">${journalDates.length ? `Latest entry dates: ${journalDates.join(' · ')}` : 'Your journal is private and ready for a first entry.'}</p></div><p class="muted" style="font-size:12px;margin:16px 0 0">Tip: download a JSON backup regularly from Backup.</p></div>
+          <div class="dash-section" style="grid-column:1/-1"><h2>Shared moments</h2>${moment ? `<p class="muted">${momentLabel}</p><div class="dash-row"><div><strong>${momentDate}${momentTime}${momentDuration}</strong><small>${momentNames.length ? `With ${escapeHtml(momentNames.join(', '))}` : 'No contact linked'}</small></div><button data-go="intimacy">View moments</button></div>` : `<p class="muted">No shared moments recorded yet. Add an event date and time to see it here.</p><button data-go="intimacy">Open Shared moments</button>`}</div>
         </section>`;
       main.querySelectorAll('[data-go]').forEach(button => button.onclick = () => { state.module = button.dataset.go; state.item = null; paint(); });
       return;
@@ -164,14 +178,67 @@ function renderApp(root){
       };
       return;
     }
+    if (state.module === 'users') {
+      if (state.user.role !== 'admin') { state.module = 'dashboard'; return paint(); }
+      const result = await api({ action:'users' });
+      const users = result.items || [];
+      main.innerHTML = `<div class="page-heading"><div><h1>Users</h1><p class="muted">Create Haven sign-ins and choose their access role.</p></div></div>
+        <section class="dash-section user-admin-grid"><div><h2>Create a user</h2><p class="muted">Each user gets a separate private vault. Passwords must be at least 12 characters.</p>
+          <form id="create-user-form" class="grid user-create-form">
+            ${field('Display name','<input name="displayName" maxlength="120" required>')}
+            ${field('Username','<input name="username" maxlength="80" autocomplete="username" required>')}
+            ${field('Email','<input name="email" type="email" maxlength="190" autocomplete="email" required>')}
+            ${field('Password','<input name="password" type="password" minlength="12" autocomplete="new-password" required>')}
+            ${field('Role','<select name="role"><option value="user">User</option><option value="admin">Administrator</option></select>')}
+            <button type="submit">Create user</button><p class="user-form-status muted" role="status"></p>
+          </form></div><div><h2>Current users</h2><div class="user-list">${users.map(account => `<div class="dash-row user-row"><div><strong>${escapeHtml(account.display_name)}</strong><small>${escapeHtml(account.email)} · @${escapeHtml(account.username)}</small></div><span class="role-badge">${account.role === 'admin' ? 'Administrator' : 'User'}</span></div>`).join('') || '<p class="muted">No users yet.</p>'}</div></div></section>`;
+      main.querySelector('#create-user-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const values = Object.fromEntries(new FormData(form).entries());
+        const status = form.querySelector('.user-form-status');
+        status.textContent = 'Creating user…';
+        try { await api({ action:'create-user', ...values }); await paint(); }
+        catch (error) { status.textContent = error.message || 'Could not create this user.'; }
+      });
+      return;
+    }
     if (state.module === 'settings') {
-      main.innerHTML = `<div class="page-heading"><div><h1>Settings</h1><p class="muted">Make Haven feel comfortable to use.</p></div></div><div class="dash-section"><h2>Appearance</h2><p class="muted">Choose the color theme for this device.</p>
-        ${field('Color theme', `<select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">Use device setting</option></select>`)}</div>`;
+      main.innerHTML = `<div class="page-heading"><div><h1>Settings</h1><p class="muted">Manage your profile and appearance.</p></div></div>
+        <div class="settings-grid"><section class="dash-section"><h2>Your profile</h2><p class="muted">Update the details for your signed-in user.</p>
+          <form id="profile-form" class="grid profile-form">
+            ${field('Display name',`<input name="displayName" maxlength="120" value="${escapeHtml(state.user.displayName)}" required>`)}
+            ${field('Username',`<input name="username" maxlength="80" autocomplete="username" value="${escapeHtml(state.user.username || '')}" required>`)}
+            ${field('Email',`<input name="email" type="email" maxlength="190" autocomplete="email" value="${escapeHtml(state.user.email)}" required>`)}
+            <p class="wide muted password-help">Leave password fields blank to keep your current password. New passwords must be at least 12 characters.</p>
+            ${field('Current password','<input name="currentPassword" type="password" autocomplete="current-password">')}
+            ${field('New password','<input name="newPassword" type="password" minlength="12" autocomplete="new-password">')}
+            ${field('Confirm new password','<input name="confirmPassword" type="password" minlength="12" autocomplete="new-password">')}
+            <button type="submit">Save profile</button><p class="profile-status muted" role="status"></p>
+          </form></section><section class="dash-section"><h2>Appearance</h2><p class="muted">Choose the color theme for this device.</p>
+          ${field('Color theme', `<select id="theme"><option value="light">Light</option><option value="dark">Dark</option><option value="system">Use device setting</option></select>`)}</section></div>`;
       main.querySelector('#theme').value = state.user.theme || 'system';
       main.querySelector('#theme').onchange = async (e) => {
         await api({ action:'theme', theme:e.target.value });
         location.reload();
       };
+      main.querySelector('#profile-form').addEventListener('submit', async event => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const values = Object.fromEntries(new FormData(form).entries());
+        const status = form.querySelector('.profile-status');
+        if (values.newPassword !== values.confirmPassword) { status.textContent = 'New passwords do not match.'; return; }
+        status.textContent = 'Saving profile…';
+        try {
+          const result = await api({ action:'update-profile', ...values });
+          state.user = { ...state.user, ...result.user };
+          root.querySelector('.account-chip').innerHTML = `Signed in as <strong>${escapeHtml(state.user.displayName)}</strong>`;
+          status.textContent = 'Profile saved.';
+          form.elements.currentPassword.value = '';
+          form.elements.newPassword.value = '';
+          form.elements.confirmPassword.value = '';
+        } catch (error) { status.textContent = error.message || 'Could not save your profile.'; }
+      });
       return;
     }
     const resource = state.module;
@@ -193,7 +260,7 @@ function renderApp(root){
         const dateParts = String(item.event_date || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
         const formattedDate = dateParts ? `${dateParts[2]}/${dateParts[3]}/${dateParts[1]}` : 'Date not set';
         const contactNames = (Array.isArray(item.contact_ids) ? item.contact_ids : []).map(id => contactsById.get(String(id))).filter(Boolean);
-        const name = contactNames.join(', ') || item.event_type || 'Untitled';
+        const name = contactNames.join(', ') || 'Shared moment';
         b.textContent = `${formattedDate} - ${name}`;
       } else {
         b.textContent = item.name || item.title || (item.event_type ? item.event_type + ' · ' + item.event_date : item.id);
@@ -315,7 +382,7 @@ function renderApp(root){
       }
       const displayOnly = ['owner_id','id','name','age','hasPassword','passwordMasked','created_at','updated_at','deleted_at'];
       const questionnaireRatingKeys = ['rating_overall','rating_emotional','rating_communication','rating_comfort','rating_trust','rating_satisfaction'];
-      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && (k === 'contact_ids' || questionnaireRatingKeys.includes(k))) && !(resource === 'journal' && k === 'contact_id'));
+      const keys = Object.keys(item).filter(k => !k.endsWith('_enc') && !displayOnly.includes(k) && !(resource === 'intimacy' && (['contact_ids','event_date','start_time','end_time','duration_minutes','event_type'].includes(k) || questionnaireRatingKeys.includes(k))) && !(resource === 'journal' && k === 'contact_id'));
       const relationshipOptions = ['Mother','Father','Brother','Sister','Son','Daughter','Friend','Best-Friend','Family','Work','Girl-Friend','Boy-Friend','Partner','Ex','Fling','Friends with Benefits','One Night Stand','Other'];
       const eventOptions = ['Date','Romantic encounter','Affectionate activity','Intimate encounter','Sexual activity','Other'];
       const intimacyDropdowns = {event_type:eventOptions,privacy_level:['Private','Personal','Shared']};
@@ -327,8 +394,9 @@ function renderApp(root){
       }
       const linkedContacts = Array.isArray(item.contact_ids) ? item.contact_ids.map(String) : [];
       const contactPicker = resource === 'intimacy' ? `<div class="contact-picker"><span class="rating-label">Contact</span><details><summary><span class="contact-selection-summary">${linkedContacts.length ? `${linkedContacts.length} contact${linkedContacts.length === 1 ? '' : 's'} selected` : 'Choose contacts'}</span>　⌄</summary><div class="contact-picker-list">${contactItems.length ? contactItems.map(contact => `<label class="contact-picker-option"><input type="checkbox" data-contact-id="${escapeHtml(contact.id)}"${linkedContacts.includes(String(contact.id)) ? ' checked' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</label>`).join('') : '<span class="muted">Add contacts first to link people to this moment.</span>'}</div></details></div>` : '';
+      const eventSchedule = resource === 'intimacy' ? `<div class="event-schedule-fields">${field('Event Date', `<input data-k="event_date" type="date" value="${escapeHtml(item.event_date || '')}">`)}${field('Start Time', `<input data-k="start_time" type="time" value="${escapeHtml(item.start_time || '')}">`)}${field('End Time', `<input data-k="end_time" type="time" value="${escapeHtml(item.end_time || '')}">`)}${field('Duration Minutes', `<input data-k="duration_minutes" type="number" min="0" value="${escapeHtml(item.duration_minutes ?? '')}" readonly aria-readonly="true">`)}</div>` : '';
       const journalContact = resource === 'journal' ? `<div class="journal-contact-picker wide">${field('Contact Ids', `<select data-k="contact_id"><option value=""${item.contact_id ? '' : ' selected'}>No linked contact</option>${contactItems.map(contact => `<option value="${escapeHtml(contact.id)}"${String(item.contact_id || '') === String(contact.id) ? ' selected' : ''}>${escapeHtml(contact.name || 'Unnamed contact')}</option>`).join('')}</select>`)}</div>` : '';
-      editor.innerHTML = `<div class="record-editor">${contactPicker}${journalContact}${keys.map(k => {
+      editor.innerHTML = `<div class="record-editor">${contactPicker}${eventSchedule}${journalContact}${keys.map(k => {
         const val = typeof item[k] === 'object' ? JSON.stringify(item[k]) : (item[k] ?? '');
         const type = String(k).includes('date') ? 'date' : (String(k).includes('time') ? 'time' : (String(k).includes('password') ? 'password' : 'text'));
         const longField = ['description','notes','body','private_notes','questionnaire','optional_details','banking_notes','recovery_codes'].includes(k);

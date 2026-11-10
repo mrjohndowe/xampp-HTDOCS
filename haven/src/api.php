@@ -109,6 +109,68 @@ function haven_handle_api(): void {
         ]]);
     }
 
+    if ($action === 'users') {
+        if (($user['role'] ?? 'user') !== 'admin') haven_json(['ok' => false, 'error' => 'Administrator access is required.'], 403);
+        $st = $pdo->query('SELECT id, email, username, display_name, role, is_active, created_at, last_login_at FROM users ORDER BY display_name, username');
+        haven_json(['ok' => true, 'items' => $st->fetchAll(PDO::FETCH_ASSOC)]);
+    }
+
+    if ($action === 'create-user') {
+        if (($user['role'] ?? 'user') !== 'admin') haven_json(['ok' => false, 'error' => 'Administrator access is required.'], 403);
+        $email = strtolower(trim((string)($input['email'] ?? '')));
+        $username = trim((string)($input['username'] ?? ''));
+        $displayName = trim((string)($input['displayName'] ?? ''));
+        $password = (string)($input['password'] ?? '');
+        $role = (string)($input['role'] ?? 'user');
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) haven_json(['ok' => false, 'error' => 'Enter a valid email address.'], 400);
+        if ($username === '' || strlen($username) > 80) haven_json(['ok' => false, 'error' => 'Username is required and must be 80 characters or fewer.'], 400);
+        if ($displayName === '' || strlen($displayName) > 120) haven_json(['ok' => false, 'error' => 'Name is required and must be 120 characters or fewer.'], 400);
+        if (strlen($password) < 12) haven_json(['ok' => false, 'error' => 'New user passwords must be at least 12 characters.'], 400);
+        if (!in_array($role, ['admin', 'user'], true)) haven_json(['ok' => false, 'error' => 'Choose a valid role.'], 400);
+        $check = $pdo->prepare('SELECT 1 FROM users WHERE email=? OR username=? LIMIT 1');
+        $check->execute([$email, $username]);
+        if ($check->fetchColumn()) haven_json(['ok' => false, 'error' => 'That email or username is already in use.'], 409);
+        try {
+            haven_create_user(['email' => $email, 'username' => $username, 'displayName' => $displayName, 'password' => $password], $role);
+        } catch (PDOException $error) {
+            if ((string)$error->getCode() === '23000' || str_contains(strtolower($error->getMessage()), 'unique')) {
+                haven_json(['ok' => false, 'error' => 'That email or username is already in use.'], 409);
+            }
+            throw $error;
+        }
+        haven_json(['ok' => true]);
+    }
+
+    if ($action === 'update-profile') {
+        $email = strtolower(trim((string)($input['email'] ?? '')));
+        $username = trim((string)($input['username'] ?? ''));
+        $displayName = trim((string)($input['displayName'] ?? ''));
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL) || strlen($email) > 190) haven_json(['ok' => false, 'error' => 'Enter a valid email address.'], 400);
+        if ($username === '' || strlen($username) > 80) haven_json(['ok' => false, 'error' => 'Username is required and must be 80 characters or fewer.'], 400);
+        if ($displayName === '' || strlen($displayName) > 120) haven_json(['ok' => false, 'error' => 'Name is required and must be 120 characters or fewer.'], 400);
+        $check = $pdo->prepare('SELECT 1 FROM users WHERE (email=? OR username=?) AND id<>? LIMIT 1');
+        $check->execute([$email, $username, $owner]);
+        if ($check->fetchColumn()) haven_json(['ok' => false, 'error' => 'That email or username is already in use.'], 409);
+        $st = $pdo->prepare('SELECT password_hash FROM users WHERE id=?');
+        $st->execute([$owner]);
+        $account = $st->fetch(PDO::FETCH_ASSOC);
+        if (!$account) haven_json(['ok' => false, 'error' => 'User account was not found.'], 404);
+        $newPassword = (string)($input['newPassword'] ?? '');
+        if ($newPassword !== '') {
+            if (!password_verify((string)($input['currentPassword'] ?? ''), $account['password_hash'])) haven_json(['ok' => false, 'error' => 'Current password is incorrect.'], 401);
+            if (strlen($newPassword) < 12) haven_json(['ok' => false, 'error' => 'New passwords must be at least 12 characters.'], 400);
+        }
+        $pdo->prepare('UPDATE users SET email=?, username=?, display_name=? WHERE id=?')->execute([$email, $username, $displayName, $owner]);
+        if ($newPassword !== '') {
+            $salt = random_bytes(16);
+            $kek = hash_pbkdf2('sha256', $newPassword, $salt, 120000, 32, true);
+            $pdo->prepare('UPDATE users SET password_hash=?, kek_salt=?, wrapped_dek=? WHERE id=?')->execute([
+                password_hash($newPassword, PASSWORD_DEFAULT), base64_encode($salt), haven_encrypt(base64_encode($dek), $kek), $owner,
+            ]);
+        }
+        haven_json(['ok' => true, 'user' => ['id' => $owner, 'email' => $email, 'username' => $username, 'displayName' => $displayName, 'role' => $user['role'], 'theme' => $user['theme']]]);
+    }
+
     if ($action === 'reauth') {
         $st = $pdo->prepare('SELECT password_hash FROM users WHERE id=?');
         $st->execute([$owner]);

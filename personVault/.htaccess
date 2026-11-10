@@ -1,4 +1,13 @@
 Options -Indexes
-<IfModule mod_authz_core.c>
-  Require all denied
-</IfModule>
+RewriteEngine On
+
+# Allow the public entry points to run from a common XAMPP htdocs subfolder.
+# Apache can also serve public/ directly when a virtual host uses it as root.
+RewriteRule ^public(?:/|$) - [L]
+RewriteRule ^assets/(.*)$ public/assets/$1 [L]
+RewriteRule ^(index|api|install)\.php$ public/$1.php [L]
+RewriteRule ^$ public/index.php [L]
+
+# Everything else in the project tree (app code, tests, config templates,
+# archives, and the install lock) stays out of the web response.
+RewriteRule ^ - [F,L]

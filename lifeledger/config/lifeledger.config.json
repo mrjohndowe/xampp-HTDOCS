@@ -1,0 +1,20 @@
+{
+    "version": 1,
+    "dbMode": "dual",
+    "sqlitePath": "./data/lifeledger.sqlite",
+    "mysql": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "database": "lifeledger",
+        "user": "lifeledger",
+        "password": "lifeledger",
+        "tablePrefix": "lifeledger_"
+    },
+    "app": {
+        "encryptionKey": "DFzWv87t1Stj0pjAFoGi8ifymD+/h0tDWtjbtBlBQg0=",
+        "sessionSecret": "b1e59b69f3ea6727a075d78b9f114d687cb75529f9766c4c68ec3c626bb0ecd2",
+        "port": 3000,
+        "timeZone": "America/Denver",
+        "theme": "dark"
+    }
+}

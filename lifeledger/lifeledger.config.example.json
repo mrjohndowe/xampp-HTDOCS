@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "dbMode": "sqlite",
+  "sqlitePath": "./data/lifeledger.sqlite",
+  "mysql": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "database": "lifeledger",
+    "tablePrefix": "lifeledger_",
+    "user": "lifeledger",
+    "password": "env:MYSQL_PASSWORD"
+  },
+  "app": {
+    "encryptionKey": "env:APP_ENCRYPTION_KEY",
+    "sessionSecret": "env:SESSION_SECRET",
+    "port": 3000,
+    "timeZone": "UTC",
+    "theme": "system"
+  }
+}

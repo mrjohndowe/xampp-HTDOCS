@@ -92,8 +92,9 @@ function api_upload(PDO $pdo, array $user, array $data): never
             $consent = $values[$consentKey] ?? '';
             if ($consent !== '' && !in_array($consent, ['yes','no','unknown','not_recorded'], true)) app_json(['error' => 'Choose a valid answer for the consent question.'], 422);
         }
-        foreach ($values as $key => $value) if ((str_starts_with((string)$key, 'rating_') || preg_match('/^question_[4-8]$/', (string)$key)) && $value !== '' && (!ctype_digit((string)$value) || (int)$value < 1 || (int)$value > 10)) app_json(['error' => 'Ratings must be whole numbers from 1 to 10.'], 422);
+        foreach ($values as $key => $value) if ((str_starts_with((string)$key, 'rating_') || preg_match('/^question_[4-8]$/', (string)$key)) && $value !== '' && (!ctype_digit((string)$value) || (int)$value < 1 || (int)$value > 5)) app_json(['error' => 'Star ratings must be whole numbers from 1 to 5.'], 422);
     }
+    if ($module === 'journal' && isset($values['mood']) && $values['mood'] !== '' && (!ctype_digit((string)$values['mood']) || (int)$values['mood'] < 1 || (int)$values['mood'] > 5)) app_json(['error' => 'Mood ratings must be whole stars from 1 to 5.'], 422);
 
     if ($id !== '') {
         $existing = api_record($pdo, (int)$user['id'], $module, $id);
@@ -299,7 +300,7 @@ try {
             $rating = (string)($body['rating'] ?? '');
             if ($rating !== '') {
                 $ratingValues = [];
-                foreach ($payload as $key => $value) if (preg_match('/^(?:rating(?:_[a-z_]+)?|question_[4-8])$/', (string)$key) && $value !== '') $ratingValues[] = (string)$value;
+                foreach ($payload as $key => $value) if (preg_match('/^(?:rating(?:_[a-z_]+)?|question_[4-8])$/', (string)$key) && $value !== '') { $n=(int)$value; $ratingValues[]=(string)($n>5?max(1,min(5,(int)round(($n-1)*4/9)+1)):$n); }
                 if (!in_array($rating, $ratingValues, true)) continue;
             }
             $tagFilter = trim((string)($body['tag'] ?? ''));

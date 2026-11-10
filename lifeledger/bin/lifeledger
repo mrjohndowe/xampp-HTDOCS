@@ -1,0 +1,99 @@
+#!/usr/bin/env php
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../src/Bootstrap.php';
+require_once __DIR__ . '/../src/Config.php';
+require_once __DIR__ . '/../src/Crypto.php';
+require_once __DIR__ . '/../src/Database.php';
+
+use LifeLedger\Bootstrap;
+use LifeLedger\Config;
+use LifeLedger\Database;
+
+$argvCopy = $_SERVER['argv'] ?? [];
+array_shift($argvCopy);
+$cliConfig = null;
+$positional = [];
+for ($i = 0; $i < count($argvCopy); $i++) {
+    if ($argvCopy[$i] === '--config' && isset($argvCopy[$i + 1])) {
+        $cliConfig = $argvCopy[++$i];
+    } else {
+        $positional[] = $argvCopy[$i];
+    }
+}
+$cmd = $positional[0] ?? 'help';
+$sub = $positional[1] ?? null;
+
+switch ($cmd) {
+    case 'config:check':
+        $res = Config::check($cliConfig);
+        $inst = Database::detectInstallState($cliConfig);
+        echo "Status: {$res['status']}\n";
+        echo "InstallState: {$inst['state']}\n";
+        echo "ResolvedPath: " . ($res['resolvedPath'] ?? '(none)') . "\n";
+        foreach ($res['errors'] as $e) {
+            fwrite(STDERR, "  [{$e['key']}] {$e['message']}\n");
+        }
+        exit($res['status'] === 'OK' ? 0 : ($res['status'] === 'INVALID' ? 1 : 2));
+
+    case 'config:show':
+        $res = Config::check($cliConfig);
+        echo json_encode(Config::redacted($res), JSON_PRETTY_PRINT) . "\n";
+        exit($res['status'] === 'OK' ? 0 : 1);
+
+    case 'db:migrate':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK') { fwrite(STDERR, "Config invalid\n"); exit(1); }
+        $cfg = $res['config'];
+        $sqlite = Database::sqlite($cfg);
+        Database::migrateSqlite($sqlite);
+        echo "SQLite migrations applied.\n";
+        if ($cfg['dbMode'] === 'dual') {
+            try {
+                $mysql = Database::mysql($cfg);
+                Database::migrateMysql($mysql, $cfg['mysql']['tablePrefix'] ?? '');
+                echo "MySQL mirror migrations applied.\n";
+            } catch (\Throwable $e) {
+                fwrite(STDERR, "MySQL unreachable ({$e->getMessage()}); queue remains durable.\n");
+            }
+        }
+        exit(0);
+
+    case 'db:seed':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK') { fwrite(STDERR, "Config invalid\n"); exit(1); }
+        echo json_encode(Database::seed($res['config']), JSON_PRETTY_PRINT) . "\n";
+        exit(0);
+
+    case 'db:verify':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK') { fwrite(STDERR, "Config invalid\n"); exit(1); }
+        $v = Database::verify($res['config']);
+        echo json_encode($v, JSON_PRETTY_PRINT) . "\n";
+        exit($v['ok'] ? 0 : 1);
+
+    case 'sync:drain':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK') { fwrite(STDERR, "Config invalid\n"); exit(1); }
+        $d = Database::drainQueue($res['config'], 30);
+        echo json_encode($d, JSON_PRETTY_PRINT) . "\n";
+        exit($d['error'] === null ? 0 : 1);
+
+    case 'db:backup':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK') { fwrite(STDERR, "Config invalid\n"); exit(1); }
+        echo json_encode(Database::backup($res['config']), JSON_PRETTY_PRINT) . "\n";
+        exit(0);
+
+    case 'db:restore':
+        $res = Config::check($cliConfig);
+        if ($res['status'] !== 'OK' || !$sub) { fwrite(STDERR, "Usage: php bin/lifeledger db:restore <timestamp>\n"); exit(1); }
+        echo json_encode(Database::restore($res['config'], $sub), JSON_PRETTY_PRINT) . "\n";
+        exit(0);
+
+    default:
+        echo "LifeLedger PHP CLI v" . Bootstrap::VERSION . "\n";
+        echo "Commands: config:check, config:show, db:migrate, db:seed, db:verify, sync:drain, db:backup, db:restore <ts>\n";
+        exit(0);
+}
