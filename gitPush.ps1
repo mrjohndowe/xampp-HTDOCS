@@ -126,6 +126,8 @@ _//    _// _//    _//   _//_// _//   _//      _//            _// _//  _//    _//
 
 function pushGit($projectPath){
 
+
+    Set-Location -LiteralPath $projectPath 
     $files = "."
     $message = "Build LifeTools Personal Planner"
     git add $files
