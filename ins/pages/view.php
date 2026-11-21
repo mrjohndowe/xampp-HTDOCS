@@ -192,6 +192,26 @@ $companyAddress = trim(implode(', ', array_filter([
                         <div class="insurance-label">Property Damage</div>
                         <div class="insurance-value"><?= e($card['property_damage']) ?></div>
                     </div>
+                    
+                    <div class="insurance-field">
+                        <div class="insurance-label">Comprehensive Deductible</div>
+                        <div class="insurance-value"><?= e($card['comprehensive_deductible']) ?></div>
+                    </div>
+                    
+                    <div class="insurance-field">
+                        <div class="insurance-label">Collision Deductible</div>
+                        <div class="insurance-value"><?= e($card['collision_deductible']) ?></div>
+                    </div>
+                    
+                    <div class="insurance-field">
+                        <div class="insurance-label">Uninsured / Underinsured Motorist</div>
+                        <div class="insurance-value"><?= e($card['uninsured_underinsured_limits']) ?></div>
+                    </div>
+
+                    <div class="insurance-field">
+                        <div class="insurance-label">Medical Payments</div>
+                        <div class="insurance-value"><?= e($card['medical_payments_limit']) ?></div>
+                    </div>
 
                 </div>
 

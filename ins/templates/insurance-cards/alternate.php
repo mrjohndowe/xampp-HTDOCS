@@ -24,8 +24,28 @@ $vehicleModel = trim((string)($card['vehicle_model'] ?? ''));
 $vin = trim((string)($card['vin'] ?? ''));
 $licensePlate = trim((string)($card['license_plate'] ?? ''));
 
+
+
+
+
+$roadService = roadServicePrices();
+
+
+function roadServicePrices(){
+    $chooseService = ['$0', '$1,500', '$2,500'];
+    $selectService = array_rand($chooseService);
+
+    return $chooseService[$selectService];
+
+}
+//DEDUCTIBLEs
 $bodilyInjury = trim((string)($card['liability_bod'] ?? ''));
-$propertyDamage = trim((string)($card['property_damage'] ?? ''));
+$propertyDamage = trim((string)($card['property_damage']));
+$comprehensive = trim((string)($card['comprehensive_deductible']));
+$collision = trim((string)($card['collision_deductible']));
+$uninsured = trim((string)($card['uninsured_underinsured_limits']));
+$medical = trim((string)($card['medical_payments_limit']));
+
 
 $vehicle = trim(implode(' ', array_filter([
     $vehicleYear,
@@ -82,6 +102,19 @@ body {
     margin: 0 auto;
     padding: .35in .45in;
     background: #ffffff;
+}
+
+.print-back-button {
+    position: fixed;
+    top: 16px;
+    left: 16px;
+    z-index: 10;
+    padding: 9px 16px;
+    border-radius: 4px;
+    background: #333333;
+    color: #ffffff;
+    font: 14px Arial, Helvetica, sans-serif;
+    text-decoration: none;
 }
 
 .insurance-card {
@@ -334,6 +367,10 @@ body {
 }
 
 @media print {
+    .print-back-button {
+        display: none;
+    }
+
     @page {
         size: Letter portrait;
         margin: 0;
@@ -356,6 +393,8 @@ body {
 </head>
 
 <body>
+
+<a class="print-back-button" href="index.php?p=view&amp;id=<?= (int)($card['id'] ?? 0) ?>">Back</a>
 
 <div class="print-page">
 
@@ -571,13 +610,28 @@ body {
 
                 <div class="barcode-information">
 
-                    <strong>LIABILITY COVERAGE</strong><br>
+                    <strong>COVERAGE</strong><br>
 
                     Bodily Injury:
                     <?= e($bodilyInjury) ?><br>
 
                     Property Damage:
                     <?= e($propertyDamage) ?><br>
+                    
+                    Medical Payments:
+                    <?= e($medical) ?><br>
+
+                    Comprehensive Coverage:
+                    <?=e($comprehensive) ?><br>
+
+                    Collision Coverage:
+                    <?= e($collision) ?><br>
+
+                    Emergency Road Service:
+                    <?= e($roadService) ?><br>
+
+                    Uninsured/Underinsured: 
+                    <?= e($uninsured) ?><br>
 
                     Policy:
                     <?= e($policyNumber) ?>

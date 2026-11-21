@@ -17,6 +17,19 @@ $vehicle = trim(implode(' ', array_filter([
 
 ?>
 <style>
+    .print-back-button {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        z-index: 10;
+        padding: 9px 16px;
+        border-radius: 4px;
+        background: #333;
+        color: #fff;
+        font: 14px Arial, Helvetica, sans-serif;
+        text-decoration: none;
+    }
+
     .insurance-template {
         width: 8.5in;
         max-width: 100%;
@@ -181,6 +194,10 @@ $vehicle = trim(implode(' ', array_filter([
     }
 
     @media print {
+        .print-back-button {
+            display: none;
+        }
+
         .insurance-template {
             width: 8.5in;
             min-height: 5.45in;
@@ -190,6 +207,8 @@ $vehicle = trim(implode(' ', array_filter([
         }
     }
 </style>
+
+<a class="print-back-button" href="index.php?p=view&amp;id=<?= (int)($card['id'] ?? 0) ?>">Back</a>
 
 <article class="insurance-template">
 
@@ -405,6 +424,54 @@ $vehicle = trim(implode(' ', array_filter([
                     </div>
 
                 </div>
+                
+                <div class="insurance-template-coverage-box">
+
+                    <div class="insurance-template-field-label">
+                        Comprehensive Deductible
+                    </div>
+
+                    <div class="insurance-template-field-value">
+                        <?= e($card['comprehensive_deductible']) ?>
+                    </div>
+
+                </div>
+                <div class="insurance-template-coverage-box">
+
+                    <div class="insurance-template-field-label">
+                        Collision Deductible
+                    </div>
+
+                    <div class="insurance-template-field-value">
+                        <?= e($card['collision_deductible']) ?>
+                    </div>
+
+                </div>
+                <div class="insurance-template-coverage-box">
+
+                    <div class="insurance-template-field-label">
+                        Uninsured / Underinsured Motorist
+                    </div>
+
+                    <div class="insurance-template-field-value">
+                        <?= e($card['uninsured_underinsured_limits']) ?>
+                    </div>
+
+                </div>
+
+                <div class="insurance-template-coverage-box">
+
+                    <div class="insurance-template-field-label">
+                        Medical Payments
+                    </div>
+
+                    <div class="insurance-template-field-value">
+                        <?= e($card['medical_payments_limit']) ?>
+                    </div>
+
+                </div>
+
+
 
                 <div class="insurance-template-coverage-box">
 

@@ -1,0 +1,19 @@
+:root{color-scheme:dark;font-family:system-ui,sans-serif;background:#101914;color:#f3f8f3;--muted:#b9c8bb;--card:#1c2a22;--mint:#b3f191}
+*{box-sizing:border-box}body{margin:0}main{max-width:620px;margin:auto;padding:20px 16px 36px}
+h1,h2,p{margin:0}h1{font-size:2rem}h2{font-size:1.2rem}p{line-height:1.5}header p,.drive p{color:var(--muted)}header{margin-bottom:18px}
+.drive,.totals>div,.park,details{padding:14px;border-radius:14px;background:var(--card)}
+.drive h2{color:var(--mint);font-size:1.65rem;margin:3px 0}.totals,.grid,.actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.totals{margin:8px 0 12px}.totals strong{display:block;font-size:1.9rem;font-variant-numeric:tabular-nums}
+.park{display:flex;align-items:center;gap:10px;font-weight:700;min-height:50px}.park input{width:22px;height:22px;accent-color:var(--mint)}
+#status{min-height:30px;font-size:.88rem;padding-top:5px;color:var(--muted)}
+button,select{font:inherit;color:inherit;border:1px solid #41574a;background:#24362b;border-radius:10px;min-height:48px;padding:8px 10px}
+button{cursor:pointer;font-weight:650}button:disabled{opacity:.48;cursor:default}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+.primary{background:var(--mint);color:#172713;width:100%;margin-bottom:8px;border:0}
+section>h2{margin:20px 0 8px}.grid button{text-align:left;display:flex;justify-content:space-between;align-items:center;gap:5px;font-size:.9rem}
+#penalties span{color:#ffc2a9}#bonuses span{color:var(--mint)}details{margin-top:18px}summary{cursor:pointer;font-weight:700;padding:6px 0}details p{margin-top:10px}
+dialog{width:min(92vw,560px);max-height:88dvh;overflow:auto;border:1px solid #41574a;border-radius:14px;background:#18251d;color:inherit;padding:16px}dialog::backdrop{background:#080c09c9}
+dialog p,dialog label{display:block;margin:10px 0}dialog select{display:block;width:100%;margin-top:4px}
+.entry{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-top:1px solid #41574a}.entry small{display:block;color:var(--muted)}dialog .actions{margin-top:12px}
+ol{padding-left:1.45rem;line-height:1.5}li+li{margin-top:5px}h3{font-size:1rem;margin:14px 0 6px}.hint{font-size:.88rem;color:var(--muted);margin-bottom:8px}#chaos span{color:var(--mint)}#chaos{grid-template-columns:1fr}
+.park{border:1px solid #41574a;margin-bottom:16px;cursor:pointer}
+#complete{margin-top:18px}

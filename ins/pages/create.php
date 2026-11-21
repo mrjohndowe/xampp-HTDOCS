@@ -34,6 +34,13 @@ $vehicleMakes = $pdo->query("
     ORDER BY name ASC
 ")->fetchAll();
 
+$coverageFields = [
+    'comprehensive_deductible' => 'Comprehensive Deductible',
+    'collision_deductible' => 'Collision Deductible',
+    'uninsured_underinsured_limits' => 'Uninsured / Underinsured Motorist Limits',
+    'medical_payments_limit' => 'Medical Payments Limit',
+];
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values['company_id'] = postInt('company_id');
     $values['insured_name'] = postString('insured_name');
@@ -47,11 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $values['term'] = postString('term');
     $values['liability_bod'] = postString('liability_bod');
     $values['property_damage'] = postString('property_damage');
+    $values['comprehensive_deductible'] = postString('comprehensive_deductible');
+    $values['collision_deductible'] = postString('collision_deductible');
+    $values['uninsured_underinsured_limits'] = postString('uninsured_underinsured_limits');
+    $values['medical_payments_limit'] = postString('medical_payments_limit');
 
     $termMonths = [
         '1_month' => 1,
         '6_months' => 6,
-        '1_year' => 12
+        '1_year' => 12,
+        '2_year' => 24
     ];
 
     if (!isset($termMonths[$values['term']])) {
@@ -165,7 +177,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     effective_date,
                     expiration_date,
                     liability_bod,
-                    property_damage
+                    property_damage,
+                    comprehensive_deductible,
+                    collision_deductible,
+                    uninsured_underinsured_limits,
+                    medical_payments_limit
                 )
                 VALUES
                 (
@@ -183,7 +199,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     :effective_date,
                     :expiration_date,
                     :liability_bod,
-                    :property_damage
+                    :property_damage,
+                    :comprehensive_deductible,
+                    :collision_deductible,
+                    :uninsured_underinsured_limits,
+                    :medical_payments_limit
                 )
             ");
 
@@ -202,7 +222,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 ':effective_date' => $values['effective_date'],
                 ':expiration_date' => $values['expiration_date'],
                 ':liability_bod' => $values['liability_bod'],
-                ':property_damage' => $values['property_damage']
+                ':property_damage' => $values['property_damage'],
+                ':comprehensive_deductible' => postString('comprehensive_deductible'),
+                ':collision_deductible' => postString('collision_deductible'),
+                ':uninsured_underinsured_limits' => postString('uninsured_underinsured_limits'),
+                ':medical_payments_limit' => postString('medical_payments_limit'),
             ]);
 
             redirect('index.php?p=view&id=' . $pdo->lastInsertId());
@@ -218,7 +242,8 @@ if ($values['effective_date'] !== '' && $values['term'] !== '') {
     $termMonths = [
         '1_month' => 1,
         '6_months' => 6,
-        '1_year' => 12
+        '1_year' => 12,
+        '2_year' => 24
     ];
 
     if (isset($termMonths[$values['term']])) {
@@ -321,13 +346,14 @@ if ($values['effective_date'] !== '' && $values['term'] !== '') {
                         <option value="1_month" <?= $values['term'] === '1_month' ? 'selected' : '' ?>>1 Month</option>
                         <option value="6_months" <?= $values['term'] === '6_months' ? 'selected' : '' ?>>6 Months</option>
                         <option value="1_year" <?= $values['term'] === '1_year' ? 'selected' : '' ?>>1 Year</option>
+                        <option value="2_year" <?= $values['term'] === '2_year' ? 'selected' : '' ?>>2 Year</option>
                     </select>
                 </div>
 
                 <div class="field">
                     <label for="expiration_date">Expiration Date</label>
                     <input type="date" id="expiration_date" value="<?= e($displayExpirationDate) ?>" readonly>
-                </div>
+                </div> 
 
             </div>
 
@@ -377,6 +403,20 @@ if ($values['effective_date'] !== '' && $values['term'] !== '') {
                 <h2>Coverage</h2>
             </div>
 
+            <div class="field">
+                <label for="coverage_preset">Coverage Preset</label>
+                <select id="coverage_preset" aria-describedby="coverage_preset_help">
+                    <option value="">Choose a preset</option>
+                    <option value="liability">Liability Only</option>
+                    <option value="full">Full Coverage</option>
+                    <option value="comprehensiveLiability">Liability + Comprehensive</option>
+                    <option value="collision">Liability + Collision</option>
+                    <option value="comprehensive">Comprehensive Only</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <small id="coverage_preset_help">Presets fill example limits. Verify them against the policy before saving.</small>
+            </div>
+
             <div class="form-grid">
 
                 <div class="field">
@@ -388,6 +428,13 @@ if ($values['effective_date'] !== '' && $values['term'] !== '') {
                     <label for="property_damage">Property Damage</label>
                     <input type="text" id="property_damage" name="property_damage" value="<?= e($values['property_damage']) ?>" placeholder="$100,000">
                 </div>
+
+                <?php foreach ($coverageFields as $field => $label): ?>
+                <div class="field">
+                    <label for="<?= e($field) ?>"><?= e($label) ?></label>
+                    <input type="text" id="<?= e($field) ?>" name="<?= e($field) ?>" value="<?= e($values[$field] ?? '') ?>">
+                </div>
+                <?php endforeach; ?>
 
             </div>
 
@@ -421,7 +468,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const months = {
             '1_month': 1,
             '6_months': 6,
-            '1_year': 12
+            '1_year': 12,
+            '2_year': 24
         };
 
         date.setMonth(date.getMonth() + months[term.value]);
@@ -482,6 +530,93 @@ document.addEventListener('DOMContentLoaded', function () {
 
     calculateExpirationDate();
 });
+
+(() => {
+    const presetSelect = document.getElementById('coverage_preset');
+
+    if (!presetSelect || !presetSelect.form) {
+        return;
+    }
+
+    const bodilyInjury = presetSelect.form.elements.namedItem('liability_bod');
+    const propertyDamage = presetSelect.form.elements.namedItem('property_damage');
+    const comprehensive = presetSelect.form.elements.namedItem('comprehensive_deductible');
+    const collision = presetSelect.form.elements.namedItem('collision_deductible');
+    const uninsured = presetSelect.form.elements.namedItem('uninsured_underinsured_limits');
+    const medical = presetSelect.form.elements.namedItem('medical_payments_limit');
+
+    const fields = [bodilyInjury, propertyDamage, comprehensive, collision, uninsured, medical].filter(Boolean);
+
+    const presets = {
+        liability: {
+            bodilyInjury: '$50,000 / $150,000',
+            propertyDamage: '$50,000',
+            comprehensive: '$500',
+            collision: '$500',
+            uninsured: '$50,000 / $150,000',
+            medical: ''
+        },
+        full: {
+            bodilyInjury: '$100,000 / $300,000',
+            propertyDamage: '$100,000',
+            comprehensive: '$500',
+            collision: '$500',
+            uninsured: '$100,000 / $300,000',
+            medical: '$5,000'
+        },
+        comprehensiveLiability: {
+            bodilyInjury: '$50,000 / $100,000',
+            propertyDamage: '$50,000',
+            comprehensive: '$500',
+            collision: '',
+            uninsured: '$50,000 / $150,000',
+            medical: '$5,000'
+        },
+        collision: {
+            bodilyInjury: '$50,000 / $100,000',
+            propertyDamage: '$50,000',
+            comprehensive: '',
+            collision: '$1,000',
+            uninsured: '$50,000 / $150,000',
+            medical: '$5,000'
+        },
+        comprehensive : {
+            bodilyInjury: '',
+            propertyDamage: '',
+            comprehensive: '$250',
+            collision: '',
+            uninsured: '',
+            medical: ''
+        },
+        custom : {
+            bodilyInjury: '$100,000 / $300,000',
+            propertyDamage: '$100,000',
+            comprehensive: '$250',
+            collision: '$1,000',
+            uninsured: '$100,000 / $300,000',
+            medical: '$5,000'
+        }
+
+    };
+
+    presetSelect.addEventListener('change', () => {
+        const preset = presets[presetSelect.value];
+        if (!preset) return;
+
+        bodilyInjury.value = preset.bodilyInjury;
+        propertyDamage.value = preset.propertyDamage;
+        comprehensive.value = preset.comprehensive;
+        collision.value = preset.collision;
+        uninsured.value = preset.uninsured;
+        medical.value = preset.medical;
+    });
+
+    fields.forEach((field) => {
+        field.addEventListener('input', () => {
+            presetSelect.value = '';
+        });
+    });
+})();
 </script>
 
 </body>

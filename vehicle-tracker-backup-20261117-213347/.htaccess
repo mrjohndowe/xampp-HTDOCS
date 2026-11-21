@@ -1,0 +1,33 @@
+# Vehicle Tracker - Apache access control
+# Protect configuration, data, lock file, includes and raw downloads.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Block direct access to sensitive files and directories
+    RewriteRule ^(config\.php|config\.lock) - [F,L]
+    RewriteRule ^(data|includes|downloads)($|/) - [F,L]
+
+    # The installer guards itself via config.lock (see install/index.php)
+
+    # Route all API requests to the router
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^api/(.*)$ api/index.php [QSA,L]
+
+    # Route download requests to the download controller
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^download/(.*)$ download.php?file=$1 [QSA,L]
+</IfModule>
+
+<IfModule !mod_rewrite.c>
+    # Fallback: deny direct access when mod_rewrite is unavailable
+    <FilesMatch "^(config\.php|config\.lock)$">
+        Require all denied
+    </FilesMatch>
+    <DirectoryMatch "(data|includes|downloads|install)">
+        Require all denied
+    </DirectoryMatch>
+</IfModule>
+
+Options -Indexes

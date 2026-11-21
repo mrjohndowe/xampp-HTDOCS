@@ -1,0 +1,2 @@
+# Optional for better JPEG and PNG previews. All other features use Python stdlib + Tcl/Tk.
+Pillow>=10.4,<14

@@ -1,3 +1,13 @@
+CREATE TABLE IF NOT EXISTS 'vehicle_makes'(
+    'id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS 'vehicle_models'(  
+    'id' INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    make_id INTEGER NOT NULL,
+    name TEXT NULL
+);
 INSERT OR IGNORE INTO vehicle_makes (name) VALUES
 ('Acura'),
 ('Alfa Romeo'),
@@ -137,6 +147,9 @@ SELECT id, 'Durango' FROM vehicle_makes WHERE name = 'Dodge';
 
 INSERT OR IGNORE INTO vehicle_models (make_id, name)
 SELECT id, 'Hornet' FROM vehicle_makes WHERE name = 'Dodge';
+
+INSERT OR IGNORE INTO vehicle_models (make_id, name)
+SELECT id, 'Dart SXT Rallye Turbo' FROM vehicle_makes WHERE name = 'Dodge';
 
 INSERT OR IGNORE INTO vehicle_models (make_id, name)
 SELECT id, 'F-150' FROM vehicle_makes WHERE name = 'Ford';

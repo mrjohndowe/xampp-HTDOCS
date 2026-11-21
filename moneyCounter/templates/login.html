@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Sign in · Money Counter{% endblock %}
+{% block guest %}
+<section class="login-visual">
+  <div class="brand"><span class="brand-mark">{{ icon('brand', 22) }}</span><span>Money Counter<small>CASH WORKSPACE</small></span></div>
+  <div class="login-copy"><p class="eyebrow">CASH OPERATIONS</p><h1>Every cent<br>accounted for.</h1><p>Count the till, track cash movements, and reconcile each drawer from one workspace.</p></div>
+  <span class="login-foot">US DOLLAR · CASH MANAGEMENT</span>
+</section>
+<section class="login-pane">
+  <button type="button" class="icon-button theme-button" data-theme-toggle aria-label="Switch color theme">{{ icon('theme') }}</button>
+  <form method="post" class="login-form">
+    <p class="eyebrow">WELCOME BACK</p><h2>Sign in</h2><p class="muted">Enter your credentials to access the workspace.</p>
+    {% if error %}<p role="alert" class="notice error">{{ error }}</p>{% endif %}
+    <input type="hidden" name="csrf" value="{{ csrf() }}">
+    <label>Username<input name="username" maxlength="64" autocomplete="username" required autofocus></label>
+    <label>Password<input name="password" type="password" maxlength="256" autocomplete="current-password" required></label>
+    <button type="submit" class="button primary">Sign in {{ icon('arrow', 17) }}</button>
+  </form>
+</section>
+{% endblock %}

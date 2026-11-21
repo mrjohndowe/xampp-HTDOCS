@@ -1,0 +1,2 @@
+requests>=2.32,<3
+# Optional browser tests: pip install playwright && playwright install chromium

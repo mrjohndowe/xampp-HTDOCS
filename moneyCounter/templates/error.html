@@ -1,0 +1,3 @@
+{% extends 'base.html' %}
+{% block content %}<section class="panel empty"><h1>Unable to complete the request</h1><p>{{ message }}</p><a class="button" href="{{ url_for('workspace') }}">Back to workspace</a></section>{% endblock %}
+{% block guest %}<section class="panel empty guest-error"><h1>Unable to complete the request</h1><p>{{ message }}</p><a class="button" href="{{ url_for('login') }}">Back to sign in</a></section>{% endblock %}

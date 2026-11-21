@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rent-to-Own Vehicles &amp; Car Subscriptions — Pueblo, CO</title>
+<style>
+  :root{
+    --ink:#14161a; --muted:#5c6270; --line:#e3e6ec; --bg:#f6f7f9;
+    --card:#fff; --accent:#b3121a; --accent-soft:#fdecec; --ok:#0d7a4a;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  header{
+    background:linear-gradient(135deg,#14161a 0%,#2b2f38 100%);
+    color:#fff; padding:44px 24px 38px;
+  }
+  .wrap{max-width:1120px;margin:0 auto}
+  header h1{margin:0 0 8px;font-size:30px;letter-spacing:-.4px}
+  header p{margin:0;color:#b9bfcb;font-size:15px;max-width:760px}
+  .stamp{display:inline-block;margin-top:16px;padding:5px 11px;border:1px solid #4a505d;border-radius:999px;font-size:12.5px;color:#d3d8e2}
+  main{max-width:1120px;margin:0 auto;padding:32px 24px 64px}
+  h2{font-size:20px;margin:44px 0 6px;letter-spacing:-.2px}
+  h2:first-of-type{margin-top:8px}
+  .sub{margin:0 0 18px;color:var(--muted);font-size:14.5px;max-width:820px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,320px),1fr));gap:16px}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:14px;
+    overflow:hidden;display:flex;flex-direction:column;
+  }
+  .photo{height:154px;background:#e9ecf1;overflow:hidden;flex:none}
+  .photo img{width:100%;height:100%;object-fit:cover;display:block}
+  .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px;flex:1}
+  .head{display:flex;align-items:flex-start;gap:12px}
+  .logo{
+    width:46px;height:46px;border-radius:10px;object-fit:contain;
+    background:#fff;border:1px solid var(--line);padding:6px;flex:none;
+    margin-top:-46px;box-shadow:0 2px 8px rgba(0,0,0,.18);
+  }
+  .logo.blank{display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--muted);font-size:15px}
+  .head h3{margin:0;font-size:16.5px;line-height:1.25}
+  .head .loc{font-size:12.5px;color:var(--muted)}
+  .price{
+    font-size:15px;font-weight:650;color:var(--accent);
+    background:var(--accent-soft);border-radius:8px;padding:7px 10px;
+  }
+  .price span{font-weight:400;color:#8a3a3a;font-size:12.5px}
+  ul.facts{margin:0;padding-left:18px;color:#333843;font-size:14px}
+  ul.facts li{margin:3px 0}
+  .meta{font-size:13px;color:var(--muted);margin-top:auto;padding-top:6px;border-top:1px dashed var(--line)}
+  .meta b{color:#333843;font-weight:600}
+  .tag{display:inline-block;font-size:11.5px;padding:2px 8px;border-radius:999px;background:#eef1f6;color:#485062;margin-right:5px}
+  .tag.warn{background:#fff4e5;color:#8a5300}
+  .tag.good{background:#e7f6ee;color:var(--ok)}
+  .tag.dead{background:#f2f2f4;color:#7a7f8a;text-decoration:line-through}
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+  th,td{text-align:left;padding:11px 13px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:#f1f3f7;font-size:12.5px;text-transform:uppercase;letter-spacing:.4px;color:#4d5462}
+  tr:last-child td{border-bottom:none}
+  td.num{white-space:nowrap;font-variant-numeric:tabular-nums}
+  .callout{
+    background:#fff;border:1px solid var(--line);border-left:4px solid var(--accent);
+    border-radius:10px;padding:14px 16px;margin:18px 0;font-size:14.5px;
+  }
+  .callout strong{color:var(--accent)}
+  footer{border-top:1px solid var(--line);margin-top:48px;padding-top:18px;color:var(--muted);font-size:12.5px}
+  a{color:#0b4fa8}
+  .loc-block{margin:26px 0 36px}
+  .loc-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:10px;margin:0 0 10px}
+  .loc-head h3{margin:0;font-size:17px}
+  .loc-head span{font-size:13px;color:var(--muted)}
+  .note{margin:8px 0 0;font-size:12.5px;color:var(--muted);line-height:1.5}
+  table.compact th,table.compact td{padding:8px 11px;font-size:13.5px}
+  table.compact td:last-child{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+  table.compact th:last-child{text-align:right}
+  @media (max-width:560px){header h1{font-size:24px}}
+
+  [hidden]{display:none!important}
+  .filters,.media-controls{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:12px 0}
+  .filters input,.filters select,button{font:inherit;color:inherit;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:#fff}
+  .filters input{max-width:100%}
+  button{cursor:pointer}
+  button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
+  .catalog{margin-top:12px}
+  .catalog img{width:100%;height:170px;object-fit:contain;background:var(--bg)}
+  dialog{width:min(92vw,820px);max-height:90vh;border:1px solid var(--line);border-radius:14px;color:var(--ink)}
+  dialog::backdrop{background:#14161acc}
+  #vehicle-image,#vehicle-panorama{display:block;width:100%;height:min(48vh,480px);background:var(--bg);object-fit:contain}
+  #vehicle-image.spin{cursor:grab;touch-action:pan-y;user-select:none}
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.css">
+<script defer src="https://cdn.jsdelivr.net/npm/pannellum@2.5.7/build/pannellum.js"></script>
+<script defer src="catalog.js"></script>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>Rent-to-Own Vehicles &amp; Car Subscriptions</h1>
+    <p>What is actually available around Pueblo, Colorado — local dealerships that consider low credit, true lease-to-own programs, and subscription-style car services. Prices are the published figures, not credit-adjusted quotes.</p>
+    <div class="stamp">Compiled November 12, 2026 · Pueblo, CO 81004 area</div>
+  </div>
+</header>
+
+<main>
+
+  <h2>Find dealerships by financing type</h2>
+  <p class="sub">Buy here, pay here means the dealership offers direct financing. Some dealers help buyers with low credit through outside lenders. Approval and terms depend on the application and vehicle.</p>
+  <div class="filters">
+    <label for="dealer-search">Search dealerships</label>
+    <input id="dealer-search" type="search" placeholder="Name or city">
+    <label for="financing-filter">Financing</label>
+    <select id="financing-filter">
+      <option value="">All dealerships</option>
+      <option value="low">Considers low credit</option>
+      <option value="direct">Verified in-house / buy here, pay here</option>
+      <option value="lender">Low credit through outside lenders</option>
+      <option value="unverified">Financing details unverified</option>
+    </select>
+  </div>
+  <p id="dealer-count" class="note" role="status"></p>
+  <div class="grid" id="dealerships"></div>
+  <noscript><p><a href="https://www.carhopofpueblo.com/used-vehicles/">Browse the CarHop Pueblo catalog</a>. Enable JavaScript for dealership filters and vehicle galleries.</p></noscript>
+
+  <dialog id="vehicle-viewer" aria-labelledby="vehicle-title">
+    <form method="dialog"><button autofocus>Close gallery</button></form>
+    <h3 id="vehicle-title"></h3>
+    <div id="media-modes" class="media-controls" aria-label="View options"></div>
+    <img id="vehicle-image" alt="" draggable="false" hidden>
+    <div id="vehicle-panorama" hidden></div>
+    <div id="photo-controls" class="media-controls">
+      <button type="button" id="previous-photo">Previous</button>
+      <button type="button" id="next-photo">Next</button>
+    </div>
+    <p id="media-status" class="note" role="status"></p>
+    <a id="vehicle-source">View dealer listing</a>
+  </dialog>
+
+  <h2>What the payments actually add up to</h2>
+  <p class="sub">Rent-to-own is priced weekly or bi-weekly, and the total cost to own is far above the sticker price. Work the total before you sign.</p>
+
+  <table>
+    <thead>
+      <tr><th>Vehicle price</th><th>Typical weekly payment</th><th>Term</th><th>Total paid</th><th>Cost above sticker</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="num">$12,000</td><td class="num">$90 – $120 / wk</td><td>24 – 36 mo</td><td class="num">$9,360 – $18,720</td><td class="num">−$2,640 to +$6,720</td></tr>
+      <tr><td class="num">$16,000</td><td class="num">$120 – $160 / wk</td><td>24 – 36 mo</td><td class="num">$12,480 – $24,960</td><td class="num">−$3,520 to +$8,960</td></tr>
+      <tr><td class="num">$20,000</td><td class="num">$150 – $200 / wk</td><td>24 – 36 mo</td><td class="num">$15,600 – $31,200</td><td class="num">−$4,400 to +$11,200</td></tr>
+    </tbody>
+  </table>
+  <p class="sub" style="margin-top:10px">Range assumes 104 weeks (2 yr) at the low payment through 156 weeks (3 yr) at the high payment. A 24-month term at the low end can beat the sticker price; the same term at the high end can nearly double it — which end you land on is the whole negotiation.</p>
+
+  <div class="callout">
+    <strong>Colorado protections:</strong> rental-purchase agreements fall under C.R.S. 5-10-401 through 5-10-504. The contract must disclose the total cost to own and the early buy-out price, you cannot be charged more than the disclosed total, late fees are capped (a few dollars per late payment, no more than six times in any six-month period), and choosing weekly over monthly payments can legally cost you more. Ask for the total-cost-to-own figure in writing before signing anything.
+  </div>
+
+  <h2>True lease-to-own &amp; rent-to-own programs</h2>
+  <p class="sub">These are the programs that work closer to actual rent-to-own: rental payments that convert to ownership, run through partner dealers.</p>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="photo"><img src="images/driveitaway.jpg" alt="Car key" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/driveitaway.png" alt="DriveItAway logo">
+          <div><h3>DriveItAway</h3><div class="loc">National · through participating dealers</div></div>
+        </div>
+        <div class="price">Low or no down <span>weekly rental that converts</span></div>
+        <ul class="facts">
+          <li>Start by renting weekly, then convert to ownership</li>
+          <li><span class="tag good">Reports on-time payments to credit bureaus</span></li>
+          <li>Must be run through a partner dealership — confirm a Pueblo-area partner before applying</li>
+        </ul>
+        <div class="meta"><b>Best fit</b> if you want rent-to-own that builds credit history</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/flexcarlease.jpg" alt="Volvo XC60" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/flexcarlease.png" alt="Flex Car Lease logo">
+          <div><h3>Flex — pre-owned lease (Colorado)</h3><div class="loc">Denver · Colorado Springs · Aurora · Fort Collins</div></div>
+        </div>
+        <div class="price">$99 start fee <span>24-month lease, payments not published</span></div>
+        <ul class="facts">
+          <li>Leases ~2-year-old vehicles still under factory warranty</li>
+          <li>20+ brands, approved online through banking partners</li>
+          <li><span class="tag warn">Not ownership</span> lease — you return the car at the end</li>
+        </ul>
+        <div class="meta"><b>Note:</b> unrelated to “Flexcar” below — different company, different product</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/acima.jpg" alt="Car tire" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <div class="logo blank">AC</div>
+          <div><h3>Acima lease-to-own (retail)</h3><div class="loc">Big O Tires · Good Guys · Pueblo retailers</div></div>
+        </div>
+        <div class="price">Weekly / bi-weekly <span>not a vehicle loan</span></div>
+        <ul class="facts">
+          <li>Lease-to-own for tires and parts at Pueblo shops — not full vehicles</li>
+          <li>Needs active checking account, $750+/mo income, 3 months history</li>
+          <li><span class="tag warn">Costs more</span> than the cash price; early purchase option available</li>
+        </ul>
+        <div class="meta"><b>Useful only</b> for getting tires/repairs onto a payment plan</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2>Car subscriptions — nearest availability</h2>
+  <p class="sub">All-inclusive monthly car use: insurance, maintenance and roadside bundled. None of these operate in Pueblo itself.</p>
+
+  <div class="grid">
+
+    <div class="card">
+      <div class="photo"><img src="images/sixt.jpg" alt="BMW 3 Series" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/sixt.png" alt="SIXT logo">
+          <div><h3>SIXT+</h3><div class="loc">80+ US locations · Denver branch</div></div>
+        </div>
+        <div class="price">$999 – $1,699 / mo <span>30-day terms</span></div>
+        <ul class="facts">
+          <li>Book a vehicle class, renew every 30 days, cancel with notice</li>
+          <li>Premium brands; pickup at a SIXT branch (delivery in some Denver areas)</li>
+          <li><span class="tag good">Closest real subscription to Pueblo</span></li>
+        </ul>
+        <div class="meta"><b>Best bet</b> for month-to-month flexibility in Colorado today</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/hertz.jpg" alt="Rental cars" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/hertz.png" alt="Hertz logo">
+          <div><h3>Hertz long-term rental</h3><div class="loc">Denver · Colorado Springs</div></div>
+        </div>
+        <div class="price">≈ $1,300 – $4,100 / mo <span>derived from daily rates</span></div>
+        <ul class="facts">
+          <li>Denver average $137/day; good-deal rates around $71/day; Lakewood as low as $44/day</li>
+          <li>Monthly rate negotiated directly — the daily × 30 math is an upper bound</li>
+          <li>Insurance and maintenance included in the rental</li>
+        </ul>
+        <div class="meta"><b>Cheapest path</b> to “car for a month” without owning anything</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/flexcar.jpg" alt="Tesla Model 3" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/flexcar.png" alt="Flexcar logo">
+          <div><h3>Flexcar</h3><div class="loc">8 metros · Denver — coming soon</div></div>
+        </div>
+        <div class="price">$450 – $1,990 / mo <span>+ $249/yr membership</span></div>
+        <ul class="facts">
+          <li>No down payment, month-to-month, swap cars anytime ($199 swap)</li>
+          <li>Insurance, maintenance and roadside included</li>
+          <li><span class="tag warn">Not available</span> in Colorado yet — Denver hub not open</li>
+        </ul>
+        <div class="meta"><b>Watch list</b> — join the Denver notify list if you can wait</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/porsche.jpg" alt="Porsche 911" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <img class="logo" src="images/porsche.png" alt="Porsche logo">
+          <div><h3>Porsche Drive</h3><div class="loc">Select US cities</div></div>
+        </div>
+        <div class="price">$2,100 – $3,600 / mo <span>luxury tier</span></div>
+        <ul class="facts">
+          <li>Multi-model access, insurance and maintenance included</li>
+          <li>The last surviving manufacturer-run subscription in the US</li>
+        </ul>
+        <div class="meta"><b>Not practical</b> in Pueblo — included for completeness</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="photo"><img src="images/volvo.jpg" alt="Volvo XC40" loading="lazy"></div>
+      <div class="body">
+        <div class="head">
+          <div class="logo blank">V</div>
+          <div><h3>Care by Volvo</h3><div class="loc">Formerly available through Volvo dealers</div></div>
+        </div>
+        <div class="price"><span class="tag dead">Suspended</span> <span>since Aug 1, 2024</span></div>
+        <ul class="facts">
+          <li>Was ~$600–$650/mo all-in with insurance and maintenance</li>
+          <li>No new subscriptions accepted; no relaunch announced as of late 2026</li>
+          <li>Lots of listicles still quote it as active — they are out of date</li>
+        </ul>
+        <div class="meta"><b>Do not</b> budget around this program</div>
+      </div>
+    </div>
+
+  </div>
+
+  <h2 id="catalog">Catalog by location</h2>
+  <p class="sub">What each business had publicly listed on November 12, 2026, with the exact price shown on the listing. Where a lot publishes no vehicle prices, that is stated plainly rather than filled with an estimate.</p>
+
+  <div class="loc-block">
+    <div class="loc-head"><h3>CarHop of Pueblo</h3><span>601 W 29th St, Pueblo, CO 81008 · (719) 696-7615 · 14 vehicles listed</span></div>
+    <table class="compact">
+      <thead><tr><th>Vehicle</th><th>Listed price</th></tr></thead>
+      <tbody>
+        <tr><td>2017 Ford Explorer XLT</td><td class="num">$16,095</td></tr>
+        <tr><td>2018 Ford Fusion SE</td><td class="num">$15,495</td></tr>
+        <tr><td>2014 Subaru Impreza</td><td class="num">$14,095</td></tr>
+        <tr><td>2011 Kia Soul !</td><td class="num">$10,795</td></tr>
+        <tr><td>2013 Kia Soul !</td><td class="num">$10,495</td></tr>
+        <tr><td>2013 Kia Soul ! (second unit)</td><td class="num">$9,795</td></tr>
+        <tr><td>2012 Kia Soul !</td><td class="num">$9,395</td></tr>
+        <tr><td>2010 Subaru Impreza 2.5i</td><td class="num">$8,995</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>$8,995 – $16,095</strong> across the 8 listings that showed a price. Prices are retail, before tax, title and dealer fees. In-house BHPH financing, 18-month/18,000-mile limited warranty, 7-day money-back.</p>
+  </div>
+
+  <div class="loc-block">
+    <div class="loc-head"><h3>Discount Motors</h3><span>2060 US-50, Pueblo, CO 81008 · (719) 542-2585 · 160 vehicles listed</span></div>
+    <table class="compact">
+      <thead><tr><th>Vehicle</th><th>Mileage</th><th>Listed price</th></tr></thead>
+      <tbody>
+        <tr><td>2022 RAM 3500</td><td>179,604</td><td class="num">$53,994</td></tr>
+        <tr><td>2023 Dodge Charger</td><td>55,182</td><td class="num">$26,594</td></tr>
+        <tr><td>2022 Volkswagen Atlas</td><td>—</td><td class="num">$24,997</td></tr>
+        <tr><td>2019 Ram 1500 Big Horn Crew Cab 4x4</td><td>80,242</td><td class="num">$24,994</td></tr>
+        <tr><td>2017 Ford F-150</td><td>125,793</td><td class="num">$23,994</td></tr>
+        <tr><td>2020 Ford Ranger</td><td>115,403</td><td class="num">$21,994</td></tr>
+        <tr><td>2005 Chevrolet Corvette</td><td>78,732</td><td class="num">$21,994</td></tr>
+        <tr><td>2014 Infiniti QX80</td><td>116,648</td><td class="num">$13,594</td></tr>
+        <tr><td>2013 Audi A5 2.0T Premium Plus</td><td>126,575</td><td class="num">$11,994</td></tr>
+        <tr><td>2014 Dodge Journey</td><td>145,719</td><td class="num">$9,994</td></tr>
+        <tr><td>2012 Toyota Venza LE V6</td><td>151,246</td><td class="num">$9,994</td></tr>
+        <tr><td>2007 Chevrolet Silverado 2500HD</td><td>—</td><td class="num">$7,594</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>Full lot runs $3,594 to about $54,000.</strong> Body-style counts from their own inventory page: 64 pickups, 35 SUVs, 17 sedans, 8 coupes, 6 hatchbacks, 5 wagons, 4 chassis cabs, 2 convertibles, 2 minivans. The dealer lists financing through partner banks and credit unions.</p>
+  </div>
+
+  <div class="loc-block">
+    <div class="loc-head"><h3>DriveTime — Colorado Springs</h3><span>175 N Academy Blvd · (719) 988-3365 · ~40 mi from Pueblo</span></div>
+    <table class="compact">
+      <thead><tr><th>Vehicle</th><th>Mileage</th><th>Listed price</th></tr></thead>
+      <tbody>
+        <tr><td>2016 FIAT 500X</td><td>91,347</td><td class="num">$10,995</td></tr>
+        <tr><td>2017 Kia Rio LX</td><td>82,997</td><td class="num">$11,595</td></tr>
+        <tr><td>2014 Ford Escape Titanium</td><td>114,738</td><td class="num">$11,995</td></tr>
+        <tr><td>2015 Kia Soul</td><td>112,254</td><td class="num">$12,395</td></tr>
+        <tr><td>2021 Chevrolet Spark 1LT</td><td>90,445</td><td class="num">$12,695</td></tr>
+        <tr><td>2020 Chevrolet Trax LS</td><td>81,582</td><td class="num">$13,395</td></tr>
+        <tr><td>2017 Ford Escape SE</td><td>96,241</td><td class="num">$13,595</td></tr>
+        <tr><td>2018 Ford EcoSport SE</td><td>88,337</td><td class="num">$13,895</td></tr>
+        <tr><td>2020 Ford Escape S</td><td>75,835</td><td class="num">$14,495</td></tr>
+        <tr><td>2016 Kia Sorento LX</td><td>96,520</td><td class="num">$14,595</td></tr>
+        <tr><td>2020 Nissan Kicks SV</td><td>78,772</td><td class="num">$15,095</td></tr>
+        <tr><td>2019 Nissan Rogue S</td><td>92,899</td><td class="num">$15,195</td></tr>
+        <tr><td>2016 Chevrolet Equinox LS</td><td>89,632</td><td class="num">$15,695</td></tr>
+        <tr><td>2015 Jeep Cherokee Trailhawk</td><td>96,183</td><td class="num">$16,095</td></tr>
+        <tr><td>2020 Nissan Rogue SV</td><td>118,623</td><td class="num">$16,295</td></tr>
+        <tr><td>2017 Ford Explorer</td><td>107,891</td><td class="num">$17,695</td></tr>
+        <tr><td>2019 Hyundai Santa Fe 2.4 SE</td><td>88,776</td><td class="num">$19,095</td></tr>
+      </tbody>
+    </table>
+    <p class="note"><strong>$10,995 – $19,095</strong> on the 17 listings I could read. DriveTime reprices constantly and gates the real payment behind a credit check — the “$X down / $Y per month” figures are hidden until you enter your details.</p>
+  </div>
+
+  <div class="loc-block">
+    <div class="loc-head"><h3>AutoWorld Inc</h3><span>613 E 4th St, Pueblo, CO 81001 · (719) 242-5467</span></div>
+    <div class="callout" style="margin:0">
+      <strong>No catalog to show.</strong> AutoWorld's own inventory page returns “0 Vehicles” and has no listings behind it. The only recent vehicle they posted publicly was a <strong>2011 Chevrolet Impala LT at $2,995</strong>. Directory price bands for the lot: used cars $5,000–$12,000, trucks $10,000–$25,000, SUVs $15,000–$30,000. Call before driving over — hours are Tuesday–Friday only.
+    </div>
+  </div>
+
+  <div class="loc-block">
+    <div class="loc-head"><h3>Car Force Auto Sales</h3><span>3606 Morris Ave, Pueblo, CO 81008 · (719) 334-0337</span></div>
+    <div class="callout" style="margin:0">
+      <strong>No catalog to show.</strong> Car Force has no website and publishes no vehicle listings anywhere I could find — no prices, no photos, no inventory count. It is a 7-year-old licensed dealer with a 4.8★ rating, so the only way to get a catalog is to call or walk the lot.
+    </div>
+  </div>
+
+  <h2>Plan catalog — subscriptions and rentals</h2>
+  <p class="sub">These price by tier rather than by individual car, and none of the tiers are published down to the vehicle. What follows is the actual plan structure and price band each one advertises.</p>
+
+  <table class="compact">
+    <thead><tr><th>Program</th><th>Structure</th><th>Price</th><th>Bundled</th></tr></thead>
+    <tbody>
+      <tr><td>SIXT+</td><td>30-day renewing subscription, 80+ US locations</td><td class="num">$999 – $1,699 / mo</td><td>Insurance, maintenance, roadside</td></tr>
+      <tr><td>Flexcar</td><td>Month-to-month, swap cars ($199), 8 metros</td><td class="num">$450 – $1,990 / mo<br>+ $249 / yr</td><td>Insurance, maintenance, roadside</td></tr>
+      <tr><td>Porsche Drive</td><td>Multi-model luxury subscription</td><td class="num">$2,100 – $3,600 / mo</td><td>Insurance, maintenance</td></tr>
+      <tr><td>Hertz long-term</td><td>Daily rate, monthly negotiated at the counter</td><td class="num">$44 – $137 / day<br>≈ $1,300 – $4,100 / mo</td><td>Insurance, maintenance</td></tr>
+      <tr><td>Flex pre-owned lease</td><td>24-month lease, $99 start fee, Colorado</td><td class="num">Payments not published</td><td>Factory warranty remaining</td></tr>
+      <tr><td>Care by Volvo</td><td class="num">Suspended Aug 1, 2024</td><td class="num">Was ~$600 – $650 / mo</td><td>Was all-inclusive</td></tr>
+    </tbody>
+  </table>
+  <p class="note">Monthly figures for Hertz are daily × 30 arithmetic, not a quoted monthly rate — a real monthly contract is usually cheaper. Every subscription above quotes on credit score, age and mileage allowance, so the low end of each band is the best case.</p>
+
+  <h2>Bottom line for Pueblo</h2>
+  <table>
+    <thead><tr><th>If you want…</th><th>Go here</th><th>Expect to pay</th></tr></thead>
+    <tbody>
+      <tr><td>To own a car with bad/no credit, locally</td><td>CarHop of Pueblo (601 W 29th St)</td><td class="num">$11.7k–$16k sticker, weekly payments</td></tr>
+      <tr><td>The widest local selection</td><td>Discount Motors (2060 US-50)</td><td class="num">Quote at the lot</td></tr>
+      <tr><td>A national program with published terms</td><td>DriveTime, Colorado Springs</td><td class="num">$11k–$17.3k sticker</td></tr>
+      <tr><td>Rent-to-own that builds credit</td><td>DriveItAway partner dealer</td><td class="num">Low/no down, weekly</td></tr>
+      <tr><td>All-inclusive month-to-month car</td><td>SIXT+ Denver, or Hertz long-term</td><td class="num">$999–$1,699/mo · or daily rates</td></tr>
+      <tr><td>Cheapest month of driving</td><td>Hertz Lakewood / Colorado Springs</td><td class="num">from ~$44/day</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <p><strong>Sources &amp; caveats.</strong> Vehicle prices are advertised inventory as published on each dealer's site and were checked November 12, 2026 — inventory rotates daily. Subscription prices are national published ranges; every provider quotes by credit score, age, mileage plan and market, so treat them as floors, not quotes. Ratings are Google review scores as aggregated by third-party directories. Derived monthly rental figures (daily × 30) are arithmetic, not offers.</p>
+    <p><strong>Photos.</strong> Card images are illustrative, not photos of the actual vehicles for sale at these dealers — they are stock images of the same makes and models drawn from Wikipedia and Wikimedia Commons and remain under their contributors' licenses (CC BY-SA or public domain). The dealer logos are trademarks of their owners and are used only to identify the businesses.</p>
+    <p>This page is a comparison aid, not financial or legal advice. Before signing a rental-purchase agreement in Colorado, request the total-cost-to-own disclosure required under C.R.S. 5-10-401 et seq.</p>
+  </footer>
+
+</main>
+</body>
+</html>

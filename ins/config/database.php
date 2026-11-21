@@ -366,6 +366,10 @@ try {
     $existingCardColumns = array_column($cardColumns, 'name');
 
     $cardMigrations = [
+        'comprehensive_deductible' => "ALTER TABLE insurance_cards ADD COLUMN comprehensive_deductible TEXT NOT NULL DEFAULT ''",
+        'collision_deductible' => "ALTER TABLE insurance_cards ADD COLUMN collision_deductible TEXT NOT NULL DEFAULT ''",
+        'uninsured_underinsured_limits' => "ALTER TABLE insurance_cards ADD COLUMN uninsured_underinsured_limits TEXT NOT NULL DEFAULT ''",
+        'medical_payments_limit' => "ALTER TABLE insurance_cards ADD COLUMN medical_payments_limit TEXT NOT NULL DEFAULT ''",
         'secondary_insured' => "ALTER TABLE insurance_cards ADD COLUMN secondary_insured TEXT NOT NULL DEFAULT ''",
         'vehicle_make_id' => "ALTER TABLE insurance_cards ADD COLUMN vehicle_make_id INTEGER",
         'vehicle_model_id' => "ALTER TABLE insurance_cards ADD COLUMN vehicle_model_id INTEGER",

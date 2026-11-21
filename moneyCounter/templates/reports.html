@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block content %}
+{% set movement_labels = {'all':'All movements','sale':'Sales','deposit':'Deposits','payout':'Payouts','withdrawal':'Withdrawals','addition':'Additions','adjustment':'Adjustments'} %}
+<div class="page-heading"><div><p class="eyebrow">CASH INTELLIGENCE</p><h1>Reports</h1><p class="muted">Review cash movement and drawer reconciliation by business date.</p></div>
+<div class="actions" aria-label="Export report">
+{% for format, label in [('csv','CSV'),('xlsx','Excel'),('pdf','PDF'),('html','Print')] %}
+<a class="button small" href="{{ url_for('export', kind=format, period=report.period, start=report.start, end=report.end, movement=report.movement) }}">{{ label }}</a>
+{% endfor %}
+</div></div>
+<form method="get" class="panel section report-filter">
+  <label>Period<select name="period">{% for value in ['day','week','month','custom'] %}<option value="{{ value }}" {% if value == report.period %}selected{% endif %}>{{ value|capitalize }}</option>{% endfor %}</select></label>
+  <label>From (custom)<input type="date" name="start" value="{{ report.start }}"></label><label>End / anchor date<input type="date" name="end" value="{{ report.end }}"></label>
+  <label>Movement history<select name="movement">{% for value, label in movement_labels.items() %}<option value="{{ value }}" {% if value == report.movement %}selected{% endif %}>{{ label }}</option>{% endfor %}</select></label>
+  <button class="button primary">Apply</button>
+</form>
+<div class="report-range"><strong>{{ report.start }} through {{ report.end }}</strong><span class="muted">{{ report.drawer_count }} sessions · {{ report.closed_count }} closed</span></div>
+<div class="summary-grid">
+{% for label, value, symbol, tone in [('Cash sales',report.movements.sale,'up','sage'),('Deposits',report.movements.deposit,'deposit','blue'),('Payouts',report.movements.payout,'down','amber'),('Closed over / short',report.over_cents + report.short_cents,'target','sage')] %}
+<article class="panel metric"><span class="metric-icon {{ tone }}">{{ icon(symbol,17) }}</span><span class="metric-label">{{ label }}</span><strong>{{ value|money }}</strong>{% if loop.last %}<small>Over {{ report.over_cents|money }} · Short {{ report.short_cents|money }}</small>{% endif %}</article>
+{% endfor %}
+</div>
+<section class="panel section report-section">
+  <div class="section-head"><div><p class="eyebrow">BY BUSINESS DATE</p><h2>Daily cash flow</h2></div></div>
+  {% if report.daily %}
+    {% set peaks = namespace(value=1) %}
+    {% for amounts in report.daily.values() %}{% set peaks.value = [peaks.value, amounts.sale, amounts.deposit, amounts.payout]|max %}{% endfor %}
+    <div class="chart">
+    {% for day, amounts in report.daily.items() %}
+      <div class="chart-day"><strong>{{ day }}</strong><div class="chart-bars">
+        {% for kind in ['sale','deposit','payout'] %}
+        <div class="chart-line"><span>{{ movement_labels[kind] }}</span><meter class="{{ kind }}" min="0" max="{{ peaks.value }}" value="{{ amounts[kind] }}" aria-label="{{ day }} {{ movement_labels[kind] }}"></meter><span>{{ amounts[kind]|money }}</span></div>
+        {% endfor %}
+      </div></div>
+    {% endfor %}
+    </div>
+  {% else %}<p class="muted">No cash activity in this period.</p>{% endif %}
+</section>
+<section class="panel section report-section">
+  <div class="section-head"><div><p class="eyebrow">CASH CONTROL</p><h2>Drawer reconciliation</h2></div></div>
+  <div class="table-scroll"><table><thead><tr><th>Drawer</th><th>Date</th><th>Status</th><th>Opening</th><th>Expected</th><th>Actual</th><th>Over / short</th></tr></thead><tbody>
+  {% for drawer in report.drawers %}<tr><td><a class="text-link" href="{{ url_for('workspace', view='activity', drawer=drawer.id) }}">{{ drawer.name }}</a></td><td>{{ drawer.business_date }}</td><td>{{ 'Closed' if drawer.closed_at else 'Open' }}</td><td>{{ drawer.opening_cents|money }}</td><td>{{ drawer.expected_cents|money }}</td><td>{{ drawer.actual_cents|money }}</td><td>{{ drawer.variance_cents|money }}</td></tr>
+  {% else %}<tr><td colspan="7">No drawers in this period.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+<section class="panel section report-section">
+  <div class="section-head"><div><p class="eyebrow">{{ movement_labels[report.movement]|upper }}</p><h2>Movement history</h2></div></div>
+  <div class="table-scroll"><table><thead><tr><th>Date</th><th>Drawer</th><th>Type</th><th>Amount</th><th>Note</th><th>Operator</th></tr></thead><tbody>
+  {% for item in report.transactions %}<tr><td>{{ item.created_at|localtime }}</td><td>{{ item.drawer_name }}</td><td>{{ item.kind|capitalize }}</td><td>{{ item.amount_cents|money }}</td><td>{{ item.note or '—' }}</td><td>{{ item.username }}</td></tr>
+  {% else %}<tr><td colspan="6">No matching movements.</td></tr>{% endfor %}
+  </tbody></table></div>
+</section>
+{% endblock %}

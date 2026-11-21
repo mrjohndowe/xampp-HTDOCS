@@ -1,0 +1,762 @@
+{
+  "vehicles": {
+    "title": "Vehicles",
+    "fields": [
+      {
+        "key": "make",
+        "label": "Make \u00b7 catalog or manual",
+        "type": "make"
+      },
+      {
+        "key": "model",
+        "label": "Model \u00b7 catalog or manual",
+        "type": "model"
+      },
+      {
+        "key": "year",
+        "label": "Year",
+        "type": "number"
+      },
+      {
+        "key": "vin",
+        "label": "VIN",
+        "type": "text"
+      },
+      {
+        "key": "plate",
+        "label": "Plate",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Color",
+        "type": "text"
+      },
+      {
+        "key": "baseline_date",
+        "label": "Vehicle / engine baseline date",
+        "type": "date"
+      },
+      {
+        "key": "odometer",
+        "label": "Vehicle baseline odometer",
+        "type": "number"
+      },
+      {
+        "key": "engine_miles",
+        "label": "Engine mileage at baseline",
+        "type": "number"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      },
+      {
+        "key": "cover_id",
+        "label": "Cover photo ID (from gallery)",
+        "type": "number"
+      }
+    ]
+  },
+  "trips": {
+    "title": "Trips",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "driver_id",
+        "label": "Driver (optional)",
+        "type": "ref:drivers"
+      },
+      {
+        "key": "date",
+        "label": "Date",
+        "type": "date"
+      },
+      {
+        "key": "start",
+        "label": "Starting odometer",
+        "type": "number"
+      },
+      {
+        "key": "end",
+        "label": "Ending odometer",
+        "type": "number"
+      },
+      {
+        "key": "purpose",
+        "label": "Purpose",
+        "type": "text"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "expenses": {
+    "title": "Expenses & fuel",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "date",
+        "label": "Date",
+        "type": "date"
+      },
+      {
+        "key": "category",
+        "label": "Category",
+        "type": "select:Fuel,Repairs,Maintenance,Parts,Other"
+      },
+      {
+        "key": "vendor",
+        "label": "Vendor",
+        "type": "text"
+      },
+      {
+        "key": "description",
+        "label": "Description",
+        "type": "textarea"
+      },
+      {
+        "key": "amount",
+        "label": "Total amount (fuel calculated on server)",
+        "type": "number"
+      },
+      {
+        "key": "odometer",
+        "label": "Fuel odometer",
+        "type": "number"
+      },
+      {
+        "key": "gallons",
+        "label": "Gallons (US)",
+        "type": "number"
+      },
+      {
+        "key": "unit_price",
+        "label": "Price per US gallon",
+        "type": "number"
+      },
+      {
+        "key": "full",
+        "label": "Full tank reached",
+        "type": "checkbox"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "mechanics": {
+    "title": "Mechanics",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Name",
+        "type": "text"
+      },
+      {
+        "key": "phone",
+        "label": "Phone",
+        "type": "text"
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "type": "text"
+      },
+      {
+        "key": "address",
+        "label": "Address",
+        "type": "textarea"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "invoices": {
+    "title": "Repair invoices",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "mechanic_id",
+        "label": "Mechanic",
+        "type": "ref:mechanics"
+      },
+      {
+        "key": "number",
+        "label": "Invoice number",
+        "type": "text"
+      },
+      {
+        "key": "date",
+        "label": "Invoice date",
+        "type": "date"
+      },
+      {
+        "key": "due_date",
+        "label": "Due date",
+        "type": "date"
+      },
+      {
+        "key": "amount",
+        "label": "Repair amount (counted once in expenses)",
+        "type": "number"
+      },
+      {
+        "key": "description",
+        "label": "Repair description",
+        "type": "textarea"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "payments": {
+    "title": "Invoice payments",
+    "fields": [
+      {
+        "key": "invoice_id",
+        "label": "Invoice",
+        "type": "ref:invoices"
+      },
+      {
+        "key": "date",
+        "label": "Payment date",
+        "type": "date"
+      },
+      {
+        "key": "amount",
+        "label": "Payment amount",
+        "type": "number"
+      },
+      {
+        "key": "method",
+        "label": "Payment method",
+        "type": "text"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "drivers": {
+    "title": "Drivers",
+    "fields": [
+      {
+        "key": "name",
+        "label": "Full name",
+        "type": "text"
+      },
+      {
+        "key": "phone",
+        "label": "Phone",
+        "type": "text"
+      },
+      {
+        "key": "email",
+        "label": "Email",
+        "type": "text"
+      },
+      {
+        "key": "license",
+        "label": "License number",
+        "type": "text"
+      },
+      {
+        "key": "jurisdiction",
+        "label": "Licensing state / jurisdiction",
+        "type": "text"
+      },
+      {
+        "key": "expires",
+        "label": "License expiration",
+        "type": "date"
+      },
+      {
+        "key": "emergency",
+        "label": "Emergency contact",
+        "type": "textarea"
+      },
+      {
+        "key": "active",
+        "label": "Active driver",
+        "type": "checkbox"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "driver_records": {
+    "title": "Driver records",
+    "fields": [
+      {
+        "key": "driver_id",
+        "label": "Driver",
+        "type": "ref:drivers"
+      },
+      {
+        "key": "date",
+        "label": "Record date",
+        "type": "date"
+      },
+      {
+        "key": "type",
+        "label": "Record type",
+        "type": "select:Training,Qualification,License renewal,Incident,Violation,General note"
+      },
+      {
+        "key": "notes",
+        "label": "Record details",
+        "type": "textarea"
+      }
+    ]
+  },
+  "engines": {
+    "title": "Engine history",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "date",
+        "label": "Installation / replacement date",
+        "type": "date"
+      },
+      {
+        "key": "odometer",
+        "label": "Vehicle odometer at installation",
+        "type": "number"
+      },
+      {
+        "key": "engine_miles",
+        "label": "Engine mileage at installation",
+        "type": "number"
+      },
+      {
+        "key": "serial",
+        "label": "Serial number",
+        "type": "text"
+      },
+      {
+        "key": "reason",
+        "label": "Replacement reason",
+        "type": "text"
+      },
+      {
+        "key": "notes",
+        "label": "Notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "inspections": {
+    "title": "Weekly inspections",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "driver_id",
+        "label": "Assigned driver (optional)",
+        "type": "ref:drivers"
+      },
+      {
+        "key": "inspector",
+        "label": "Inspector identification / name",
+        "type": "text"
+      },
+      {
+        "key": "date",
+        "label": "Inspection date",
+        "type": "date"
+      },
+      {
+        "key": "time",
+        "label": "Inspection time",
+        "type": "time"
+      },
+      {
+        "key": "odometer",
+        "label": "Odometer",
+        "type": "number"
+      },
+      {
+        "key": "unit",
+        "label": "Distance unit",
+        "type": "select:mi,km"
+      },
+      {
+        "key": "year",
+        "label": "Year \u00b7 review prefill",
+        "type": "text"
+      },
+      {
+        "key": "make",
+        "label": "Make \u00b7 review prefill",
+        "type": "text"
+      },
+      {
+        "key": "model",
+        "label": "Model \u00b7 review prefill",
+        "type": "text"
+      },
+      {
+        "key": "vin",
+        "label": "VIN \u00b7 review prefill",
+        "type": "text"
+      },
+      {
+        "key": "plate",
+        "label": "Plate \u00b7 review prefill",
+        "type": "text"
+      },
+      {
+        "key": "comments",
+        "label": "Overall comments",
+        "type": "textarea"
+      },
+      {
+        "key": "acknowledged",
+        "label": "I personally reviewed and completed this inspection",
+        "type": "checkbox"
+      },
+      {
+        "key": "status",
+        "label": "Status",
+        "type": "select:Draft,Completed"
+      }
+    ]
+  },
+  "issues": {
+    "title": "Inspection follow-up",
+    "fields": [
+      {
+        "key": "inspection_id",
+        "label": "Inspection",
+        "type": "ref:inspections"
+      },
+      {
+        "key": "item",
+        "label": "Checklist item key",
+        "type": "text"
+      },
+      {
+        "key": "status",
+        "label": "Follow-up status",
+        "type": "select:Open,In progress,Resolved"
+      },
+      {
+        "key": "original_result",
+        "label": "Original result (read-only evidence in inspection)",
+        "type": "text"
+      },
+      {
+        "key": "original_notes",
+        "label": "Original finding",
+        "type": "textarea"
+      },
+      {
+        "key": "action",
+        "label": "Action taken",
+        "type": "textarea"
+      },
+      {
+        "key": "responsible",
+        "label": "Responsible person",
+        "type": "text"
+      },
+      {
+        "key": "resolved_date",
+        "label": "Resolution date",
+        "type": "date"
+      },
+      {
+        "key": "notes",
+        "label": "Follow-up notes",
+        "type": "textarea"
+      }
+    ]
+  },
+  "sales": {
+    "title": "Bill of Sale",
+    "fields": [
+      {
+        "key": "vehicle_id",
+        "label": "Vehicle (optional, or manual details)",
+        "type": "ref:vehicles"
+      },
+      {
+        "key": "jurisdiction",
+        "label": "Template / jurisdiction (general editable form)",
+        "type": "text"
+      },
+      {
+        "key": "buyer_name",
+        "label": "Buyer legal name",
+        "type": "text"
+      },
+      {
+        "key": "buyer_address",
+        "label": "Buyer mailing address",
+        "type": "textarea"
+      },
+      {
+        "key": "buyer_contact",
+        "label": "Buyer contact (optional)",
+        "type": "text"
+      },
+      {
+        "key": "seller_name",
+        "label": "Seller legal name",
+        "type": "text"
+      },
+      {
+        "key": "seller_address",
+        "label": "Seller mailing address",
+        "type": "textarea"
+      },
+      {
+        "key": "seller_contact",
+        "label": "Seller contact (optional)",
+        "type": "text"
+      },
+      {
+        "key": "date",
+        "label": "Sale date",
+        "type": "date"
+      },
+      {
+        "key": "time",
+        "label": "Sale time",
+        "type": "time"
+      },
+      {
+        "key": "location",
+        "label": "Sale location",
+        "type": "text"
+      },
+      {
+        "key": "year",
+        "label": "Vehicle year",
+        "type": "text"
+      },
+      {
+        "key": "make",
+        "label": "Make \u00b7 review prefill",
+        "type": "make"
+      },
+      {
+        "key": "model",
+        "label": "Model \u00b7 review prefill",
+        "type": "model"
+      },
+      {
+        "key": "vin",
+        "label": "VIN",
+        "type": "text"
+      },
+      {
+        "key": "plate",
+        "label": "Plate",
+        "type": "text"
+      },
+      {
+        "key": "color",
+        "label": "Color",
+        "type": "text"
+      },
+      {
+        "key": "odometer",
+        "label": "Odometer disclosure reading",
+        "type": "number"
+      },
+      {
+        "key": "unit",
+        "label": "Odometer unit",
+        "type": "select:mi,km"
+      },
+      {
+        "key": "disclosure",
+        "label": "Mileage disclosure (choose deliberately)",
+        "type": "select:Actual mileage,Exceeds mechanical limits,Not actual mileage"
+      },
+      {
+        "key": "price",
+        "label": "Sale price",
+        "type": "number"
+      },
+      {
+        "key": "currency",
+        "label": "Currency",
+        "type": "text"
+      },
+      {
+        "key": "deposit",
+        "label": "Deposit",
+        "type": "number"
+      },
+      {
+        "key": "balance",
+        "label": "Remaining balance (server calculated)",
+        "type": "number"
+      },
+      {
+        "key": "payment_method",
+        "label": "Payment method",
+        "type": "text"
+      },
+      {
+        "key": "payment_status",
+        "label": "Payment status (not automatic)",
+        "type": "select:Unpaid,Deposit received,Paid,Other"
+      },
+      {
+        "key": "payment_due",
+        "label": "Payment due date (if applicable)",
+        "type": "date"
+      },
+      {
+        "key": "payment_terms",
+        "label": "Agreed payment terms",
+        "type": "textarea"
+      },
+      {
+        "key": "condition",
+        "label": "Vehicle condition",
+        "type": "textarea"
+      },
+      {
+        "key": "defects",
+        "label": "Known defects (state none if reviewed)",
+        "type": "textarea"
+      },
+      {
+        "key": "accessories",
+        "label": "Included accessories",
+        "type": "textarea"
+      },
+      {
+        "key": "title_liens",
+        "label": "Title / lien disclosure (explicitly review)",
+        "type": "textarea"
+      },
+      {
+        "key": "delivery",
+        "label": "Delivery / possession date and arrangements",
+        "type": "textarea"
+      },
+      {
+        "key": "warranty",
+        "label": "Warranty / as-is terms (write agreed terms)",
+        "type": "textarea"
+      },
+      {
+        "key": "additional_terms",
+        "label": "Additional terms (state none if reviewed)",
+        "type": "textarea"
+      },
+      {
+        "key": "witness",
+        "label": "Witness / notary fields (optional, jurisdiction dependent)",
+        "type": "textarea"
+      },
+      {
+        "key": "reviewed",
+        "label": "I reviewed all disclosures and agreed terms before finalization",
+        "type": "checkbox"
+      },
+      {
+        "key": "status",
+        "label": "Agreement status",
+        "type": "select:Draft,Finalized"
+      }
+    ]
+  },
+  "sale_templates": {
+    "title": "Sale templates",
+    "fields": [
+      {
+        "key": "'name",
+        "label": "Template name",
+        "type": "text"
+      },
+      {
+        "key": "jurisdiction",
+        "label": "Jurisdiction / state",
+        "type": "text"
+      },
+      {
+        "key": "instructions",
+        "label": "Review instructions (not legal advice)",
+        "type": "textarea"
+      },
+      {
+        "key": "condition",
+        "label": "Condition wording",
+        "type": "textarea"
+      },
+      {
+        "key": "defects",
+        "label": "Defect-disclosure prompts",
+        "type": "textarea"
+      },
+      {
+        "key": "accessories",
+        "label": "Accessories prompts",
+        "type": "textarea"
+      },
+      {
+        "key": "title_liens",
+        "label": "Title / lien disclosure prompts",
+        "type": "textarea"
+      },
+      {
+        "key": "warranty",
+        "label": "Warranty wording (must be reviewed)",
+        "type": "textarea"
+      },
+      {
+        "key": "additional_terms",
+        "label": "Additional terms",
+        "type": "textarea"
+      },
+      {
+        "key": "payment_terms",
+        "label": "Payment terms",
+        "type": "textarea"
+      }
+    ]
+  }
+}

@@ -1,0 +1,4 @@
+Options -Indexes
+<FilesMatch "^(README|VERSION|config|composer|.*\\.(sqlite|db|sql|zip|log|md))">
+Require all denied
+</FilesMatch>

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="csrf-token" content="{{ csrf() }}">
+  <title>{% block title %}Money Counter{% endblock %}</title>
+  <script src="{{ url_for('static', filename='theme.js') }}"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}">
+  <script defer src="{{ url_for('static', filename='base.js') }}"></script>
+  {% block scripts %}{% endblock %}
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+{% macro icon(name, size=20) -%}
+<svg width="{{ size }}" height="{{ size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+{% if name == 'brand' %}<path d="M3 6h18v12H3zM3 10h3l3-4m12 4h-3l-3-4M3 14h3l3 4m12-4h-3l-3 4"/><circle cx="12" cy="12" r="2"/>
+{% elif name == 'overview' %}<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+{% elif name == 'count' %}<rect x="5" y="2.5" width="14" height="19" rx="2"/><path d="M8.5 7h7M9 11h1m4 0h1m-6 4h1m4 0h1m-6 3h1m4 0h1"/>
+{% elif name == 'activity' %}<path d="M2 12h4l3-7 5 14 3-7h5"/>
+{% elif name == 'reports' %}<path d="M4 4v16h16M8 16v-4m4 4V8m4 8v-6m4 6V5"/>
+{% elif name == 'settings' %}<path d="M4 7h16M4 12h16M4 17h16"/><circle cx="8" cy="7" r="2" fill="var(--panel)"/><circle cx="15" cy="12" r="2" fill="var(--panel)"/><circle cx="10" cy="17" r="2" fill="var(--panel)"/>
+{% elif name == 'theme' %}<path d="M20 15a8.6 8.6 0 0 1-11-11A8.6 8.6 0 1 0 20 15Z"/>
+{% elif name == 'logout' %}<path d="M10 4H4v16h6m-1-8h12m-4-4 4 4-4 4"/>
+{% elif name == 'plus' %}<path d="M12 5v14M5 12h14"/>
+{% elif name == 'arrow' %}<path d="M5 12h14m-6-6 6 6-6 6"/>
+{% elif name == 'cash' %}<rect x="2" y="5" width="20" height="14" rx="2"/><circle cx="12" cy="12" r="3"/><path d="M5 12h.1m13.9 0h.1"/>
+{% elif name == 'deposit' %}<path d="M4 15v5h16v-5m-8 0V3m-4 8 4 4 4-4"/>
+{% elif name == 'up' %}<path d="m3 16 6-6 4 4 7-8m-6 0h6v6"/>
+{% elif name == 'down' %}<path d="m3 8 6 6 4-4 7 8m-6 0h6v-6"/>
+{% elif name == 'target' %}<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/>
+{% endif %}
+</svg>
+{%- endmacro %}
+{% if user %}
+{% set active = view|default('reports' if request.endpoint == 'reports_page' else '') %}
+<div class="shell">
+  <aside class="sidebar">
+    <a class="brand" href="{{ url_for('workspace') }}"><span class="brand-mark">{{ icon('brand', 22) }}</span><span>Money Counter<small>CASH WORKSPACE</small></span></a>
+    <nav aria-label="Workspace">
+      <p class="nav-caption">WORKSPACE</p>
+      {% for id, label in [('overview','Overview'),('count','Cash counter'),('activity','Drawer activity'),('reports','Reports'),('settings','Settings')] %}
+        {% if id != 'settings' or user.role == 'admin' %}
+        <a class="nav-item" href="{{ url_for('reports_page') if id == 'reports' else url_for('workspace', view=id) }}" {% if active == id %}aria-current="page"{% endif %} data-nav="{{ id }}">{{ icon(id) }}<span>{{ label }}</span></a>
+        {% endif %}
+      {% endfor %}
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="local-label"><span></span> SQLite workspace</div>
+      <div class="profile">
+        <span class="avatar">{{ user.username[:2]|upper }}</span>
+        <span class="profile-name"><strong>{{ user.username }}</strong><small>{{ user.role|capitalize }}</small></span>
+        <form method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf" value="{{ csrf() }}">
+          <button type="submit" class="icon-button" aria-label="Sign out" title="Sign out">{{ icon('logout', 17) }}</button>
+        </form>
+      </div>
+    </div>
+  </aside>
+  <div class="surface">
+    <header class="topbar">
+      <span><span class="crumb">Workspace</span><span class="crumb-separator">/</span> {{ {'overview':'Overview','count':'Cash counter','activity':'Drawer activity','reports':'Reports','settings':'Settings'}.get(active, 'Money Counter') }}</span>
+      <div class="top-actions"><span class="currency-chip">USD</span><button type="button" class="icon-button theme-button" data-theme-toggle aria-label="Switch color theme" title="Switch color theme">{{ icon('theme') }}</button></div>
+    </header>
+    <main id="main" class="content">{% block content %}{% endblock %}</main>
+  </div>
+</div>
+{% else %}
+<main id="main" class="guest">{% block guest %}{% endblock %}</main>
+{% endif %}
+</body>
+</html>

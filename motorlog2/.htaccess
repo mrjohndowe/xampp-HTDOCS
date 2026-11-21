@@ -1,0 +1,9 @@
+Options -Indexes
+DirectoryIndex index.php
+SetEnvIf Authorization "(.+)" HTTP_AUTHORIZATION=$1
+<FilesMatch "^(?!index\.php$).*\.(php|py|json|sqlite3?|lock|ini|env|md|zip|sql|bak)$">
+    Require all denied
+</FilesMatch>
+<FilesMatch "^(?:VERSION|README|\.env.*|\..+)$">
+    Require all denied
+</FilesMatch>

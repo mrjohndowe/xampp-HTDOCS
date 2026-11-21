@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Cash activity report</title><link rel="stylesheet" href="{{ url_for('static', filename='app.css') }}"><script defer src="{{ url_for('static', filename='base.js') }}"></script></head>
+<body class="print-body"><main class="print-content">
+  <div class="actions print-actions"><a class="button" href="{{ url_for('reports_page', period=report.period, start=report.start, end=report.end, movement=report.movement) }}">Back to reports</a><button type="button" class="button primary" data-print>Print report</button></div>
+  <p class="eyebrow">MONEY COUNTER</p><h1>Cash activity report</h1><p>{{ report.start }} through {{ report.end }} · USD</p>
+  {% for title, headers, rows, currency in tables %}
+  <section class="report-section"><h2>{{ title }}</h2><div class="table-scroll"><table><thead><tr>{% for header in headers %}<th>{{ header }}</th>{% endfor %}</tr></thead><tbody>
+    {% for row in rows %}<tr>{% for cell in row %}<td>{{ cell|money if loop.index0 in currency else cell }}</td>{% endfor %}</tr>
+    {% else %}<tr><td colspan="{{ headers|length }}">No entries for this period.</td></tr>{% endfor %}
+  </tbody></table></div></section>
+  {% endfor %}
+</main></body></html>

@@ -1,0 +1,84 @@
+// Optional browser UI smoke test: Node 22+, PHP CLI, Chromium. No npm packages needed.
+import {execFileSync,spawn} from 'node:child_process';
+import assert from 'node:assert/strict';
+import {mkdtemp,rm,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {fileURLToPath} from 'node:url';
+import {createServer} from 'node:net';
+import {createHash} from 'node:crypto';
+const app=fileURLToPath(new URL('../',import.meta.url));
+const temp=await mkdtemp(join(tmpdir(),'motorlog-browser-'));
+const privateDir=join(temp,'private');
+const env={...process.env,MOTORLOG_DEMO:'1',MOTORLOG_DEMO_SIGNIN:'1',MOTORLOG_DATA_DIR:privateDir,MOTORLOG_DOCUMENT_ROOT:app};
+const sleep=t=>new Promise(resolve=>setTimeout(resolve,t));
+async function free(){return new Promise(resolve=>{const s=createServer();s.listen(0,'127.0.0.1',()=>{const p=s.address().port;s.close(()=>resolve(p));});});}
+const php=process.env.MOTORLOG_TEST_PHP||'php';
+const port=await free(),chromePort=await free();const origin=`http://127.0.0.1:${port}`;
+execFileSync(php,[join(app,'tools','console.php'),'demo'],{env,stdio:'inherit'});
+const backend=spawn(php,['-S',`127.0.0.1:${port}`,'-t',app,join(app,'router.php')],{env,stdio:'ignore'});
+const chrome=spawn(process.env.CHROMIUM||'chromium',['--headless','--no-sandbox','--disable-dev-shm-usage','--disable-gpu',`--remote-debugging-port=${chromePort}`,`--user-data-dir=${join(temp,'profile')}`,'about:blank'],{stdio:'ignore'});
+let sock,id=0;
+const pending=new Map();
+const send=(method,params={})=>new Promise((resolve,reject)=>{const name=++id;pending.set(name,{resolve,reject});sock.send(JSON.stringify({id:name,method,params}));});
+const run=async expression=>{const out=await send('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});if(out.exceptionDetails) throw Error(out.exceptionDetails.exception?.description||out.exceptionDetails.text);return out.result?.value;};
+async function eventually(fn,label){let err;for(let i=0;i<100;i++){try{const r=await fn();if(r)return r;}catch(e){err=e;}await sleep(90);}throw Error(label+': '+(err||'missing expected UI'));}
+const seen=(expr)=>eventually(()=>run(expr),expr);
+const act=async(fn,...args)=>run(`(${fn.toString()})(...${JSON.stringify(args)})`);
+const click=selector=>act(q=>{const element=document.querySelector(q);if(!element) throw Error('Missing '+q);element.click();return true;},selector);
+const field=(selector,v,byLabel=false)=>act((q,v,find)=>{const el=document.querySelector(q);if(!el) throw Error(q);el.value=find?[...el.options].find(x=>x.text===v)?.value||'':v;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return el.value;},selector,v,byLabel);
+try {
+  const target=await eventually(async()=>{const r=await fetch(`http://127.0.0.1:${chromePort}/json/list`);return (await r.json()).find(t=>t.type==='page');},'Chromium started');
+  sock=new WebSocket(target.webSocketDebuggerUrl);
+  await new Promise((res,rej)=>{sock.addEventListener('open',res,{once:true});sock.addEventListener('error',rej,{once:true});});
+  sock.addEventListener('message',m=>{const out=JSON.parse(m.data);const waiting=pending.get(out.id);if(!waiting)return;pending.delete(out.id);if(out.error)waiting.reject(Error(out.error.message));else waiting.resolve(out.result);});
+  await send('Page.enable');await send('Network.enable');await send('Page.navigate',{url:origin+'/'});
+  await seen(`document.querySelector('.hero')?.textContent.includes('Know every mile')`);
+  await click('[data-action="vehicleAdd"]');
+  await seen(`Array.from(document.querySelector('dialog [data-cmake]')?.options||[]).some(x=>x.text==='DODGE')`);
+  await field('dialog [data-cmake]','DODGE',true);
+  await seen(`Array.from(document.querySelector('dialog [data-cmodel]').options).some(x=>x.text==='Dart')`);
+  await field('dialog [data-cmodel]','Dart',true);
+  assert.equal(await run(`document.querySelector('dialog [name="model"]').value`),'Dart');
+  await field('dialog [data-cmake]','FORD',true);
+  assert.equal(await run(`document.querySelector('dialog [name="model"]').value`),'');
+  await seen(`Array.from(document.querySelector('dialog [data-cmodel]').options).some(x=>x.text==='Mustang')`);
+  assert.equal(await run(`Array.from(document.querySelector('dialog [data-cmodel]').options).some(x=>x.text==='Dart')`),false);
+  await click('dialog [data-close]');
+  await click('header [data-action="theme"]');assert.equal(await run(`document.documentElement.dataset.theme`),'dark');
+  await send('Page.reload');await seen(`document.querySelector('.metrics') && document.documentElement.dataset.theme==='dark'`);
+  await send('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await click('.mobile-menu');await click('.sidebar [data-id="inspections"]');await click('.page-heading [data-action="inspectionNew"]');
+  assert.equal(await run(`document.querySelectorAll('dialog input[type=radio]:checked').length`),0);
+  await field('dialog [name="vehicle_id"]','2022 Porsche 911 Carrera',true);await field('dialog [name="driver_id"]','Alex Morgan',true);
+  await click('dialog [name="result_tires"][value="attention"]');
+  await seen(`document.querySelector('dialog [data-progress-text]')?.textContent==='1 of 18 complete'`);
+  assert.equal(await run(`document.querySelector('dialog [data-issue-text]').textContent`),'1 finding');
+  await send('Network.setBlockedURLs',{urls:[origin+'/*r=save*']});
+  await field('dialog [name="note_tires"]','Keep this finding offline');
+  await click('dialog [data-draft]');await seen(`document.querySelector('dialog [data-save-state]')?.textContent.includes('Offline')`);
+  assert.equal(await run(`document.querySelector('dialog [name="note_tires"]').value`),'Keep this finding offline');
+  await send('Network.setBlockedURLs',{urls:[]});await click('dialog [data-draft]');await seen(`document.querySelector('dialog [data-save-state]')?.textContent.includes('Draft saved')`);
+  await click('dialog button[type="submit"]');await seen(`document.querySelector('dialog [data-error]')?.textContent.includes('explanatory notes') || document.querySelector('dialog [data-error]')?.textContent.includes('Select a result')`);
+  assert.equal(await run(`document.querySelector('dialog [name="note_tires"]').value`),'Keep this finding offline');
+  await act(()=>document.querySelector('dialog').close());
+  await click('.mobile-menu');await click('.sidebar [data-id="sales"]');await click('.page-heading [data-action="saleNew"]');
+  await field('dialog [name="price"]','5000');await field('dialog [name="deposit"]','500');
+  assert.equal(await run(`document.querySelector('[data-sale-total]').textContent`),'$4,500.00');
+  await click('dialog [data-draft]');await seen(`document.querySelector('dialog [data-save-state]')?.textContent.includes('Draft saved')`);
+  await act(()=>document.querySelector('dialog').close());
+  // Simulate a controlled GitHub result in the server's private cache; no external request/download.
+  const repo='owner-example/release-test';
+  await act(async repo=>{const token=JSON.parse(document.getElementById('boot').textContent).csrf;
+    const out=await fetch('?r=save',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-Token':token,'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({entity:'settings',action:'update',data:{site_name:'Motorlog',github_repo:repo}})});if(!out.ok)throw Error('Test setting update failed');},repo);
+  const tag='v1.10.0',zip=`https://github.com/${repo}/releases/download/${tag}/application.zip`;
+  const cache=join(privateDir,'release-'+createHash('sha256').update(repo).digest('hex')+'.json');
+  await writeFile(cache,JSON.stringify({checked:Math.floor(Date.now()/1000),state:'release',latest:{version:'1.10.0',tag,download:zip,download_label:'Application ZIP',notes:`https://github.com/${repo}/releases/tag/${tag}`}}));
+  await send('Page.reload');await seen(`document.querySelector('dialog')?.textContent.includes('Would you like to download the latest version?')`);
+  assert.equal(await run(`document.querySelector('dialog a.btn.primary').href`),zip);
+  await click('dialog [data-close]');await send('Page.reload');await seen(`document.querySelector('.page-heading h1')?.textContent==='Bills of sale'`);await sleep(500);
+  assert.equal(await run(`document.querySelector('dialog')===null`),true);
+  console.log('PASS: browser dashboard, make/model filtering and reset, persistent theme, mobile inspection progress/offline/validation, live sale balance and release dismissal');
+} finally {
+  sock?.close();backend.kill();chrome.kill();await sleep(320);await rm(temp,{recursive:true,force:true,maxRetries:3});
+}

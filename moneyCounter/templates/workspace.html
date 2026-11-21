@@ -1,0 +1,144 @@
+{% extends 'base.html' %}
+{% block scripts %}<script type="module" src="{{ url_for('static', filename='workspace.js') }}"></script>{% endblock %}
+{% set write = user.role != 'viewer' %}
+{% set headings = {
+  'overview':('DRAWER OPERATIONS','Cash overview','Track the till, cash movements, and reconciliation for each drawer session.'),
+  'count':('DENOMINATION WORKSPACE','Cash counter','Count loose coins, rolls, and bills by denomination.'),
+  'activity':('TRANSACTION HISTORY','Drawer activity','Review saved counts and cash movements for this drawer.'),
+  'settings':('WORKSPACE ADMINISTRATION','Settings','Manage default roll sizes for new drawer sessions.')
+} %}
+{% set kinds = [('opening', 'Open a drawer'), ('current', 'Current count'), ('deposit', 'Bank deposit'), ('closing', 'Closing count')] %}
+{% block content %}
+<div id="workspace" data-view="{{ view }}" data-api="{{ url_for('drawers') }}" data-can-write="{{ write|int }}"
+     data-timezone="{{ config.TIMEZONE.key }}" data-settings="{{ url_for('get_settings') }}">
+  <div class="page-heading">
+    <div><p class="eyebrow">{{ headings[view][0] }}</p><h1>{{ headings[view][1] }}</h1><p class="muted">{{ headings[view][2] }}</p></div>
+    {% if write and view == 'overview' %}<a class="button primary" href="{{ url_for('workspace', view='count', mode='opening') }}">{{ icon('plus', 17) }} Open drawer</a>{% endif %}
+  </div>
+  <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+  {% if view != 'settings' %}
+  <div class="drawer-toolbar" id="drawer-toolbar">
+    <span class="selector-icon">{{ icon('cash') }}</span>
+    <label for="drawer-select">Drawer session</label><select id="drawer-select" disabled><option>Loading drawers…</option></select>
+    <button type="button" class="button small" id="more-drawers" hidden>Load older</button>
+    <button type="button" class="button small" id="refresh-drawer" hidden>Refresh</button>
+    <span id="drawer-status" class="badge" hidden></span>
+  </div>
+  {% endif %}
+
+  {% if view == 'overview' %}
+    <section class="empty panel" id="no-drawer" hidden><h2>No drawer sessions</h2><p>Open a drawer with a starting till to begin counting cash.</p></section>
+    <div id="dashboard" hidden>
+      <section class="hero">
+        <div class="hero-copy"><p class="eyebrow"><span class="hero-dot"></span> DRAWER POSITION</p>
+          <p class="hero-name" id="drawer-name"></p>
+          <div class="hero-total" data-value="actual_cents"></div>
+          <p class="hero-caption" id="last-count"></p>
+        </div>
+        {% if write %}<a class="button hero-button" id="count-link" href="{{ url_for('workspace', view='count') }}">Count cash {{ icon('arrow', 17) }}</a>{% endif %}
+      </section>
+      <section class="summary-grid" aria-label="Drawer totals">
+        {% for key, label, symbol, accent, description in [
+          ('opening_cents','Starting till','cash','sage','Opening denomination count'),
+          ('actual_cents','Current cash','count','sage','Latest saved cash count'),
+          ('deposit','Deposits','deposit','blue','Removed for bank deposit'),
+          ('sale','Cash sales','up','sage','Cash received from sales'),
+          ('payout','Payouts','down','amber','Cash paid out'),
+          ('expected_cents','Expected cash','target','blue','Opening plus net movements'),
+          ('actual_cents','Actual cash','cash','sage','Physical count on record'),
+          ('variance_cents','Over / short','activity','amber','Actual less expected')] %}
+          <article class="panel metric"><span class="metric-icon {{ accent }}">{{ icon(symbol, 17) }}</span><span class="metric-label">{{ label }}</span><strong data-value="{{ key }}"></strong><small>{{ description }}</small></article>
+        {% endfor %}
+      </section>
+      <div class="split">
+        <section class="panel section"><div class="section-head"><div><p class="eyebrow">CASH FLOW</p><h2>Recent activity</h2></div><a class="text-link" data-drawer-link href="{{ url_for('workspace', view='activity') }}">View history {{ icon('arrow', 15) }}</a></div>
+          <div id="recent-activity"></div>
+        </section>
+        <section class="panel section">
+          <div class="section-head"><div><p class="eyebrow">LEDGER</p><h2>Record cash movement</h2></div><span class="metric-icon sage">{{ icon('activity', 17) }}</span></div>
+          {% if write %}
+          <form id="movement-form" class="stack">
+            <fieldset id="movement-fields" class="stack">
+              <div class="field-grid">
+                <label>Type<select name="kind"><option value="sale">Sale</option><option value="payout">Payout</option><option value="withdrawal">Withdrawal</option><option value="addition">Addition</option><option value="adjustment">Adjustment</option></select></label>
+                <label>Amount (USD)<input name="amount" required inputmode="decimal" maxlength="14" placeholder="0.00" aria-describedby="movement-help"></label>
+              </div>
+              <small class="muted" id="movement-help">Use a signed amount for an adjustment. Other movements use positive amounts.</small>
+              <label>Note<input name="note" maxlength="200" placeholder="e.g. Cash receipts"></label>
+              <button type="submit" class="button primary" data-busy="Recording…">Record movement</button>
+            </fieldset>
+          </form>
+          <p id="closed-message" class="muted" hidden>This session is closed. Its cash records are read-only.</p>
+          {% else %}<p class="muted">Your viewer role has access to saved activity and reports.</p>{% endif %}
+        </section>
+      </div>
+    </div>
+
+  {% elif view == 'count' %}
+  <section class="empty panel" id="no-drawer" hidden><h2>No drawer selected</h2><p>{% if write %}Use Open a drawer to enter the starting till.{% else %}Saved counts appear when an operator opens a drawer.{% endif %}</p></section>
+  <div class="mode-tabs" aria-label="Counting mode">
+    {% for id, label in kinds %}{% if write or id == 'current' %}<button type="button" class="mode-tab" data-mode="{{ id }}" aria-pressed="false">{{ label }}</button>{% endif %}{% endfor %}
+  </div>
+  <form id="count-form" hidden>
+    <div class="count-layout">
+      <fieldset id="denomination-fields" class="stack">
+        <section id="opening-fields" class="panel section" hidden>
+          <div class="section-head"><div><p class="eyebrow">NEW SESSION</p><h2>Opening details</h2></div></div>
+          <div class="field-grid"><label>Drawer name<input name="name" maxlength="80" placeholder="e.g. Main till"></label><label>Business date<input type="date" name="business_date" value="{{ today }}"></label></div>
+        </section>
+        {% for group, heading, helper in [('coins','Coins','Loose coins and sealed rolls'),('bills','Bills','Individual notes')] %}
+        <section class="panel denomination-panel">
+          <div class="section-head"><div><p class="eyebrow">USD {{ group|upper }}</p><h2>{{ heading }}</h2></div><span class="muted helper">{{ helper }}</span></div>
+          <div class="denom-row denom-header"><span>Denomination</span><span>{{ 'Loose' if group == 'coins' else 'Quantity' }}</span><span>{{ 'Rolls' if group == 'coins' else '' }}</span><span>Subtotal</span></div>
+          {% for code, label, cents, size in denominations if (size is not none) == (group == 'coins') %}
+            <div class="denom-row" data-code="{{ code }}" data-cents="{{ cents }}" data-label="{{ label }}">
+              <div class="denom-name"><strong>{{ label }}</strong><small>{{ cents|money }} each</small></div>
+              <input type="number" min="0" max="999999" step="1" inputmode="numeric" placeholder="0" data-quantity="loose" aria-label="{{ label }} {{ 'loose quantity' if size else 'quantity' }}">
+              {% if size %}<div class="roll-cell"><input type="number" min="0" max="999999" step="1" inputmode="numeric" placeholder="0" data-quantity="rolls" aria-label="{{ label }} rolls"><small data-roll-label></small></div>{% else %}<span></span>{% endif %}
+              <output class="subtotal">$0.00</output>
+            </div>
+          {% endfor %}
+        </section>
+        {% endfor %}
+        <section class="panel section" id="deposit-note" hidden><label>Deposit note<input name="deposit_note" maxlength="200" placeholder="e.g. Bank bag reference"></label></section>
+      </fieldset>
+      <aside class="panel section count-summary">
+        <p class="eyebrow">LIVE TOTAL</p><h2 id="count-heading">Cash count</h2><output id="draft-total" class="draft-total" aria-live="polite">$0.00</output>
+        <dl class="calculation"><div><dt>Coins</dt><dd id="coin-total">$0.00</dd></div><div><dt>Bills</dt><dd id="bill-total">$0.00</dd></div><div id="count-reference" hidden><dt id="reference-label"></dt><dd id="reference-total"></dd></div><div id="variance-row" hidden><dt>Over / short</dt><dd id="draft-variance"></dd></div></dl>
+        <p id="count-help" class="muted"></p>
+        <label id="close-confirm" class="check-label" hidden><input name="confirmed" type="checkbox"> I verified the physical cash in this drawer.</label>
+        <button class="button primary" id="save-count" type="submit" data-busy="Saving…">Save count</button>
+      </aside>
+    </div>
+  </form>
+
+  {% elif view == 'activity' %}
+  <section class="empty panel" id="no-drawer" hidden><h2>No drawer sessions</h2><p>Saved counts and movements will appear here.</p></section>
+  <div class="stack" id="activity" hidden>
+    <section class="panel section"><div class="section-head"><div><p class="eyebrow">LEDGER</p><h2>Cash movements</h2></div></div><div id="full-activity"></div></section>
+    <section class="panel section"><div class="section-head"><div><p class="eyebrow">DENOMINATIONS</p><h2>Saved counts</h2></div></div><div id="count-history"></div></section>
+  </div>
+
+  {% else %}
+  <form id="settings-form" class="panel section settings-panel" hidden>
+    <div class="section-head"><div><p class="eyebrow">DENOMINATIONS</p><h2>Coin rolls</h2></div><span class="metric-icon sage">{{ icon('settings', 17) }}</span></div>
+    <p class="muted">Roll value equals the number of coins multiplied by the denomination. Each drawer keeps the roll sizes it opened with.</p>
+    {% for code, label, cents, size in denominations if size %}
+      <div class="roll-setting" data-cents="{{ cents }}"><label for="roll-{{ code }}">{{ label }}<small>{{ cents|money }} per coin</small></label>
+        <input type="number" id="roll-{{ code }}" name="{{ code }}" min="1" max="1000" step="1" inputmode="numeric" required><output>$0.00</output></div>
+    {% endfor %}
+    <button class="button primary" type="submit" data-busy="Saving…">Save roll sizes</button>
+  </form>
+  <hr>
+  <form id="settings-form" class="panel section settings-panel" hidden>
+    <div class="section-head"><div><p class="eyebrow">DENOMINATIONS</p><h2>Bill Stacks</h2></div><span class="metric-icon sage">{{ icon('settings', 17) }}</span></div>
+    <p class="muted">The value of a bill bundle equals the number of bills multiplied by the denomination. Each drawer keeps the bundle sizes it opened with.</p>
+    {% for code, label, bills, size in denominations if size %}
+      <div class="bill-setting" data-bills="{{ bills }}"><label for="roll-{{ code }}">{{ label }}<small>{{ bills|money }} per bill</small></label>
+        <input type="number" id="roll-{{ code }}" name="{{ code }}" min="1" max="1000" step="1" inputmode="numeric" required><output>$0.00</output></div>
+    {% endfor %}
+    <button class="button primary" type="submit" data-busy="Saving…">Save roll sizes</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

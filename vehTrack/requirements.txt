@@ -1,0 +1,3 @@
+# Desktop and catalog tools: Python 3.10+ standard library only.
+# Windows Python must include tkinter (Tcl/Tk).
+# Test-only packages are listed separately in tests/requirements.txt.

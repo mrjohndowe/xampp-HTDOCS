@@ -24,6 +24,18 @@ $vehicleModel = trim((string)($card['vehicle_model'] ?? ''));
 $vehicleYear = trim((string)($card['vehicle_year'] ?? ''));
 $vin = trim((string)($card['vin'] ?? ''));
 
+$chooseService = ['$0', '$1,500', '$2,500'];
+
+$roadService = $chooseService[array_rand($chooseService)];
+
+//DEDUCTIBLEs
+$bodyLiability = trim((string)($card['liability_bod'] ?? ''));
+$propertyDamage = trim((string)($card['property_damage']));
+$comprehensive = trim((string)($card['comprehensive_deductible']));
+$collision = trim((string)($card['collision_deductible']));
+$uninsured = trim((string)($card['uninsured_underinsured_limits']));
+$medical = trim((string)($card['medical_payments_limit']));
+
 // $agentName = trim((string)($card['agent_name'] ?? ''));
 
 $names = $r->generateNames(1);
@@ -64,6 +76,28 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
 ?>
 
 <style>
+.print-page-action {
+    position: fixed;
+    top: 16px;
+    z-index: 10;
+    padding: 9px 16px;
+    border-radius: 4px;
+    background: #333;
+    color: #fff;
+    font: 14px Arial, Helvetica, sans-serif;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+}
+
+.print-back-button {
+    left: 16px;
+}
+
+.print-now-button {
+    left: 90px;
+}
+
 .insurance-company-2 {
     width: 485px;
     max-width: 100%;
@@ -221,6 +255,10 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
 }
 
 @media print {
+    .print-page-action {
+        display: none;
+    }
+
     .insurance-company-2 {
         width: 485px;
     }
@@ -232,6 +270,9 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
     }
 }
 </style>
+
+<a class="print-page-action print-back-button" href="index.php?p=view&amp;id=<?= (int)($card['id'] ?? 0) ?>">Back</a>
+<button class="print-page-action print-now-button" type="button" onclick="window.print()">Print</button>
 
 <div class="insurance-company-2">
 
@@ -331,12 +372,12 @@ if (function_exists('barcodeValue') && function_exists('generateBarcodeSvg')) {
             </div>
 
             <div class="insurance-company-2-coverage">
-                <div>Bodily Injury &amp; Property Damage</div>
-                <div>Medical Payments</div>
-                <div>Comprehensive Coverage</div>
-                <div>Collision Coverage</div>
-                <div>Emergency Road Service</div>
-                <div>Uninsured/Underinsured</div>
+                <div>Bodily Injury &amp; Property Damage - <strong><?= $esc($bodyLiability) ?></strong></div> 
+                <div>Medical Payments - <strong><?= $esc($medical) ?></strong></div> 
+                <div>Comprehensive Coverage - <strong><?= $esc($comprehensive) ?></strong></div> 
+                <div>Collision Coverage - <strong><?= $esc($collision) ?></strong></div> 
+                <div>Emergency Road Service - <strong><?= $esc($roadService) ?></strong></div> 
+                <div>Uninsured/Underinsured - <strong><?= $esc($uninsured) ?></strong></div> 
             </div>
 
             <?php if ($barcode !== ''): ?>
