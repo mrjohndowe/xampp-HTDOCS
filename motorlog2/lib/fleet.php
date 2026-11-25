@@ -66,6 +66,22 @@ function observations(PDO $db, int $vid, string $skipKind = '', ?int $skipId = n
     }
     return $obs;
 }
+function refresh_odometer_peak(PDO $db, int $vid, mixed $expectedPeak): void {
+    $vehicle = require_row($db, 'vehicles', $vid, 'Vehicle');
+    if (odo_ticks($vehicle['odometer_peak']) !== odo_ticks($expectedPeak)) return;
+
+    $highest = odo_ticks($vehicle['initial_odometer']);
+    foreach (observations($db, $vid) as $reading) {
+        if ($reading['lo'] >= 0 && $reading['hi'] >= $reading['lo']) {
+            $highest = max($highest, $reading['hi']);
+        }
+    }
+    foreach (rows($db, 'SELECT at_odometer, retired_odometer FROM engines WHERE vehicle_id=?', [$vid]) as $engine) {
+        $highest = max($highest, odo_ticks($engine['at_odometer']), odo_ticks($engine['retired_odometer'], 'Retirement odometer', false) ?? 0);
+    }
+    statement($db, 'UPDATE vehicles SET odometer_peak=? WHERE id=? AND odometer_peak=?',
+        [decimal_string($highest, 3), $vid, $expectedPeak]);
+}
 function check_observation(PDO $db, int $vid, string $day, string $kind, string $a, string $b, ?int $skip = null, string $time = '', array $skipDocs = []): void {
     $vehicle = require_row($db, 'vehicles', $vid, 'Vehicle');
     $lo = odo_ticks($a); $hi = odo_ticks($b);
@@ -92,6 +108,11 @@ function write_vehicle(PDO $db, string $action, array $d): array {
     }
     $id = vehicle_link($db, $d['id'] ?? null);
     if ($action === 'update') { update_row($db, 'vehicles', $id, vehicle_fields($d, false)); return ['id'=>$id,'message'=>'Vehicle saved.']; }
+    if ($action === 'refresh_mileage') {
+        $vehicle = require_row($db, 'vehicles', $id, 'Vehicle');
+        refresh_odometer_peak($db, $id, $vehicle['odometer_peak']);
+        return ['id'=>$id,'message'=>'Mileage recalculated from saved readings.'];
+    }
     if ($action === 'cover') {
         $p = require_row($db, 'photos', id_field($d['photo_id'] ?? null, 'Photo'), 'Photo');
         if ($p['owner_kind'] !== 'vehicle' || (int)$p['owner_id'] !== $id) fail('Choose a photo belonging to this vehicle.');
@@ -127,7 +148,11 @@ function write_trip(PDO $db, string $action, array $d): array {
     $data = ['vehicle_id'=>$vehicle,'driver_id'=>$driver,'trip_date'=>$day,'start_odometer'=>$start,'end_odometer'=>$end,
         'purpose'=>text_field($d['purpose'] ?? '', 'Trip purpose', 200, true),'notes'=>text_field($d['notes'] ?? '', 'Notes', 6000)];
     if ($id) update_row($db, 'trips', $id, $data); else $id = insert_row($db, 'trips', [...$data,'created_at'=>now_iso()]);
-    peak($db, $vehicle, $end);
+    if ($previous && (int)$previous['vehicle_id'] === $vehicle && odo_ticks($end) < odo_ticks($previous['end_odometer'])) {
+        refresh_odometer_peak($db, $vehicle, $previous['end_odometer']);
+    } else {
+        peak($db, $vehicle, $end);
+    }
     return ['id'=>$id,'message'=>'Trip saved.','distance'=>(odo_ticks($end)-odo_ticks($start))/1000];
 }
 function write_expense(PDO $db, string $action, array $d): array {

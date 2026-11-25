@@ -20,6 +20,26 @@ ensure(require_row($db,'trips',$legacy,'Trip')['driver_id']===null,'Unassigned l
 ensure(require_row($db,'trips',$legacy,'Trip')['notes']==='Preserve me','Trip notes not preserved');
 ensure(require_row($db,'expenses',$old,'Expense')['gallons']===null,'Missing fuel history must not be fabricated');
 ensure(fleet_state($db)['vehicles'][0]['current_odometer']===130.0,'Mileage not recovered from legacy trip');
+$mileageVehicle=write_vehicle($db,'create',['make'=>'Test','model'=>'Mileage','initial_odometer'=>'120000','at_engine'=>'25000'])['id'];
+$tripData=['vehicle_id'=>$mileageVehicle,'trip_date'=>'2024-04-01','start_odometer'=>'120000','end_odometer'=>'120300','purpose'=>'Mileage test'];
+$tripId=write_trip($db,'create',$tripData)['id'];
+$mileage=static fn()=>array_column(fleet_state($db)['vehicles'],null,'id')[$mileageVehicle];
+ensure($mileage()['current_odometer']===120300.0 && $mileage()['engine_odometer']===25300.0,'Trip did not advance both readings');
+write_trip($db,'update',array_replace($tripData,['id'=>$tripId,'end_odometer'=>'120200']));
+ensure($mileage()['current_odometer']===120200.0 && $mileage()['engine_odometer']===25200.0,'Corrected trip did not lower both readings');
+$nextTrip=array_replace($tripData,['trip_date'=>'2024-04-02','start_odometer'=>'120200','end_odometer'=>'120400']);
+$nextId=write_trip($db,'create',$nextTrip)['id'];
+write_trip($db,'update',array_replace($tripData,['id'=>$tripId,'end_odometer'=>'120100']));
+ensure($mileage()['current_odometer']===120400.0,'Earlier edit lowered a later reading');
+write_trip($db,'delete',['id'=>$nextId]);
+ensure($mileage()['current_odometer']===120400.0,'Deletion did not retain the saved reading');
+write_vehicle($db,'refresh_mileage',['id'=>$mileageVehicle]);
+ensure($mileage()['current_odometer']===120100.0 && $mileage()['engine_odometer']===25100.0,'Mileage refresh did not use the remaining trip');
+write_vehicle($db,'replace_engine',['id'=>$mileageVehicle,'installed_date'=>'2024-04-03','at_odometer'=>'120150','at_engine'=>'500','reason'=>'Replacement']);
+write_vehicle($db,'refresh_mileage',['id'=>$mileageVehicle]);
+ensure($mileage()['current_odometer']===120150.0 && $mileage()['engine_odometer']===500.0,'Refresh ignored the replacement reading or engine baseline');
+ensure($mileage()['engines'][1]['current_mileage']===25150.0,'Refresh changed retired engine mileage');
+
 $f=fn(int $id,string $day,mixed $odo,mixed $g,mixed $price,mixed $full)=>['vehicle_id'=>$v,'id'=>$id,'expense_date'=>$day,'category'=>'Fuel','odometer'=>$odo,'gallons'=>$g,'price_per_gallon'=>$price,'full_tank'=>$full];
 $list=[$f(1,'2024-03-02',130,4,2,1),$f(2,'2024-03-03',160,2,2,0),$f(3,'2024-03-05',null,null,null,null),$f(4,'2024-03-06',200,5,2,1),$f(5,'2024-03-07',240.2336,1,2,0),$f(6,'2024-03-09',360.9344,4,2,1)];
 $mpg=fuel_intervals($list,'km');ensure($mpg[1]['mpg']===null && $mpg[2]['mpg']===null && $mpg[4]['mpg']===null,'Gap or first fill fabricated MPG');
