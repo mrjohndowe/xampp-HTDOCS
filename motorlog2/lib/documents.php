@@ -13,6 +13,89 @@ const CHECKLIST = [
     'equipment'=>['Safety & equipment','Emergency equipment and spare tire'],
     'documents'=>['Safety & equipment','Registration and insurance'],
 ];
+const MOBILE_CHECKLIST = [
+    'mobile_76dd380030e7e0dc1ede2ad2'=>['IDENTIFICATION & DOCUMENTS','VIN / vehicle identification'],
+    'mobile_51608e89efcd76d6298b61c8'=>['IDENTIFICATION & DOCUMENTS','License plate and registration'],
+    'mobile_04c9656241d48e39cd035053'=>['IDENTIFICATION & DOCUMENTS','Insurance card / proof of insurance'],
+    'mobile_a39d260a0949c7af085432e2'=>['IDENTIFICATION & DOCUMENTS','Odometer reading recorded'],
+    'mobile_22e6bf471465bc42f16e89bc'=>['EXTERIOR & BODY','Body panels free of unsafe damage'],
+    'mobile_a0bd6c7bc63e6978c6c4af92'=>['EXTERIOR & BODY','Bumpers and guards secure'],
+    'mobile_ecc86e34010a6483e4bb7dce'=>['EXTERIOR & BODY','Doors open, close and latch'],
+    'mobile_4d46335c38e2d289a52e1407'=>['EXTERIOR & BODY','Hood and trunk/hatch latch securely'],
+    'mobile_52af19bc6769991433b4b100'=>['EXTERIOR & BODY','Windows free of dangerous cracks'],
+    'mobile_16ae6a7e33483542f3addfd3'=>['EXTERIOR & BODY','Windshield free of critical damage'],
+    'mobile_39b355462369174d4bbac641'=>['EXTERIOR & BODY','Mirrors present, secure and properly positioned'],
+    'mobile_99e33c24b6c6d6f0a2d31bd9'=>['TIRES & WHEELS','Left front tire condition and tread'],
+    'mobile_e297d6481888b0e8ce6b9cb2'=>['TIRES & WHEELS','Right front tire condition and tread'],
+    'mobile_122628c3376a718a47783162'=>['TIRES & WHEELS','Left rear tire condition and tread'],
+    'mobile_7ab9a1316256878e7434f8a7'=>['TIRES & WHEELS','Right rear tire condition and tread'],
+    'mobile_7c5e3ad972aa84380111c8f2'=>['TIRES & WHEELS','Spare tire / inflator / repair kit present'],
+    'mobile_8039db226148a4a99e36851b'=>['TIRES & WHEELS','Wheels/rims free of dangerous damage'],
+    'mobile_cabcda64629f33ca12e8b687'=>['TIRES & WHEELS','Lug nuts/studs appear secure'],
+    'mobile_afca00915eac9143d04f4e86'=>['TIRES & WHEELS','Tire pressures checked'],
+    'mobile_aba48195353d6846454950ea'=>['LIGHTS & ELECTRICAL','Low-beam headlights'],
+    'mobile_a94dc6852d1fcf665b76fe30'=>['LIGHTS & ELECTRICAL','High-beam headlights'],
+    'mobile_469d5b8779f47f22cbc2bf1d'=>['LIGHTS & ELECTRICAL','Front turn signals'],
+    'mobile_04cdc30c189a147c9bac634d'=>['LIGHTS & ELECTRICAL','Rear turn signals'],
+    'mobile_033a8e75153b6df6b95623b1'=>['LIGHTS & ELECTRICAL','Brake lights'],
+    'mobile_d70ef01baaedf29eb2eab580'=>['LIGHTS & ELECTRICAL','Tail/marker lights'],
+    'mobile_a36a2d3f3d95b95994a8d043'=>['LIGHTS & ELECTRICAL','Hazard flashers'],
+    'mobile_b97c4b3d71e0f41a41bd1972'=>['LIGHTS & ELECTRICAL','Reverse lights'],
+    'mobile_6797962cd4708f298ca81e3d'=>['LIGHTS & ELECTRICAL','License plate light'],
+    'mobile_a2f63ea2218f7a6746578ce7'=>['LIGHTS & ELECTRICAL','Interior lights'],
+    'mobile_0a88ae7d59ef30e56a3ede22'=>['LIGHTS & ELECTRICAL','Battery / terminals appear secure'],
+    'mobile_fc1660de0ab56b40db4a82f5'=>['LIGHTS & ELECTRICAL','No critical warning lights illuminated'],
+    'mobile_9ebf503462b39881494f5a5c'=>['CONTROLS & VISIBILITY','Horn'],
+    'mobile_a07e5b8f9a68c6c14423689c'=>['CONTROLS & VISIBILITY','Windshield wipers'],
+    'mobile_9e088210dd08f00678342856'=>['CONTROLS & VISIBILITY','Windshield washer fluid/spray'],
+    'mobile_e4e0db528b4aa9c3e41ae747'=>['CONTROLS & VISIBILITY','Defroster / defogger'],
+    'mobile_53d4b3db98eb14d757dac0b6'=>['CONTROLS & VISIBILITY','Parking brake'],
+    'mobile_5ae6e9a96a1c23a313875bdc'=>['CONTROLS & VISIBILITY','Steering wheel/control response'],
+    'mobile_a6a7ae60c9fd56a13c67cf90'=>['CONTROLS & VISIBILITY','Seat adjustment controls lock securely'],
+    'mobile_fa9e57bb5f754f5d3a4fdcf9'=>['BRAKES, STEERING & SUSPENSION','Brake pedal feels firm and normal'],
+    'mobile_66c899f750f4808018285dc8'=>['BRAKES, STEERING & SUSPENSION','Parking brake holds vehicle'],
+    'mobile_f54e3fba891f874d0d57a46c'=>['BRAKES, STEERING & SUSPENSION','No abnormal brake noise/vibration'],
+    'mobile_d201bd3a79ca13cc2dfa1b7f'=>['BRAKES, STEERING & SUSPENSION','Steering response is normal'],
+    'mobile_7ae8386be3d62cd328865664'=>['BRAKES, STEERING & SUSPENSION','No excessive steering play'],
+    'mobile_80ebaf98171681b65f2bcff4'=>['BRAKES, STEERING & SUSPENSION','No unusual suspension noise'],
+    'mobile_414bb2b4f8d240437685def8'=>['BRAKES, STEERING & SUSPENSION','Vehicle sits level with no obvious suspension issue'],
+    'mobile_42297c8b30675c5ab72f08ac'=>['ENGINE & UNDER-HOOD','Engine oil level/condition checked'],
+    'mobile_29b75f575139dd39f29f0617'=>['ENGINE & UNDER-HOOD','Coolant level checked when safe'],
+    'mobile_109cd4fb1381525b8b6211ec'=>['ENGINE & UNDER-HOOD','Brake fluid level checked'],
+    'mobile_7e8ad7d1863fa5d1499517e1'=>['ENGINE & UNDER-HOOD','Power steering fluid checked if equipped'],
+    'mobile_f29aff77565c990971620549'=>['ENGINE & UNDER-HOOD','Washer fluid level checked'],
+    'mobile_ac0a4542d083df87ffa31c27'=>['ENGINE & UNDER-HOOD','Belts/hoses appear serviceable'],
+    'mobile_8ad0c4885c905d1d052c08ec'=>['ENGINE & UNDER-HOOD','No visible fluid leaks'],
+    'mobile_05835887fc06879a1564d370'=>['ENGINE & UNDER-HOOD','Engine starts and idles normally'],
+    'mobile_402fc01581829dd47978a58d'=>['EXHAUST & EMISSIONS','Exhaust system appears secure'],
+    'mobile_8cc45fa6c27e5a407391a897'=>['EXHAUST & EMISSIONS','No unusual exhaust noise'],
+    'mobile_e02922d5e2ddf3f1c1a48cab'=>['EXHAUST & EMISSIONS','No visible exhaust leak'],
+    'mobile_e72327063d7fd6672bb97f54'=>['EXHAUST & EMISSIONS','No unusual smoke/odor'],
+    'mobile_f03959f85f5f062ac510697a'=>['INTERIOR & PASSENGER SAFETY','Driver seat secure'],
+    'mobile_55fa59f19a315deafdaf8649'=>['INTERIOR & PASSENGER SAFETY','Passenger seats secure'],
+    'mobile_3c45a823d46ac13562fda7f5'=>['INTERIOR & PASSENGER SAFETY','All accessible seat belts latch and retract'],
+    'mobile_016146a8ca96661bf7e89ff1'=>['INTERIOR & PASSENGER SAFETY','Seat belt webbing undamaged'],
+    'mobile_ef3190bb8ba89c0cbfb43e52'=>['INTERIOR & PASSENGER SAFETY','Airbag/SRS warning status checked'],
+    'mobile_5c2ba3b2a742b7e2e465369c'=>['INTERIOR & PASSENGER SAFETY','Child-seat anchors/latches accessible if equipped'],
+    'mobile_f78a0d9caa4465708ac29a97'=>['INTERIOR & PASSENGER SAFETY','Floor areas clear of loose hazards'],
+    'mobile_c9c5636f38f91f21fcef809a'=>['INTERIOR & PASSENGER SAFETY','Emergency exit/access paths clear'],
+    'mobile_69cd7ac0c5ec47b494cd9596'=>['SAFETY EQUIPMENT','First-aid kit present if required'],
+    'mobile_1723e24bcad28e8a6abe032b'=>['SAFETY EQUIPMENT','Fire extinguisher present if required'],
+    'mobile_77a699f9b289957c26d654a8'=>['SAFETY EQUIPMENT','Warning triangles/reflectors present if required'],
+    'mobile_d5cd6f8bcdbadfa2467524c6'=>['SAFETY EQUIPMENT','Flashlight/emergency supplies present'],
+    'mobile_83599ec7131c64406477a255'=>['SAFETY EQUIPMENT','Jack/tools present if applicable'],
+    'mobile_81137567cf0205ff36d448c8'=>['ROAD TEST / FINAL CHECK','Vehicle accelerates normally'],
+    'mobile_e25e27c4197fdf142747cc8c'=>['ROAD TEST / FINAL CHECK','Vehicle tracks straight'],
+    'mobile_31d881ce31bb5a1dd98ca04e'=>['ROAD TEST / FINAL CHECK','Brakes operate normally during controlled test'],
+    'mobile_e2ccf2ec2a6a303f7d514fef'=>['ROAD TEST / FINAL CHECK','No abnormal vibration'],
+    'mobile_9ebbf72e0f91413340415638'=>['ROAD TEST / FINAL CHECK','No abnormal warning lights after test'],
+    'mobile_56ecf730e8f45424be310a24'=>['ROAD TEST / FINAL CHECK','No unusual noises during operation'],
+];
+
+function inspection_checklist(array $items): array {
+    return array_intersect_key($items, CHECKLIST) ? CHECKLIST : MOBILE_CHECKLIST;
+}
+
 const RESULTS = ['pass'=>'Pass','attention'=>'Needs attention','fail'=>'Fail','na'=>'N/A'];
 const ISSUE_STATES = ['open'=>'Open','in_progress'=>'In progress','resolved'=>'Resolved'];
 const DISCLOSURES = ['Actual mileage','Exceeds mechanical limits','Not actual mileage'];
@@ -129,7 +212,7 @@ function inspection_values(PDO $db, array $d, bool $final, ?array $old): array {
     }
     $items=[]; $issues=[]; $count=0;
     $given=is_array($d['items'] ?? null) ? $d['items'] : [];
-    foreach (CHECKLIST as $key=>[$group,$label]) {
+    foreach (inspection_checklist($old ? (json_array($old['payload'])['items'] ?? []) : []) as $key=>[$group,$label]) {
         $i=is_array($given[$key] ?? null) ? $given[$key] : [];
         $result=choice_field($i['result'] ?? '', array_keys(RESULTS), 'result for '.$label,false);
         $notes=text_field($i['notes'] ?? '', 'Notes for '.$label,2200);
@@ -282,7 +365,7 @@ function write_photo(PDO $db, array $d): array {
     else {
         $doc=document_row($db,$id,'inspection');
         if ($doc['status']!=='draft') fail('Completed inspection evidence is locked. Add photos to a correction draft.',409,'document_locked');
-        if ($key!=='' && !isset(CHECKLIST[$key])) fail('Choose a known checklist item.');
+        if ($key!=='' && !isset(inspection_checklist(json_array($doc['payload'])['items'] ?? [])[$key])) fail('Choose a known checklist item.');
     }
     $caption=text_field($d['caption'] ?? '', 'Photo caption',220);
     $b64=$d['image'] ?? '';

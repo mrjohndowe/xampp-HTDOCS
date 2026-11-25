@@ -45,11 +45,11 @@ function print_html(string $type, array $d): never {
     <header><div class="brand">MOTORLOG &nbsp; / &nbsp; WORKSPACE RECORD</div><h1><?=esc($title)?></h1><div><?=esc($ref)?> · <?=esc(ucfirst($d['status'] ?? 'Blank'))?><?=isset($d['parent_reference']) ? ' · revision of '.esc($d['parent_reference']) : ''?></div></header>
     <p class="notice"><?=esc(print_intro($type))?></p>
     <?php foreach (print_groups($type,$d) as $name=>$fields): ?><section><h2><?=esc($name)?></h2><dl><?php foreach ($fields as $label=>$value): ?><div><dt><?=esc($label)?></dt><dd><?=esc(print_value($value))?></dd></div><?php endforeach; ?></dl></section><?php endforeach; ?>
-    <?php if ($type==='inspection'): $group=''; foreach (CHECKLIST as $key=>[$g,$label]): $i=$p['items'][$key] ?? []; if ($g!==$group) { if ($group!=='') echo '</section>'; $group=$g; echo '<section><h2>'.esc($g).'</h2>'; } ?>
+    <?php if ($type==='inspection'): $group=''; foreach (inspection_checklist($p['items'] ?? []) as $key=>[$g,$label]): $i=$p['items'][$key] ?? []; if ($g!==$group) { if ($group!=='') echo '</section>'; $group=$g; echo '<section><h2>'.esc($g).'</h2>'; } ?>
     <article class="check"><strong><?=esc($label)?></strong><span><?=esc(RESULTS[$i['result'] ?? ''] ?? '□ Pass · □ Needs attention · □ Fail · □ N/A')?></span><p><?=esc($i['notes'] ?? '')?><?=empty($i['notes']) && !$d ? 'Notes: _________________________________________________________' : ''?></p></article>
     <?php endforeach; ?></section>
-    <?php if (!empty($d['issues'])): ?><section><h2>Finding follow-up</h2><?php foreach ($d['issues'] as $issue): ?><article class="check"><strong><?=esc(CHECKLIST[$issue['item_key']][1] ?? $issue['item_key'])?></strong><span><?=esc(ISSUE_STATES[$issue['status']] ?? $issue['status'])?></span><p><?=esc(implode("\n",array_filter([$issue['action_taken'],$issue['responsible'],$issue['resolved_date'],$issue['notes']])))?></p></article><?php endforeach; ?></section><?php endif; ?>
-    <?php if (!empty($d['photos'])): ?><section><h2>Photo evidence</h2><div class="evidence"><?php foreach ($d['photos'] as $pic): ?><figure><img src="?r=image&amp;id=<?=esc($pic['id'])?>" alt="<?=esc($pic['caption'] ?: 'Inspection photo')?>"><figcaption><?=esc($pic['caption'])?><?=!empty($pic['item_key']) ? ' · '.esc(CHECKLIST[$pic['item_key']][1] ?? '') : ''?></figcaption></figure><?php endforeach; ?></div></section><?php endif; ?>
+    <?php if (!empty($d['issues'])): ?><section><h2>Finding follow-up</h2><?php foreach ($d['issues'] as $issue): ?><article class="check"><strong><?=esc((MOBILE_CHECKLIST + CHECKLIST)[$issue['item_key']][1] ?? $issue['item_key'])?></strong><span><?=esc(ISSUE_STATES[$issue['status']] ?? $issue['status'])?></span><p><?=esc(implode("\n",array_filter([$issue['action_taken'],$issue['responsible'],$issue['resolved_date'],$issue['notes']])))?></p></article><?php endforeach; ?></section><?php endif; ?>
+    <?php if (!empty($d['photos'])): ?><section><h2>Photo evidence</h2><div class="evidence"><?php foreach ($d['photos'] as $pic): ?><figure><img src="?r=image&amp;id=<?=esc($pic['id'])?>" alt="<?=esc($pic['caption'] ?: 'Inspection photo')?>"><figcaption><?=esc($pic['caption'])?><?=!empty($pic['item_key']) ? ' · '.esc((MOBILE_CHECKLIST + CHECKLIST)[$pic['item_key']][1] ?? '') : ''?></figcaption></figure><?php endforeach; ?></div></section><?php endif; ?>
     <section><h2>Comments and acknowledgment</h2><p><?=esc(print_value($p['comments'] ?? ''))?></p><p><?=esc(!empty($p['acknowledged']) && !empty($p['ack_at']) ? 'Acknowledged by '.$p['ack_name'].' at '.$p['ack_at'] : 'Inspector acknowledgment: _____________________')?></p></section>
     <?php elseif (!$d || ($d['status'] ?? '')==='draft'): ?><section><h2>Review choices before signing</h2><p>Mileage disclosure: □ Actual mileage · □ Exceeds mechanical limits · □ Not actual mileage</p><p>Title/lien and warranty terms must be selected and explained by the parties before finalizing.</p></section><?php endif; ?>
     <section class="signatures"><h2>Handwritten signatures</h2><div><?php foreach (signatures($type,$p) as $label): ?><p><?=esc($label)?></p><?php endforeach; ?></div></section>
@@ -142,16 +142,16 @@ function print_pdf(PDO $db, string $type, array $d): never {
     foreach (print_groups($type,$d) as $name=>$fields) { $pdf->heading($name); foreach ($fields as $label=>$value) $pdf->line($label.': '.print_value($value)); }
     if ($type==='inspection') {
         $last=null;
-        foreach (CHECKLIST as $key=>[$group,$label]) {
+        foreach (inspection_checklist($p['items'] ?? []) as $key=>[$group,$label]) {
             if ($group!==$last) { $pdf->heading($group); $last=$group; }
             $i=$p['items'][$key] ?? [];
             $pdf->line($label.' — '.(RESULTS[$i['result'] ?? ''] ?? '[ ] Pass   [ ] Needs attention   [ ] Fail   [ ] N/A'),true);
             if (isset($i['notes']) && $i['notes']!=='') $pdf->line('Notes: '.$i['notes']); elseif (!$d) $pdf->line('Notes: _________________________________________________________________');
         }
-        if (!empty($d['issues'])) { $pdf->heading('Finding follow-up'); foreach ($d['issues'] as $i) $pdf->line((CHECKLIST[$i['item_key']][1] ?? $i['item_key']).': '.(ISSUE_STATES[$i['status']] ?? $i['status'])."\n".implode("\n",array_filter([$i['action_taken'],$i['responsible'],$i['resolved_date'],$i['notes']]))); }
+        if (!empty($d['issues'])) { $pdf->heading('Finding follow-up'); foreach ($d['issues'] as $i) $pdf->line(((MOBILE_CHECKLIST + CHECKLIST)[$i['item_key']][1] ?? $i['item_key']).': '.(ISSUE_STATES[$i['status']] ?? $i['status'])."\n".implode("\n",array_filter([$i['action_taken'],$i['responsible'],$i['resolved_date'],$i['notes']]))); }
         $pdf->heading('Comments and acknowledgment'); $pdf->line(print_value($p['comments'] ?? ''));
         $pdf->line(!empty($p['acknowledged']) && !empty($p['ack_at']) ? 'Acknowledged by '.$p['ack_name'].' at '.$p['ack_at'] : 'Inspector acknowledgment: _________________________');
-        if (!empty($d['photos'])) { $pdf->heading('Photo evidence'); foreach ($d['photos'] as $photo) { try { $file=photo_file($db,(int)$photo['id']); $pdf->image($file['path'],($photo['caption'] ?: 'Inspection photo').' · '.(CHECKLIST[$photo['item_key']][1] ?? 'General')); } catch (HttpFault $e) { $pdf->line('A referenced photo is missing from storage.'); } } }
+        if (!empty($d['photos'])) { $pdf->heading('Photo evidence'); foreach ($d['photos'] as $photo) { try { $file=photo_file($db,(int)$photo['id']); $pdf->image($file['path'],($photo['caption'] ?: 'Inspection photo').' · '.((MOBILE_CHECKLIST + CHECKLIST)[$photo['item_key']][1] ?? 'General')); } catch (HttpFault $e) { $pdf->line('A referenced photo is missing from storage.'); } } }
     } elseif (!$d || $d['status']==='draft') {
         $pdf->heading('Mileage disclosure choices'); $pdf->line('[ ] Actual mileage   [ ] Exceeds mechanical limits   [ ] Not actual mileage');
     }

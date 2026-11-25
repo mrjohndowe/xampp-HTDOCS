@@ -123,7 +123,7 @@ function write_settings(PDO $db, string $action, array $d): array {
 function workspace_state(PDO $db, array $actor): array {
     return [...fleet_state($db), 'version'=>installed_version(),'actor'=>$actor,'today'=>today_iso(),'week_start'=>monday(today_iso()),
       'inspections'=>document_list($db,'inspection'),'sales'=>document_list($db,'sale'),'templates'=>template_list($db),'demo'=>preview_mode(),
-      'options'=>['categories'=>EXPENSE_CATEGORIES,'record_kinds'=>RECORD_KINDS,'views'=>VIEW_TYPES,'checklist'=>CHECKLIST,'results'=>RESULTS,'issue_states'=>ISSUE_STATES,
+      'options'=>['categories'=>EXPENSE_CATEGORIES,'record_kinds'=>RECORD_KINDS,'views'=>VIEW_TYPES,'checklist'=>MOBILE_CHECKLIST,'legacy_checklist'=>CHECKLIST,'results'=>RESULTS,'issue_states'=>ISSUE_STATES,
           'currencies'=>CURRENCIES,'disclosures'=>DISCLOSURES,'titles'=>TITLE_STATES,'warranties'=>WARRANTY_STATES,'payment_states'=>PAYMENT_STATES]];
 }
 function save_resource(PDO $db, array $actor, array $payload): array {
